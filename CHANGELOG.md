@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0
 
 ### Added
 
@@ -120,6 +120,20 @@
 - `positiveMax` returning 1.0 for an empty or all-zero dataset is now covered by a test: an axis
   whose max equals its min makes `fl_chart` divide by zero, which on web is a silent NaN and a
   blank plot rather than a crash.
+
+### Added — phase 7, the doc set
+
+- `AGENTS.md` — the package contract, the six rules in their Flutter form, and the list of
+  things that have already bitten us.
+- `docs/components.md` — the surface ladder, the five rules, a choosing-a-component table, and
+  the two pairs that look alike and are not (chip/badge, toast/banner).
+- `docs/migrating-from-luxe.md` — the full `Luxe*` → `Fo*` symbol map, the colour-field map, and
+  the seven signatures that changed because the package holds no user-facing strings.
+- `components.manifest.json` — 83 symbols, machine-readable, mirroring the web manifest.
+- `test/barrel_test.dart` — **G8.** The web package shipped `ChartShell` documented and
+  unexported for months. This checks the manifest, the barrel and `lib/src/` all agree, in both
+  directions: a symbol in the manifest that is not exported fails, and so does a file under
+  `lib/src/` that nothing exports.
 
 ### Added — phase 6, the Tier A gap components
 

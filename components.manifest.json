@@ -1,0 +1,127 @@
+{
+  "name": "figuredout_ui",
+  "description": "The Flutter design system for FiguredOut apps \u2014 the sibling of @figuredout/ui-web.",
+  "barrel": "package:figuredout_ui/figuredout_ui.dart",
+  "note": "Every symbol here must be reachable through the barrel. test/barrel_test.dart enforces it \u2014 see gotcha G8: the web package shipped ChartShell documented but unexported for months.",
+  "groups": {
+    "tokens": {
+      "symbols": [
+        "FoTokens",
+        "FoColors",
+        "FoTextStyles",
+        "FoShadows",
+        "FoMotion",
+        "FoLayout",
+        "FoSpacing",
+        "FoRadii",
+        "FoChartColors"
+      ]
+    },
+    "theme": {
+      "symbols": [
+        "FoTheme",
+        "FoThemeExt",
+        "FoWindowClass",
+        "FoThemeContext"
+      ]
+    },
+    "primitives": {
+      "symbols": [
+        "FoButton",
+        "FoButtonVariant",
+        "FoActionButton",
+        "FoLoadingButton",
+        "FoCard",
+        "FoCardTone",
+        "FoTextField",
+        "FoDropdownField",
+        "FoStatusChip",
+        "FoStatusTone",
+        "FoBadge",
+        "FoThemeToggle",
+        "FoSkeleton",
+        "FoSkeletonList",
+        "FoSpinner",
+        "FoSpinnerSize",
+        "FoBooleanCell",
+        "FoHint",
+        "FoSectionHeader",
+        "FoSectionSurface",
+        "FoFocusRing",
+        "foOverlaySurface"
+      ]
+    },
+    "patterns": {
+      "symbols": [
+        "FoScaffold",
+        "FoAppBar",
+        "FoPageHeader",
+        "FoDataTable",
+        "FoTableColumn",
+        "FoColumnSize",
+        "FoPaginationBar",
+        "FoFilterBar",
+        "FoListSearchField",
+        "FoResponsiveTileGrid",
+        "FoSeamGrid",
+        "FoSeamCell",
+        "FoStatCard",
+        "FoStatCardContent",
+        "FoTrend",
+        "FoDescriptionList",
+        "FoDescriptionItem",
+        "FoFormPresenter",
+        "FoDiscardCopy",
+        "FoFormSurface",
+        "FoFormScope",
+        "FoFormController",
+        "FoFormActions",
+        "FoFormAction",
+        "FoFormSection",
+        "FoFormInlineRow",
+        "FoFormInlineItem",
+        "FoFormValidation",
+        "FoDialog",
+        "FoToast",
+        "FoToastAction",
+        "FoInfoBanner",
+        "FoBannerTone",
+        "FoEmptyState"
+      ]
+    },
+    "charts": {
+      "symbols": [
+        "FoChartShell",
+        "FoChartShellCopy",
+        "FoChartTableRow",
+        "FoChartTheme",
+        "FoChartLegend",
+        "FoTrendChart",
+        "FoTrendSeries",
+        "FoBarChart",
+        "FoBarGroup",
+        "FoParetoChart",
+        "FoParetoItem",
+        "FoStageFunnel",
+        "FoFunnelStage",
+        "FoSparkline"
+      ]
+    }
+  },
+  "flutterOnly": [
+    "FoAppBar",
+    "FoBooleanCell",
+    "FoFocusRing",
+    "FoFormController",
+    "FoFormScope",
+    "FoFormValidation",
+    "FoFunnelStage",
+    "FoHint",
+    "FoListSearchField",
+    "FoResponsiveTileGrid",
+    "FoScaffold",
+    "FoSectionSurface",
+    "FoStageFunnel",
+    "FoWindowClass"
+  ]
+}
