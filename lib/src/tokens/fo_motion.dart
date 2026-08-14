@@ -21,4 +21,8 @@ abstract final class FoMotion {
   /// `cubic-bezier(0.32, 0.72, 0, 1)` — decelerating hard into the end, so
   /// motion arrives rather than merely stopping.
   static const Cubic standard = FoTokens.easeStandard;
+
+  /// One half-cycle of a skeleton's pulse, and the only thing allowed to use
+  /// it. See [FoTokens.durationPulse] for why this is not a third duration.
+  static const Duration pulse = FoTokens.durationPulse;
 }

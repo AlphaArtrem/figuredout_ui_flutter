@@ -4,6 +4,10 @@ import 'package:figuredout_ui_widgetbook/use_cases/01_foundations/motion.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/01_foundations/palette.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/01_foundations/spacing_ruler.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/01_foundations/type_ramp.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/buttons.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/fields.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/indicators.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,6 +25,16 @@ void main() {
     'Spacing': const SpacingRuler(),
     'Elevation': const Elevation(),
     'Motion': const Motion(),
+    'Buttons': const Buttons(),
+    'Cards': const Cards(),
+    'SectionSurfaces': const SectionSurfaces(),
+    'SectionHeaders': const SectionHeaders(),
+    'Fields': const Fields(),
+    'StatusChips': const StatusChips(),
+    'LoadingStates': const LoadingStates(),
+    'Cells': const Cells(),
+    'FocusRings': const FocusRings(),
+    'OverlaySurfaces': const OverlaySurfaces(),
   };
 
   // The three ViewportAddon entries in main.dart.
@@ -47,7 +61,11 @@ void main() {
               home: page.value,
             ),
           );
-          await tester.pumpAndSettle();
+          // pumpAndSettle would hang on FoSkeleton's deliberate forever-loop,
+          // so pump a couple of frames instead — enough for a LayoutBuilder to
+          // resolve and any overflow to be reported.
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 16));
 
           expect(tester.takeException(), isNull);
         });

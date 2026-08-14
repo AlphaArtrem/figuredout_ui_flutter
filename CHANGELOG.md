@@ -19,6 +19,41 @@
 - `widgetbook/` — a separate package carrying the Foundations use cases: palette with
   measured contrast, type ramp, spacing ruler, the three elevation steps, and motion.
 
+### Added — phase 3, primitives
+
+- `FoButton` (+ `FoButtonVariant`), `FoActionButton`, `FoLoadingButton`. Destructive carries
+  `dangerFg`, not `primaryFg` and not `surface` (G4). A loading button holds its label's width
+  so a row of actions does not reflow mid-submit.
+- `FoFocusRing` — the one focus treatment, a 4dp ring in `focusRing`, painted through
+  `foregroundDecoration`. Every interactive component composes it, so keyboard focus is one
+  idea rather than one per Material widget.
+- `FoCard`, deliberately **not** built on Material's `Card`: its hairline lives in
+  `foregroundDecoration` so a clipped child's full-bleed band cannot cover it (rule §3.1), and
+  its elevation comes from `FoShadows` rather than Material's black shadow plus surface tint.
+  A tappable card lifts to `surfaceRaised` on hover.
+- `FoSectionSurface`, `FoSectionHeader`, `FoStatusChip` (+ `FoStatusTone`), `FoTextField`,
+  `FoDropdownField`, `FoSkeleton` / `FoSkeletonList`, `FoBooleanCell`, `FoHint`, `FoSpinner`,
+  and `foOverlaySurface` — the floating surface stated once, the analogue of the web package's
+  `POPOVER_SURFACE`.
+- Widgetbook: 14 Primitives use cases under `02 Primitives`, and the layout test extended to
+  cover them.
+
+### Changed from the Luxe originals
+
+- `FoStatusChip.tone` grounds its ink on the real `-soft` token, which is the pairing
+  `contrast_test.dart` measures. The arbitrary-colour constructor survives for an app's own
+  status vocabulary but is not covered by that test.
+- `FoBooleanCell` and `FoHint` take their strings from the caller rather than reaching into an
+  app's l10n or hint registry — that vocabulary is the app's.
+- `FoHint` takes an `onCompactTap` callback instead of calling a toast directly; the toast
+  lands in phase 4.
+
+### Deferred to phase 4
+
+- The dirty-form hook. Luxe's fields called `LuxeFormScope.markDirty` on every change, so
+  closing a form with unsaved edits asks first. `FoFormScope` ships with the forms group;
+  until then a host form must watch `onChanged` itself. Noted on both field classes.
+
 ### Known
 
 - Light-mode `primary` (`#15803d`) is below AA on two grounds: 4.16:1 on `surfaceSunken`

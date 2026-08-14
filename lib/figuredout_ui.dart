@@ -10,6 +10,21 @@
 /// afternoon.
 library;
 
+// ─── Primitives ─────────────────────────────────────────────────────────────
+export 'src/primitives/fo_boolean_cell.dart';
+export 'src/primitives/fo_button.dart';
+export 'src/primitives/fo_card.dart';
+export 'src/primitives/fo_dropdown_field.dart';
+export 'src/primitives/fo_focus_ring.dart';
+export 'src/primitives/fo_hint.dart';
+export 'src/primitives/fo_overlay_surface.dart';
+export 'src/primitives/fo_section_header.dart';
+export 'src/primitives/fo_section_surface.dart';
+export 'src/primitives/fo_skeleton.dart';
+export 'src/primitives/fo_spinner.dart';
+export 'src/primitives/fo_status_chip.dart';
+export 'src/primitives/fo_text_field.dart';
+
 // ─── Theme ──────────────────────────────────────────────────────────────────
 export 'src/theme/fo_context.dart';
 export 'src/theme/fo_theme.dart';

@@ -294,6 +294,63 @@ abstract final class FoTokens {
   /// `--ease-standard`, `cubic-bezier(0.32, 0.72, 0, 1)`.
   static const Cubic easeStandard = Cubic(0.32, 0.72, 0.0, 1.0);
 
+  /// One half-cycle of a skeleton's pulse.
+  ///
+  /// Deliberately not a third UI duration: [durationFast] and [durationNormal]
+  /// time a *transition* — something moving from one state to another — while
+  /// this is the period of a loop that has no destination. Nothing but a
+  /// skeleton may use it.
+  static const Duration durationPulse = Duration(milliseconds: 900);
+
+  // ─── Opacity ──────────────────────────────────────────────────────────────
+
+  /// The alpha a semantic ink is washed at to become its own soft ground.
+  /// Matches the `-soft` tokens, so a chip tinted from an arbitrary colour
+  /// lands at the same weight as one tinted from `primarySoft`.
+  static const double softWashAlpha = 0.12;
+
+  /// Disabled ink: present enough to read, plainly not actionable.
+  static const double disabledInkOpacity = 0.5;
+
+  /// Disabled fill. Slightly further down than the ink, so a disabled filled
+  /// button does not read as a lighter *enabled* one.
+  static const double disabledFillOpacity = 0.45;
+
+  /// A pointer resting on something interactive.
+  static const double hoverOverlayOpacity = 0.08;
+
+  /// A press. One step past [hoverOverlayOpacity], not a different idea.
+  static const double pressedOverlayOpacity = 0.12;
+
+  // ─── Icon sizes ───────────────────────────────────────────────────────────
+
+  /// An icon beside body text, in a table cell, or inside a control.
+  static const double iconSmall = 18.0;
+
+  /// An icon that is the control.
+  static const double iconMedium = 24.0;
+
+  /// The spinner inside a button, matched to the cap height beside it.
+  static const double spinnerSmall = 18.0;
+
+  /// A spinner standing in for a region rather than a control.
+  static const double spinnerMedium = 32.0;
+
+  /// A spinner's stroke. Thin enough to read as motion, not as a ring.
+  static const double spinnerStroke = 2.0;
+
+  // ─── Skeletons ────────────────────────────────────────────────────────────
+
+  /// The floor of a skeleton's pulse.
+  static const double skeletonPulseMin = 0.4;
+
+  /// The ceiling of a skeleton's pulse.
+  static const double skeletonPulseMax = 0.8;
+
+  /// The value a skeleton freezes at when the platform asks for reduced
+  /// motion — the midpoint, so it reads as deliberate rather than stalled.
+  static const double skeletonPulseStill = 0.6;
+
   // ─── Spacing scale (Luxe's, not the web's) ────────────────────────────────
 
   /// 4dp.

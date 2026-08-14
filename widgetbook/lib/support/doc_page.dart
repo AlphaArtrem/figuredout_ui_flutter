@@ -23,7 +23,10 @@ class DocPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
+    // Material, not ColoredBox: Widgetbook mounts a use case without a
+    // Scaffold, and any Material widget in the tree — a TextField, an ink
+    // splash — needs one above it. A real app gets this from its Scaffold.
+    return Material(
       color: context.foColors.bg,
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
