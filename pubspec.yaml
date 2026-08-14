@@ -1,0 +1,39 @@
+name: figuredout_ui
+description: >-
+  The Flutter design system for FiguredOut apps — the sibling of the React
+  package @figuredout/ui-web. Tokens, theme and components, no app data.
+version: 0.1.0
+publish_to: 'none'
+repository: https://github.com/figuredoutai/figuredout_ui_flutter
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  fonts:
+    - family: Geist
+      fonts:
+        - asset: lib/fonts/Geist-Regular.ttf
+          weight: 400
+        - asset: lib/fonts/Geist-Medium.ttf
+          weight: 500
+        - asset: lib/fonts/Geist-SemiBold.ttf
+          weight: 600
+        - asset: lib/fonts/Geist-Bold.ttf
+          weight: 700
+    - family: GeistMono
+      fonts:
+        - asset: lib/fonts/GeistMono-Regular.ttf
+          weight: 400
+        - asset: lib/fonts/GeistMono-Medium.ttf
+          weight: 500

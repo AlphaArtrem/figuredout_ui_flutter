@@ -1,0 +1,30 @@
+name: figuredout_ui_widgetbook
+description: >-
+  The live surface for figuredout_ui — Storybook's counterpart. A separate
+  package so the library never carries widgetbook as a dependency.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  figuredout_ui:
+    path: ../
+  flutter:
+    sdk: flutter
+  widgetbook: ^3.25.0
+  widgetbook_annotation: ^3.11.0
+
+dev_dependencies:
+  build_runner: ^2.4.9
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+  widgetbook_generator: ^3.24.0
+
+flutter:
+  # Widgetbook's own chrome — the navigation tree, the addon panel — is built
+  # from Material icons. Without this the shell renders with blank glyphs.
+  uses-material-design: true
