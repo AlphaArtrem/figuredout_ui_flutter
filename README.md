@@ -4,9 +4,9 @@ The Flutter design system for FiguredOut apps — the sibling of the React packa
 `@figuredout/ui-web`. Same visual language, same rules, same documentation surface.
 Widgetbook plays the role Storybook plays there.
 
-> **Status: phases 0–5 complete.** Tokens, theme, the Widgetbook surface, the primitives, and
-> the patterns — feedback, overlays, forms, data and page layout — and the charts. The gap
-> components land in phase 6, and the full doc set — `AGENTS.md`, `COMPONENT_GUIDE.md`,
+> **Status: phases 0–6 complete.** Tokens, theme, the Widgetbook surface, the primitives, and
+> the patterns — feedback, overlays, forms, data and page layout — the charts, and the Tier A gap
+> components. The full doc set — `AGENTS.md`, `COMPONENT_GUIDE.md`,
 > `docs/components.md`, `docs/migrating-from-luxe.md`, `components.manifest.json` — in phase 7.
 >
 > Still to port from Luxe: `FoShellScaffold`, `FoMatrixTable`, `FoDetailTable`,
@@ -20,6 +20,7 @@ Widgetbook plays the role Storybook plays there.
 | `lib/src/theme/` | `FoTheme.light()` / `.dark()`, `FoThemeExt`, `FoWindowClass`, and the `context.fo*` extension |
 | `lib/src/primitives/` | `FoButton`, `FoCard`, `FoTextField`, `FoDropdownField`, `FoStatusChip`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `foOverlaySurface` |
 | `lib/src/patterns/` | `FoDataTable`, `FoDialog`, `FoFormPresenter`, `FoFormSurface`, `FoFormActions`, `FoFormSection`, `FoFormValidation`, `FoToast`, `FoInfoBanner`, `FoEmptyState`, `FoScaffold`, `FoAppBar`, `FoFilterBar`, `FoPaginationBar`, `FoResponsiveTileGrid` |
+| `lib/src/patterns/` (dashboard) | `FoSeamGrid`, `FoSeamCell`, `FoStatCard`, `FoStatCardContent`, `FoDescriptionList`, `FoPageHeader` |
 | `lib/src/charts/` | `FoChartShell`, `FoChartTheme`, `FoChartLegend`, `FoTrendChart`, `FoBarChart`, `FoParetoChart`, `FoStageFunnel`, `FoSparkline` |
 | `lib/fonts/` | Geist and Geist Mono static weights, bundled rather than fetched |
 | `widgetbook/` | A separate package — the live surface, and the only thing that compiles the use cases |

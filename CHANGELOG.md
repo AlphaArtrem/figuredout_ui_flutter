@@ -121,6 +121,34 @@
   whose max equals its min makes `fl_chart` divide by zero, which on web is a silent NaN and a
   blank plot rather than a crash.
 
+### Added — phase 6, the Tier A gap components
+
+- `FoSeamGrid` / `FoSeamCell` — a set of related figures as **one object**. Four stat cards are
+  four shadows the eye has to relate to each other; one seamed block is a single figure with
+  four parts. It reflows 4 → 2 → 1, each step a clean divisor of the one above, because a hole
+  in a grid of hairlines reads as a figure that failed to load rather than as whitespace.
+- `FoStatCard` / `FoStatCardContent` (+ `FoTrend`). Rule §3.3 made concrete: the mono uppercase
+  caption names the figure, the mono tabular figure is it. A trend colours the note as well as
+  the arrow, so the direction does not depend on the arrow alone.
+- `FoDescriptionList` (+ `FoDescriptionItem`), `FoPageHeader`, `FoBadge`, `FoThemeToggle`.
+- Widgetbook: 6 use cases under `05 Dashboard`, covered by the layout test.
+
+### Fixed
+
+- `FoDescriptionList` sized to its parent rather than its content. Left at the default
+  `MainAxisSize.max` it filled whatever height it was given, so it never visibly stacked and
+  anything below it in a Column was pushed off screen. Found by the test that checks it stacks.
+
+### Notes on the new components
+
+- `FoBadge` and `FoStatusChip` look alike and are not: a chip carries a record's state and
+  stands on its own; a badge counts the thing it is attached to and is never the only place a
+  fact appears.
+- `FoThemeToggle` has three states. A two-state toggle cannot express "follow the system" at
+  all, so defaulting to light silently overrides the platform's preference.
+- `FoPageHeader` is the only place the display scale is used. `FoSectionHeader` names a region
+  inside a page; reserve the page scale or it stops meaning "this is the page".
+
 ### Known
 
 - Light-mode `primary` (`#15803d`) is below AA on two grounds: 4.16:1 on `surfaceSunken`

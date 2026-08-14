@@ -12,6 +12,7 @@ import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/data.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/feedback.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/forms.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/04_charts/charts.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/05_dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -46,6 +47,9 @@ void main() {
     'Forms': const Forms(),
     'Scaffolds': const Scaffolds(),
     'Charts': const Charts(),
+    'DashboardParts': const DashboardParts(),
+    'DetailParts': const DetailParts(),
+    'ThemeToggles': const ThemeToggles(),
   };
 
   // The three ViewportAddon entries in main.dart.
