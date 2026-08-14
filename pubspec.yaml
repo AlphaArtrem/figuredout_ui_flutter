@@ -15,8 +15,14 @@ dependencies:
   # proportionally or scroll a fixed header, both of which a table of
   # production rows needs.
   data_table_2: ^2.5.14
+  # The chart renderer. Note G6: its entry animation ignores reduced-motion
+  # and leaves a line invisible in a background tab, in print and to
+  # screenshot tooling, so every FoChart passes Duration.zero.
+  fl_chart: ^0.69.2
   flutter:
     sdk: flutter
+  # Compact and grouped number formatting on axes and tooltips.
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_lints: ^4.0.0

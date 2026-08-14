@@ -10,6 +10,11 @@
 /// afternoon.
 library;
 
+// ─── Charts ─────────────────────────────────────────────────────────────────
+export 'src/charts/fo_chart_shell.dart';
+export 'src/charts/fo_chart_theme.dart';
+export 'src/charts/fo_charts.dart';
+
 // ─── Patterns ───────────────────────────────────────────────────────────────
 export 'src/patterns/fo_data_table.dart';
 export 'src/patterns/fo_dialog.dart';

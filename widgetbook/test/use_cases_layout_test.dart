@@ -11,6 +11,7 @@ import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/surfaces.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/data.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/feedback.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/forms.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/04_charts/charts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -44,6 +45,7 @@ void main() {
     'ListChrome': const ListChrome(),
     'Forms': const Forms(),
     'Scaffolds': const Scaffolds(),
+    'Charts': const Charts(),
   };
 
   // The three ViewportAddon entries in main.dart.

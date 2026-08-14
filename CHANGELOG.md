@@ -93,6 +93,34 @@
   reads stay tracked without the package depending on MobX. Luxe's guardrail — permission-gated
   actions evaluated inside an observer *by the design system* — survives the port intact.
 
+### Added — phase 5, charts
+
+- `FoChartShell` (+ `FoChartShellCopy`, `FoChartTableRow`) — the frame every chart goes through.
+  It owns loading, empty, error, and a **view-as-table** toggle that renders the same numbers as
+  text. This is the highest-value thing borrowed from the web package: without it a chart is the
+  only way to read its own numbers, and a chart cannot be read by a screen reader, at 1.6x text
+  scale, or by anyone who needs the exact figure rather than the shape.
+- `FoChartTheme` and `FoChartLegend` — the shared `fl_chart` building blocks. Axis labels take
+  chrome ink, never a series colour: a label in a series colour looks like data.
+- `FoTrendChart` (+ `FoTrendSeries`), `FoBarChart` (+ `FoBarGroup`), `FoSparkline`,
+  `FoParetoChart` (+ `FoParetoItem`), `FoStageFunnel` (+ `FoFunnelStage`).
+- `fl_chart` and `intl` are now dependencies.
+- Widgetbook: 6 use cases under `04 Charts`, covered by the layout test.
+
+### Changed from the Luxe originals
+
+- **G6.** Every chart passes `Duration.zero`. Luxe animated entry at 250ms unless the platform
+  asked for reduced motion; the web package disables it on all four wrappers unconditionally,
+  because the animation also leaves a line invisible in a background tab, in print, and to
+  screenshot tooling — none of which `disableAnimations` covers.
+- `FoParetoChart` normalises its cumulative line onto the bars' scale so there is one y axis.
+  Dual axes let the author choose where the line crosses the bars, which means the reader
+  cannot trust the crossing — and the crossing is the whole point of a pareto.
+- Tooltips sit on `surfaceRaised` rather than `surface` (G5).
+- `positiveMax` returning 1.0 for an empty or all-zero dataset is now covered by a test: an axis
+  whose max equals its min makes `fl_chart` divide by zero, which on web is a silent NaN and a
+  blank plot rather than a crash.
+
 ### Known
 
 - Light-mode `primary` (`#15803d`) is below AA on two grounds: 4.16:1 on `surfaceSunken`
