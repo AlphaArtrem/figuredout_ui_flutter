@@ -18,8 +18,10 @@ export 'src/charts/fo_charts.dart';
 // ─── Patterns ───────────────────────────────────────────────────────────────
 export 'src/patterns/fo_data_table.dart';
 export 'src/patterns/fo_description_list.dart';
+export 'src/patterns/fo_detail_table.dart';
 export 'src/patterns/fo_dialog.dart';
 export 'src/patterns/fo_empty_state.dart';
+export 'src/patterns/fo_entity_picker.dart';
 export 'src/patterns/fo_filter_bar.dart';
 export 'src/patterns/fo_form_actions.dart';
 export 'src/patterns/fo_form_presenter.dart';
@@ -34,6 +36,7 @@ export 'src/patterns/fo_responsive_tile_grid.dart';
 export 'src/patterns/fo_scaffold.dart';
 export 'src/patterns/fo_seam_grid.dart';
 export 'src/patterns/fo_stat_card.dart';
+export 'src/patterns/fo_text_prompt.dart';
 export 'src/patterns/fo_toast.dart';
 
 // ─── Primitives ─────────────────────────────────────────────────────────────

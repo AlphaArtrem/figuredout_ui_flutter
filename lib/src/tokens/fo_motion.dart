@@ -32,4 +32,9 @@ abstract final class FoMotion {
 
   /// How long a toast the user has to read stays.
   static const Duration toastLong = FoTokens.durationToastLong;
+
+  /// How long a search box waits before asking the server. Not motion at all,
+  /// but a duration is a duration and this is where they live — otherwise it
+  /// becomes a literal in a component, which is the thing the ban prevents.
+  static const Duration searchDebounce = FoTokens.durationSearchDebounce;
 }

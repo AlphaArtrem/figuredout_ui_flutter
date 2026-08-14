@@ -309,6 +309,11 @@ abstract final class FoTokens {
   /// a success confirms something they already know they did.
   static const Duration durationToastLong = Duration(seconds: 6);
 
+  /// How long a search box waits before asking the server. Long enough that
+  /// typing a word is one request rather than five, short enough not to feel
+  /// stuck.
+  static const Duration durationSearchDebounce = Duration(milliseconds: 300);
+
   // ─── Opacity ──────────────────────────────────────────────────────────────
 
   /// The alpha a semantic ink is washed at to become its own soft ground.

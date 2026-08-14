@@ -86,7 +86,16 @@
         "FoToastAction",
         "FoInfoBanner",
         "FoBannerTone",
-        "FoEmptyState"
+        "FoEmptyState",
+        "FoDetailTable",
+        "FoDetailTableSection",
+        "FoDetailTableItem",
+        "FoDetailTableColumn",
+        "FoDetailTableRow",
+        "FoEntityPickerField",
+        "FoEntityPickerOption",
+        "FoEntityPickerCopy",
+        "showFoTextPrompt"
       ]
     },
     "charts": {

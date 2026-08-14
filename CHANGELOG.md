@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Added — completing the Luxe port
+
+- `FoDetailTable` (+ `FoDetailTableSection`, `FoDetailTableItem`, `FoDetailTableColumn`,
+  `FoDetailTableRow`) — grouped fields and small tables on a detail screen. Distinct from
+  `FoDescriptionList`, which is one flat list of pairs.
+- `FoEntityPickerField` (+ `FoEntityPickerOption`, `FoEntityPickerCopy`) — a searchable picker
+  for when a dropdown has too many options. It presents through `FoFormPresenter`, so it honours
+  the dialog-versus-sheet breakpoint instead of always being a sheet.
+- `showFoTextPrompt` — the one-field dialog, also through the presenter.
+- `FoMotion.searchDebounce`. The `no_literals` guard caught the picker's 300ms debounce, which
+  is the guard doing exactly its job: a duration in a component is a duration nobody can find.
+
+### Still to port
+
+`FoShellScaffold` (895 lines in Luxe) and `FoMatrixTable` (640). Both are large enough to be
+their own work items, and Luxe keeps its own until they land — which is what blocks phase 8.
+
 ## 0.1.0
 
 ### Added

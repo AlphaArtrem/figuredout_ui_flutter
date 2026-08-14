@@ -102,10 +102,11 @@ Set<String> _symbolsReachableThrough(String barrelSource) {
         multiLine: true,
       ).allMatches(source).map((RegExpMatch m) => m.group(1)!),
     );
-    // Top-level functions, e.g. foOverlaySurface.
+    // Top-level functions: `foOverlaySurface` for a value, `showFoTextPrompt`
+    // for an imperative entry point. Both are public API.
     symbols.addAll(
       RegExp(
-        r'^[A-Za-z<>?]+\s+(fo[A-Za-z0-9]*)\s*\(',
+        r'^[A-Za-z<>?]+\s+((?:fo|show)[A-Za-z0-9]*)\s*\(',
         multiLine: true,
       ).allMatches(source).map((RegExpMatch m) => m.group(1)!),
     );
