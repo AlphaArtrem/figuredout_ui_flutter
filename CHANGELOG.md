@@ -54,6 +54,45 @@
   closing a form with unsaved edits asks first. `FoFormScope` ships with the forms group;
   until then a host form must watch `onChanged` itself. Noted on both field classes.
 
+### Added — phase 4, patterns
+
+- Feedback: `FoToast` (+ `FoToastAction`), `FoInfoBanner` (+ `FoBannerTone`, and an `.error`
+  constructor that requires a retry), `FoEmptyState` with its three constructors.
+- Overlays: `FoDialog` — confirm, destructive and info — and `FoFormPresenter`, the one way to
+  present a form. It owns the dialog-versus-sheet breakpoint, the root navigator, and the
+  dirty-form guard, all three of which are easy to get right once and impossible to get right
+  thirty times.
+- Forms: `FoFormScope` / `FoFormController`, `FoFormSurface`, `FoFormActions` (+ `FoFormAction`),
+  `FoFormSection` / `FoFormInlineRow` / `FoFormInlineItem`, `FoFormValidation`.
+- Data: `FoDataTable` (+ `FoTableColumn`, `FoColumnSize`) — a table on a wide window, cards on a
+  narrow one, from one set of columns — plus `FoPaginationBar`, `FoFilterBar`,
+  `FoListSearchField` and `FoResponsiveTileGrid`.
+- Layout: `FoScaffold` and `FoAppBar`.
+- `data_table_2` is now a dependency. Flutter's own `DataTable` cannot size columns
+  proportionally or scroll a fixed header.
+- Widgetbook: 11 use cases under `03 Patterns`, covered by the layout test.
+
+### Fixed in the port
+
+- The dirty-form hook deferred from phase 3 is wired: `FoTextField` and `FoDropdownField` mark
+  the enclosing surface dirty on change, so closing a form with unsaved edits asks first.
+- `FoDataTable`'s frame draws its hairline in `foregroundDecoration`. Luxe's original used
+  `Border.all` inside a `ClipRRect`, so the heading row's own background covered the frame's
+  top edge — the same §3.1 bug `FoCard` exists to prevent.
+- `FoToast` and `FoDialog` sit on `surfaceRaised` rather than `surface`: both cover the page, and
+  under the new ladder `surface` no longer means "lifted" (G5).
+- `FoToast` drops `elevation: 3` for a painted overlay shadow, per rule §3.2.
+
+### Changed from the Luxe originals
+
+- `FoPaginationBar` takes its counts already worded. "1–20 of 340" is a sentence, and building
+  one from parts inside a design system produces a string that cannot be reordered for another
+  language.
+- `FoFormPresenter` takes a `FoDiscardCopy` rather than reaching into an app's l10n.
+- `FoScaffold.reactiveBuilder` is a static hook an app sets once, so `primaryActionBuilder`'s
+  reads stay tracked without the package depending on MobX. Luxe's guardrail — permission-gated
+  actions evaluated inside an observer *by the design system* — survives the port intact.
+
 ### Known
 
 - Light-mode `primary` (`#15803d`) is below AA on two grounds: 4.16:1 on `surfaceSunken`

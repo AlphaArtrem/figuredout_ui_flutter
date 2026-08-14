@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../patterns/fo_form_scope.dart';
 import '../theme/fo_context.dart';
 import '../tokens/fo_layout.dart';
 import 'fo_spinner.dart';
@@ -7,8 +8,8 @@ import 'fo_spinner.dart';
 /// The standard dropdown, for filters and forms.
 ///
 /// Like `FoTextField`, everything visual comes from the theme's
-/// `InputDecorationTheme`. See that class for the Phase 4 note about the
-/// dirty-form hook, which applies here too.
+/// `InputDecorationTheme`, and picking a value marks the enclosing
+/// `FoFormSurface` dirty so dismissing it asks first.
 class FoDropdownField<T> extends StatelessWidget {
   /// Creates a dropdown.
   const FoDropdownField({
@@ -94,7 +95,12 @@ class FoDropdownField<T> extends StatelessWidget {
               : null,
         ),
         items: items,
-        onChanged: enabled && handler != null ? handler : null,
+        onChanged: enabled && handler != null
+            ? (T? value) {
+                FoFormScope.markDirty(context);
+                handler(value);
+              }
+            : null,
       ),
     );
   }

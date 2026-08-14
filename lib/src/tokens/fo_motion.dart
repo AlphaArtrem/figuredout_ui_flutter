@@ -25,4 +25,11 @@ abstract final class FoMotion {
   /// One half-cycle of a skeleton's pulse, and the only thing allowed to use
   /// it. See [FoTokens.durationPulse] for why this is not a third duration.
   static const Duration pulse = FoTokens.durationPulse;
+
+  /// How long a toast confirming something stays. Like [pulse], a dwell time
+  /// rather than a transition — nothing is moving for four seconds.
+  static const Duration toastShort = FoTokens.durationToastShort;
+
+  /// How long a toast the user has to read stays.
+  static const Duration toastLong = FoTokens.durationToastLong;
 }

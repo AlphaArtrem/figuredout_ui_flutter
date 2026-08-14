@@ -10,6 +10,23 @@
 /// afternoon.
 library;
 
+// ─── Patterns ───────────────────────────────────────────────────────────────
+export 'src/patterns/fo_data_table.dart';
+export 'src/patterns/fo_dialog.dart';
+export 'src/patterns/fo_empty_state.dart';
+export 'src/patterns/fo_filter_bar.dart';
+export 'src/patterns/fo_form_actions.dart';
+export 'src/patterns/fo_form_presenter.dart';
+export 'src/patterns/fo_form_scope.dart';
+export 'src/patterns/fo_form_section.dart';
+export 'src/patterns/fo_form_surface.dart';
+export 'src/patterns/fo_form_validation.dart';
+export 'src/patterns/fo_info_banner.dart';
+export 'src/patterns/fo_pagination_bar.dart';
+export 'src/patterns/fo_responsive_tile_grid.dart';
+export 'src/patterns/fo_scaffold.dart';
+export 'src/patterns/fo_toast.dart';
+
 // ─── Primitives ─────────────────────────────────────────────────────────────
 export 'src/primitives/fo_boolean_cell.dart';
 export 'src/primitives/fo_button.dart';

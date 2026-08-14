@@ -302,6 +302,13 @@ abstract final class FoTokens {
   /// skeleton may use it.
   static const Duration durationPulse = Duration(milliseconds: 900);
 
+  /// How long a toast confirming something stays.
+  static const Duration durationToastShort = Duration(seconds: 4);
+
+  /// How long a toast the user actually has to read stays. A failure is news;
+  /// a success confirms something they already know they did.
+  static const Duration durationToastLong = Duration(seconds: 6);
+
   // ─── Opacity ──────────────────────────────────────────────────────────────
 
   /// The alpha a semantic ink is washed at to become its own soft ground.
@@ -321,6 +328,9 @@ abstract final class FoTokens {
 
   /// A press. One step past [hoverOverlayOpacity], not a different idea.
   static const double pressedOverlayOpacity = 0.12;
+
+  /// How strongly a soft-washed surface draws its own edge.
+  static const double bannerEdgeOpacity = 0.32;
 
   // ─── Icon sizes ───────────────────────────────────────────────────────────
 
@@ -401,6 +411,10 @@ abstract final class FoTokens {
 
   /// A hairline, in dp.
   static const double hairlineWidth = 1.0;
+
+  /// The accent rule down the leading edge of a toast — thick enough to read
+  /// as a deliberate stripe rather than a heavy border.
+  static const double accentRuleWidth = 4.0;
 
   // ─── Page layout (ported — Luxe has no equivalent) ────────────────────────
 

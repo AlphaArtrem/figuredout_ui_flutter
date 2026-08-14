@@ -11,6 +11,10 @@ environment:
   flutter: '>=3.19.0'
 
 dependencies:
+  # The wide-table renderer. Flutter's own DataTable cannot size columns
+  # proportionally or scroll a fixed header, both of which a table of
+  # production rows needs.
+  data_table_2: ^2.5.14
   flutter:
     sdk: flutter
 

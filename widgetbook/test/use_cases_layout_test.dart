@@ -8,6 +8,9 @@ import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/buttons.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/fields.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/indicators.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/surfaces.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/data.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/feedback.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/forms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,6 +38,12 @@ void main() {
     'Cells': const Cells(),
     'FocusRings': const FocusRings(),
     'OverlaySurfaces': const OverlaySurfaces(),
+    'Feedback': const FeedbackPatterns(),
+    'Dialogs': const Dialogs(),
+    'DataTables': const DataTables(),
+    'ListChrome': const ListChrome(),
+    'Forms': const Forms(),
+    'Scaffolds': const Scaffolds(),
   };
 
   // The three ViewportAddon entries in main.dart.

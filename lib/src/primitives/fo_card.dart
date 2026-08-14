@@ -31,6 +31,7 @@ class FoCard extends StatefulWidget {
     this.padding,
     this.onTap,
     this.semanticLabel,
+    this.tone = FoCardTone.resting,
     super.key,
   });
 
@@ -50,6 +51,12 @@ class FoCard extends StatefulWidget {
   /// [onTap].
   final String? semanticLabel;
 
+  /// Which step of the ladder the card sits on. [FoCardTone.raised] is for a
+  /// card that *is* the overlay — a dialog's body, a menu's frame — not for a
+  /// card that wants a bit more emphasis. Reaching for a lighter surface to
+  /// create emphasis is the one thing the ladder forbids.
+  final FoCardTone tone;
+
   @override
   State<FoCard> createState() => _FoCardState();
 }
@@ -68,12 +75,18 @@ class _FoCardState extends State<FoCard> {
       child: widget.child,
     );
 
+    final bool raised = widget.tone == FoCardTone.raised;
     final Widget surface = DecoratedBox(
       decoration: BoxDecoration(
-        color:
-            lifted ? context.foColors.surfaceRaised : context.foColors.surface,
+        color: raised || lifted
+            ? context.foColors.surfaceRaised
+            : context.foColors.surface,
         borderRadius: radius,
-        boxShadow: lifted ? context.foShadows.hover : context.foShadows.raised,
+        boxShadow: raised
+            ? context.foShadows.overlay
+            : lifted
+                ? context.foShadows.hover
+                : context.foShadows.raised,
       ),
       // Rule §3.1. The clip below means a child's own background would cover
       // a border drawn in `decoration`; painting it in the foreground puts it
@@ -116,4 +129,16 @@ class _FoCardState extends State<FoCard> {
       child: FoFocusRing(borderRadius: radius, child: surface),
     );
   }
+}
+
+/// Which step of the surface ladder a [FoCard] sits on.
+enum FoCardTone {
+  /// On the page: a card, a panel, a framed region. The default, and almost
+  /// always the right answer.
+  resting,
+
+  /// Covering the page: the body of a dialog or a sheet. Pairs `surfaceRaised`
+  /// with the overlay shadow, which is the same treatment `foOverlaySurface`
+  /// gives a menu — the two are the same object seen from different sides.
+  raised,
 }

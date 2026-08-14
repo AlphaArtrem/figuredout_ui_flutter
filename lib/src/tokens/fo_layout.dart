@@ -95,6 +95,13 @@ abstract final class FoLayout {
   /// A hairline's width.
   static const double hairlineWidth = FoTokens.hairlineWidth;
 
+  /// How strongly a soft-washed surface — a banner, a toast — draws its own
+  /// edge. Its ink at full strength would out-shout the message inside it.
+  static const double bannerEdgeOpacity = FoTokens.bannerEdgeOpacity;
+
+  /// The accent rule down the leading edge of a toast.
+  static const double accentRuleWidth = FoTokens.accentRuleWidth;
+
   /// Upper bound of the compact band.
   static const double compactBreakpoint = FoTokens.compactBreakpoint;
 

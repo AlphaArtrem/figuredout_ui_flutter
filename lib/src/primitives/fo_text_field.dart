@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../patterns/fo_form_scope.dart';
 import '../tokens/fo_layout.dart';
 
 /// The standard text input.
@@ -12,10 +13,10 @@ import '../tokens/fo_layout.dart';
 /// The `*` required marker is applied here rather than concatenated at the
 /// call site, so one convention holds across every form in every app.
 ///
-/// > **Phase 4 will add the dirty-form hook.** Luxe's original called
-/// > `LuxeFormScope.markDirty` on every change, so closing a form with unsaved
-/// > edits asks first. `FoFormScope` lands with the forms group; until then a
-/// > host form must watch [onChanged] itself.
+/// Typing marks the enclosing `FoFormSurface` dirty, so dismissing it asks
+/// before discarding the edits. A form gets that without opting in — which
+/// matters, because the forms that most need the guard are the ones nobody
+/// remembered to wire up. Outside a surface it is a no-op.
 class FoTextField extends StatelessWidget {
   /// Creates a text field.
   const FoTextField({
@@ -92,7 +93,10 @@ class FoTextField extends StatelessWidget {
       enabled: enabled,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      onChanged: onChanged,
+      onChanged: (String value) {
+        FoFormScope.markDirty(context);
+        onChanged?.call(value);
+      },
       maxLines: effectiveMaxLines,
       decoration: InputDecoration(
         labelText: isRequired ? '$label *' : label,
