@@ -122,6 +122,12 @@ Two pairs look alike and are not:
 
 ## Gotchas worth knowing before you edit
 
+- **A Material child needs a Material ancestor *inside* the fill.** A
+  `ListTile` or a `Switch` paints its ink on the nearest `Material`, so one
+  sitting above a painted background puts the ink behind that background —
+  Flutter asserts rather than just looking wrong. `FoCard` and the picker's
+  option list both carry a transparent `Material` inside their fill; copy that
+  rather than assuming the enclosing `Scaffold` is close enough.
 - **A `ClipRRect` child eats the parent's border.** Any container whose header or footer paints
   its own surface needs its hairline in `foregroundDecoration`. `FoCard`, `FoSectionSurface`,
   `FoDataTable`, `FoMatrixTable` and `FoInfoBanner` all do; copy the pattern rather than reaching

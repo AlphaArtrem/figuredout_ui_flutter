@@ -322,14 +322,21 @@ class _PickerListState extends State<_PickerList> {
       ),
       itemBuilder: (BuildContext context, int index) {
         final FoEntityPickerOption option = _options[index];
-        return ListTile(
-          // A 48dp row, so a gloved finger can hit one option and not two.
-          minTileHeight: FoLayout.minTouchTarget,
-          title: Text(option.label, style: context.foText.body),
-          subtitle: option.supportingText == null
-              ? null
-              : Text(option.supportingText!, style: context.foText.caption),
-          onTap: () => Navigator.of(context).pop(option),
+        // A ListTile paints its ink on the nearest Material ancestor, and the
+        // surface above it is a DecoratedBox — so without a Material of its
+        // own the row's splash lands underneath the surface's fill and is
+        // invisible. Flutter asserts about it rather than just looking wrong.
+        return Material(
+          type: MaterialType.transparency,
+          child: ListTile(
+            // A 48dp row, so a gloved finger can hit one option, not two.
+            minTileHeight: FoLayout.minTouchTarget,
+            title: Text(option.label, style: context.foText.body),
+            subtitle: option.supportingText == null
+                ? null
+                : Text(option.supportingText!, style: context.foText.caption),
+            onTap: () => Navigator.of(context).pop(option),
+          ),
         );
       },
     );

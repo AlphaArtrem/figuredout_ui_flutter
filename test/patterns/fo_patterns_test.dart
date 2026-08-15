@@ -335,4 +335,68 @@ void main() {
       expect(find.text('New'), findsOneWidget);
     });
   });
+  group('FoSectionHeader', () {
+    testWidgets('long-pressing the title is the hint\'s second route', (
+      WidgetTester tester,
+    ) async {
+      int opened = 0;
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(420, 800),
+        child: FoSectionHeader(
+          title: 'Line status',
+          // The dot is small and a tablet has no hover, so the title has to
+          // reach the same explanation.
+          onTitleLongPress: () => opened++,
+        ),
+      );
+
+      await tester.longPress(find.text('Line status'));
+      expect(opened, 1);
+    });
+  });
+  group('FoEntityPickerField', () {
+    testWidgets('an option row splashes inside the surface, not behind it', (
+      WidgetTester tester,
+    ) async {
+      // The picker list sits on `foOverlaySurface`, which paints a fill. A
+      // ListTile whose nearest Material is above that fill asserts — the same
+      // shape of bug FoCard had, found the same way.
+      final TextEditingController controller = TextEditingController();
+      addTearDown(controller.dispose);
+
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(1000, 800),
+        child: FoEntityPickerField(
+          controller: controller,
+          label: 'Order',
+          selectedId: null,
+          search: (String query) async => const <FoEntityPickerOption>[
+            FoEntityPickerOption(id: '1', label: 'ORD-1001'),
+          ],
+          onSelected: (FoEntityPickerOption? _) {},
+          copy: const FoEntityPickerCopy(
+            searchHint: 'Search',
+            emptyText: 'Nothing here yet',
+            errorText: 'Could not load',
+            clearTooltip: 'Clear',
+            requiredMessage: 'This field is required',
+            discardCopy: FoDiscardCopy(
+              title: 'Discard changes?',
+              message: 'Your edits have not been saved yet.',
+              confirmLabel: 'Discard',
+              cancelLabel: 'Keep editing',
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(TextFormField));
+      await tester.pumpAndSettle();
+
+      expect(find.text('ORD-1001'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
 }

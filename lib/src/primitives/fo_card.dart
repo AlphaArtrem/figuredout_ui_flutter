@@ -99,24 +99,27 @@ class _FoCardState extends State<FoCard> {
         ),
         child: ClipRRect(
           borderRadius: radius,
-          // InkWell needs a Material ancestor to splash into, and this card
-          // is not built on one. Material's own Card supplied it implicitly;
-          // dropping it left an interactive card crashing anywhere outside a
-          // Scaffold, which is exactly what a design-system component must
-          // not do. Transparent, so the fill above still shows through.
-          child: interactive
-              ? Material(
-                  type: MaterialType.transparency,
-                  child: InkWell(
+          // A Material *inside* the fill, always — not only when the card is
+          // interactive. Two things need it. An InkWell has nothing to splash
+          // into otherwise, so a tappable card crashed anywhere outside a
+          // Scaffold. And any Material child the caller puts in — a ListTile,
+          // a Switch — paints its ink on the nearest Material ancestor, which
+          // without this is *above* the fill above, so the ink lands behind
+          // the card and Flutter asserts about it. Transparent, so the fill
+          // still shows through.
+          child: Material(
+            type: MaterialType.transparency,
+            child: interactive
+                ? InkWell(
                     onTap: widget.onTap,
                     onHover: (bool value) {
                       if (value == _hovered) return;
                       setState(() => _hovered = value);
                     },
                     child: content,
-                  ),
-                )
-              : content,
+                  )
+                : content,
+          ),
         ),
       ),
     );

@@ -109,7 +109,12 @@ class FoShellAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// The account menu, pinned last so it is in the same corner on every
   /// screen.
-  final FoAccountMenuButton? accountMenu;
+  ///
+  /// A `Widget` rather than a [FoAccountMenuButton] because the name it shows
+  /// is nearly always reactive — it resolves when session restore completes,
+  /// after the first frame — so an app wraps the button in its own observer
+  /// and passes that.
+  final Widget? accountMenu;
 
   /// Anything else, before the account menu.
   final List<Widget>? actions;

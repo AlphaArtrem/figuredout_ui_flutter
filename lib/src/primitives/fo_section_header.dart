@@ -13,12 +13,17 @@ import '../theme/fo_context.dart';
 /// `LayoutBuilder`, not the window's: a header inside a half-width panel on a
 /// desktop needs to stack for the same reason a phone does, and the window
 /// class cannot see that.
+///
+/// [onTitleLongPress] is the hint's second route. The dot is small and there
+/// is no hover on a tablet, so long-pressing the title reaches the same
+/// explanation — wire it to whatever [hint] does when tapped.
 class FoSectionHeader extends StatelessWidget {
   /// Creates a section header.
   const FoSectionHeader({
     required this.title,
     this.hint,
     this.trailing,
+    this.onTitleLongPress,
     this.stackBelow = 520,
     super.key,
   });
@@ -32,18 +37,28 @@ class FoSectionHeader extends StatelessWidget {
   /// An optional action — a button, a filter, a count.
   final Widget? trailing;
 
+  /// Long-pressing the title. Wire it to the same explanation [hint] shows.
+  final VoidCallback? onTitleLongPress;
+
   /// The header width below which [trailing] stacks under the title.
   final double stackBelow;
 
   @override
   Widget build(BuildContext context) {
+    final Widget titleText = Semantics(
+      header: true,
+      child: Text(title, style: context.foText.title),
+    );
+
     final Widget titleRow = Row(
       children: <Widget>[
         Expanded(
-          child: Semantics(
-            header: true,
-            child: Text(title, style: context.foText.title),
-          ),
+          child: onTitleLongPress == null
+              ? titleText
+              : GestureDetector(
+                  onLongPress: onTitleLongPress,
+                  child: titleText,
+                ),
         ),
         if (hint != null) hint!,
       ],

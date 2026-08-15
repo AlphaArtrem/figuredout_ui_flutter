@@ -145,6 +145,30 @@ void main() {
         isSemantics(isButton: true, hasTapAction: true),
       );
     });
+
+    testWidgets('a Material child paints its ink inside the card, not behind', (
+      WidgetTester tester,
+    ) async {
+      // The card paints a fill, so a ListTile whose nearest Material ancestor
+      // is *above* that fill splashes behind the card. Flutter asserts about
+      // it rather than merely looking wrong, which is how a whole form full of
+      // list rows failed at once during the Luxe migration.
+      await pumpFo(
+        tester,
+        child: FoCard(
+          child: ListTile(title: const Text('Attach a photo'), onTap: () {}),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(
+        find.descendant(
+          of: find.byType(FoCard),
+          matching: find.byType(Material),
+        ),
+        findsWidgets,
+      );
+    });
   });
 }
 

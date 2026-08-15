@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### Fixed — found by Luxe consuming the package
+
+Three defects the package's own tests could not have found, because all three
+need a *consumer* to place a widget the package never places itself.
+
+- **`FoCard` now carries a `Material` inside its fill, always** — not only when
+  it is tappable. Any Material child a caller puts in (a `ListTile`, a `Switch`)
+  paints its ink on the nearest Material ancestor, which without this sits
+  *above* the card's fill, so the ink lands behind the card. Flutter asserts
+  about it rather than merely looking wrong, so a form full of list rows failed
+  all at once.
+- **`FoEntityPickerField`'s option rows** had the same shape of bug against
+  `foOverlaySurface`.
+- **`FoShellAppBar.accountMenu` is a `Widget?`, not a `FoAccountMenuButton?`.**
+  The name it shows resolves when session restore completes, after the first
+  frame, so an app wraps the button in its own observer and passes that — which
+  the tighter type made impossible.
+
+### Added
+
+- **`FoSectionHeader.onTitleLongPress`** — the hint's second route. The dot is
+  small and a tablet has no hover, so long-pressing the title reaches the same
+  explanation. Luxe had this and it would have been lost in the port.
+
 ## 0.2.0
 
 **The Luxe port is complete.** Every `Luxe*` component in `apps/app/lib/design/` now has a
