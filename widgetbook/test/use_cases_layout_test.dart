@@ -12,6 +12,7 @@ import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/data.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/detail.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/feedback.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/forms.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/matrix.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/04_charts/charts.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/05_dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,8 @@ void main() {
     'DataTables': const DataTables(),
     'ListChrome': const ListChrome(),
     'Forms': const Forms(),
+    'GroupedMatrix': const GroupedMatrix(),
+    'EditableMatrix': const EditableMatrix(),
     'DetailTables': const DetailTables(),
     'PickersAndPrompts': const PickersAndPrompts(),
     'Scaffolds': const Scaffolds(),

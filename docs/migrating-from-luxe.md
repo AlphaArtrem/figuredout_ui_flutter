@@ -35,6 +35,8 @@ a machine-generated worklist out of `flutter analyze`.
 | `LuxeScaffold`, `LuxeAppBar` | `FoScaffold`, `FoAppBar` | |
 | `LuxeResponsiveTileGrid` | `FoResponsiveTileGrid` | |
 | `LuxeDataTable`, `LuxeTableColumn`, `LuxeColumnSize` | `FoDataTable`, `FoTableColumn`, `FoColumnSize` | **Signature changed** |
+| `LuxeMatrixTable`, `LuxeMatrixColumn`, `LuxeMatrixRow`, `LuxeMatrixSection`, `LuxeMatrixSummaryRow` | `FoMatrixTable`, `FoMatrixColumn`, `FoMatrixRow`, `FoMatrixSection`, `FoMatrixSummaryRow` | |
+| `LuxeMatrixHeaderText`, `LuxeMatrixNumericCell`, `LuxeMatrixTotalText`, `LuxeMatrixValidationText` | `FoMatrixHeaderText`, `FoMatrixNumericCell`, `FoMatrixTotalText`, `FoMatrixValidationText` | |
 | `LuxePaginationBar`, `LuxeFilterBar`, `LuxeListSearchField` | `FoPaginationBar`, `FoFilterBar`, `FoListSearchField` | **Signature changed** |
 | `LuxeFormPresenter`, `LuxeFormSurface`, `LuxeFormScope`, `LuxeFormController` | `FoFormPresenter`, `FoFormSurface`, `FoFormScope`, `FoFormController` | **Signature changed** |
 | `LuxeFormActions`, `LuxeFormAction`, `LuxeFormSection`, `LuxeFormInlineRow`, `LuxeFormInlineItem` | `FoFormActions`, `FoFormAction`, `FoFormSection`, `FoFormInlineRow`, `FoFormInlineItem` | |
@@ -50,8 +52,7 @@ from `Fo*` parts: `LuxeWorkflowDetailLayout`, `LuxeWorkflowStatusFilter`,
 `LuxeOverrideReasonPrompt`. Delete `lib/design/widgets/status_chip.dart`, a legacy duplicate of
 `LuxeStatusChip`.
 
-Still to port: `FoShellScaffold`, `FoMatrixTable`, `FoDetailTable`, `FoEntityPickerField`,
-`FoTextPrompt`. Until they land, Luxe keeps its own.
+Still to port: `FoShellScaffold`. Until it lands, Luxe keeps its own.
 
 ## Colours
 

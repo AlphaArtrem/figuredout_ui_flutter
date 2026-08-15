@@ -45,8 +45,8 @@ free to mean *lifted*.
   `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `FoThemeToggle`,
   `foOverlaySurface`
 - **Layout**: `FoScaffold`, `FoAppBar`, `FoPageHeader`, `FoResponsiveTileGrid`, `FoSeamGrid`
-- **Data**: `FoDataTable`, `FoPaginationBar`, `FoFilterBar`, `FoListSearchField`, `FoStatCard`,
-  `FoDescriptionList`
+- **Data**: `FoDataTable`, `FoMatrixTable`, `FoPaginationBar`, `FoFilterBar`, `FoListSearchField`,
+  `FoStatCard`, `FoDescriptionList`, `FoDetailTable`
 - **Forms and overlays**: `FoFormPresenter`, `FoFormSurface`, `FoFormActions`, `FoFormSection`,
   `FoFormInlineRow`, `FoFormValidation`, `FoFormScope`, `FoDialog`
 - **Feedback**: `FoToast`, `FoInfoBanner`, `FoEmptyState`
@@ -60,6 +60,7 @@ free to mean *lifted*.
 | showing a row of related figures | `FoSeamGrid` + `FoStatCardContent` |
 | showing one figure | `FoStatCard` |
 | showing records | `FoDataTable` — it is a table on a wide window and cards on a narrow one |
+| showing a grid where the cell's position is its meaning | `FoMatrixTable` — a size breakdown, a permission grid |
 | showing one record's fields | `FoDescriptionList` |
 | framing a page region with a title | `FoSectionSurface` |
 | titling a page | `FoPageHeader` — exactly one per page |
@@ -99,6 +100,11 @@ Two pairs look alike and are not:
 - `FoSeamGrid` makes a set of related figures read as one object. **Pass a child count that
   divides evenly by every step it reflows through** (4 → 2 → 1): a hole in a grid of hairlines
   reads as a figure that failed to load, not as whitespace.
+- `FoMatrixTable` is not a `FoDataTable`. A data table is a list of records that happens to be
+  tabular, so it reflows to cards on a phone. A matrix is a grid where a cell's position in two
+  dimensions *is* its meaning, so it keeps its shape at every width and scrolls sideways instead.
+  Set `pinLeadingColumn` once the columns outrun the window, or scrolling right takes the row
+  labels with it and the user ends up typing into unlabelled rows.
 - `FoDataTable` owns its own loading, error and empty states. Pass `error` and `onRetry` and let
   it render them in the rows' place — a screen that early-returns an error above the table
   destroys the search box and the filters with it, so the user cannot change what they asked for.
@@ -110,7 +116,8 @@ Two pairs look alike and are not:
 
 - **A `ClipRRect` child eats the parent's border.** Any container whose header or footer paints
   its own surface needs its hairline in `foregroundDecoration`. `FoCard`, `FoSectionSurface`,
-  `FoDataTable` and `FoInfoBanner` all do; copy the pattern rather than reaching for a border.
+  `FoDataTable`, `FoMatrixTable` and `FoInfoBanner` all do; copy the pattern rather than reaching
+  for a border.
 - **`surface` is not white.** Code that used a white `surface` to mean "lifted above the page"
   must be re-pointed at `surfaceRaised`.
 - **Danger carries its own ink.** `dangerFg`, never `primaryFg` — which in dark mode is a

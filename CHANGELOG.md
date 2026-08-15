@@ -14,10 +14,31 @@
 - `FoMotion.searchDebounce`. The `no_literals` guard caught the picker's 300ms debounce, which
   is the guard doing exactly its job: a duration in a component is a duration nobody can find.
 
+- `FoMatrixTable` (+ `FoMatrixColumn`, `FoMatrixRow`, `FoMatrixSection`, `FoMatrixSummaryRow`)
+  and its cell parts `FoMatrixHeaderText`, `FoMatrixNumericCell`, `FoMatrixTotalText`,
+  `FoMatrixValidationText` — the fixed-width grid a size breakdown takes. Distinct from
+  `FoDataTable`: a data table is a list of records that happens to be tabular and reflows to
+  cards; a matrix is a grid where a cell's position in two dimensions is its meaning, so it
+  keeps its shape and scrolls sideways.
+
+### Fixed in the matrix port
+
+- The frame draws its hairline in `foregroundDecoration`. Luxe's original used `Border.all`
+  inside a `ClipRRect`, so the heading row and the summary row covered the frame's top and
+  bottom edges — the same §3.1 bug `FoDataTable` had.
+- Heading cells and the group, section and summary bands sit on `surfaceSunken` rather than on
+  `surface`, matching `FoDataTable`'s heading row. In Luxe they were `surface` and `background`,
+  which under the new ladder would have left a header indistinguishable from a data row (G5).
+- `FoMatrixNumericCell` marks the enclosing `FoFormSurface` dirty on change, exactly as
+  `FoTextField` does. Luxe's cell did not, so closing a size grid discarded the edits without
+  asking — the guard every other field gets for free.
+- `FoMatrixTotalText` uses `FoTextStyles.numeric` rather than the subtitle scale, so a column of
+  totals aligns on its digits.
+
 ### Still to port
 
-`FoShellScaffold` (895 lines in Luxe) and `FoMatrixTable` (640). Both are large enough to be
-their own work items, and Luxe keeps its own until they land — which is what blocks phase 8.
+`FoShellScaffold` (895 lines in Luxe). Large enough to be its own work item, and Luxe keeps its
+own until it lands — which is what blocks phase 8.
 
 ## 0.1.0
 

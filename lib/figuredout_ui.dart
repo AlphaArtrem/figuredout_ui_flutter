@@ -30,6 +30,8 @@ export 'src/patterns/fo_form_section.dart';
 export 'src/patterns/fo_form_surface.dart';
 export 'src/patterns/fo_form_validation.dart';
 export 'src/patterns/fo_info_banner.dart';
+export 'src/patterns/fo_matrix_cells.dart';
+export 'src/patterns/fo_matrix_table.dart';
 export 'src/patterns/fo_page_header.dart';
 export 'src/patterns/fo_pagination_bar.dart';
 export 'src/patterns/fo_responsive_tile_grid.dart';
