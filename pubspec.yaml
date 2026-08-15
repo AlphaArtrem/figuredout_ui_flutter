@@ -2,7 +2,7 @@ name: figuredout_ui
 description: >-
   The Flutter design system for FiguredOut apps — the sibling of the React
   package @figuredout/ui-web. Tokens, theme and components, no app data.
-version: 0.1.0
+version: 0.2.0
 publish_to: 'none'
 repository: https://github.com/figuredoutai/figuredout_ui_flutter
 

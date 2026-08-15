@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
+
+**The Luxe port is complete.** Every `Luxe*` component in `apps/app/lib/design/` now has a
+`Fo*` counterpart, which is what phase 8 — Luxe consuming the package — was waiting on.
 
 ### Added — completing the Luxe port
 
