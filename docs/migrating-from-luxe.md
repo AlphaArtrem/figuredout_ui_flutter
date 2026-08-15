@@ -33,6 +33,8 @@ a machine-generated worklist out of `flutter analyze`.
 | `LuxeStatusChip`, `LuxeSkeleton`, `LuxeSkeletonList` | `FoStatusChip`, `FoSkeleton`, `FoSkeletonList` | |
 | `LuxeHint`, `LuxeBooleanCell` | `FoHint`, `FoBooleanCell` | **Signature changed** — see below |
 | `LuxeScaffold`, `LuxeAppBar` | `FoScaffold`, `FoAppBar` | |
+| `LuxeShellAppBar` | `FoShellAppBar` | **Signature changed** — takes a title and a `FoAccountMenuButton` |
+| `LuxeAccountMenuButton` | `FoAccountMenuButton` | **Signature changed** — takes `userName` and `items` |
 | `LuxeResponsiveTileGrid` | `FoResponsiveTileGrid` | |
 | `LuxeDataTable`, `LuxeTableColumn`, `LuxeColumnSize` | `FoDataTable`, `FoTableColumn`, `FoColumnSize` | **Signature changed** |
 | `LuxeMatrixTable`, `LuxeMatrixColumn`, `LuxeMatrixRow`, `LuxeMatrixSection`, `LuxeMatrixSummaryRow` | `FoMatrixTable`, `FoMatrixColumn`, `FoMatrixRow`, `FoMatrixSection`, `FoMatrixSummaryRow` | |
@@ -52,7 +54,13 @@ from `Fo*` parts: `LuxeWorkflowDetailLayout`, `LuxeWorkflowStatusFilter`,
 `LuxeOverrideReasonPrompt`. Delete `lib/design/widgets/status_chip.dart`, a legacy duplicate of
 `LuxeStatusChip`.
 
-Still to port: `FoShellScaffold`. Until it lands, Luxe keeps its own.
+`LuxeShellScaffold` is **not** a typedef for `FoShellScaffold`. The package's shell takes a
+navigation model — groups of `FoNavItem`, compact `FoNavDestination`s, a footer action — and
+knows nothing about routes, permissions or `AppLocalizations`. Luxe's nav registry is exactly
+that app vocabulary, so `LuxeShellScaffold` stays in `apps/app/lib/design/`, keeps its
+`(body:, currentLocation:)` signature, and becomes the thing that builds the model: it reads
+`AuthStore.permissions` and `ThemeStore.mode` inside its own `Observer`, maps `currentLocation`
+to a `selectedItemId`, and passes the result down.
 
 ## Colours
 
@@ -97,6 +105,8 @@ Luxe's l10n or its hint registry now takes a parameter.
 | `FoFormPresenter.show` | Takes a `FoDiscardCopy` |
 | `FoFormValidation.validate` | `message` is required |
 | `FoScaffold` | No `usePrimaryActionAsFabOnCompact`; set `FoScaffold.reactiveBuilder` once at startup for `primaryActionBuilder` |
+| `FoShellAppBar` | `title` is required, and the account menu is passed in rather than assumed |
+| `FoAccountMenuButton` | Takes `userName` and a list of `FoAccountMenuItem`, instead of reading `AuthStore` and confirming sign-out itself. The confirmation is a product decision, so it stays in the app |
 
 ## Wiring it up
 

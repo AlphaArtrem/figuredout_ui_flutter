@@ -35,10 +35,35 @@
 - `FoMatrixTotalText` uses `FoTextStyles.numeric` rather than the subtitle scale, so a column of
   totals aligns on its digits.
 
-### Still to port
+- `FoShellScaffold` (+ `FoNavGroup`, `FoNavItem`, `FoNavDestination`, `FoNavSheet`,
+  `FoNavAction`) — the application shell. **One navigation model, three layouts**: a labelled
+  sidebar on expanded, an icon-only rail on medium, a bottom bar on compact. An app that builds
+  its phone navigation separately from its desktop navigation ends up with two that disagree
+  about what exists.
+- `FoShellAppBar` and `FoAccountMenuButton` (+ `FoAccountMenuItem`). Distinct from `FoAppBar`,
+  which titles a *page*; this one titles the application and carries the account menu.
+- `navigationBarTheme`. Material's bottom bar defaults to elevation 3 over a tinted surface,
+  which was the one place in a consuming app a shadow appeared that `FoShadows` had not painted.
 
-`FoShellScaffold` (895 lines in Luxe). Large enough to be its own work item, and Luxe keeps its
-own until it lands — which is what blocks phase 8.
+### Changed from the Luxe originals
+
+- The shell holds no routes, no permissions and no l10n. Luxe's version built a thirteen-item
+  registry from `PermissionKeys`, `RouteNames`, `AppLocalizations` and four feature entry
+  screens, all inside the widget. The package takes the finished model and the current
+  `selectedItemId`; the registry stays in Luxe, which is where that vocabulary belongs.
+- Sidebar rows are one widget in two shapes rather than a `ListTile` and a hand-rolled rail
+  tile. The two shared a selected state that had already drifted, and the `ListTile` version
+  carried a Material paint warning Luxe had a regression test for.
+- The sidebar's trailing hairline moved to `foregroundDecoration` (§3.1): a selected tile paints
+  its ground to the full width of the column, so a border in the same decoration as the fill
+  disappeared one row at a time.
+- `FoAccountMenuButton` takes `userName` and its items instead of reading `AuthStore` and
+  raising its own sign-out confirmation. Whether signing out confirms, and what it says, is a
+  product decision.
+- Sidebar rows and the account button compose `FoFocusRing`, so the shell has the same keyboard
+  focus treatment as everything else.
+- A nav sheet whose actions are all behind permissions this user lacks now says so.
+  `FoNavSheet.emptyLabel` is required; Luxe hardcoded the English string.
 
 ## 0.1.0
 

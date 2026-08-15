@@ -44,6 +44,7 @@ free to mean *lifted*.
   `FoDropdownField`, `FoStatusChip`, `FoBadge`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`,
   `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `FoThemeToggle`,
   `foOverlaySurface`
+- **Shell**: `FoShellScaffold`, `FoShellAppBar`, `FoAccountMenuButton`
 - **Layout**: `FoScaffold`, `FoAppBar`, `FoPageHeader`, `FoResponsiveTileGrid`, `FoSeamGrid`
 - **Data**: `FoDataTable`, `FoMatrixTable`, `FoPaginationBar`, `FoFilterBar`, `FoListSearchField`,
   `FoStatCard`, `FoDescriptionList`, `FoDetailTable`
@@ -63,6 +64,8 @@ free to mean *lifted*.
 | showing a grid where the cell's position is its meaning | `FoMatrixTable` — a size breakdown, a permission grid |
 | showing one record's fields | `FoDescriptionList` |
 | framing a page region with a title | `FoSectionSurface` |
+| framing the whole app | `FoShellScaffold` — one nav model, three layouts |
+| titling the app | `FoShellAppBar`; `FoAppBar` titles a page |
 | titling a page | `FoPageHeader` — exactly one per page |
 | titling a region inside a page | `FoSectionHeader` |
 | interrupting | `FoDialog.confirm`, or `.destructive` for something irreversible |
@@ -95,6 +98,11 @@ Two pairs look alike and are not:
 
 ## Dashboard and list patterns
 
+- `FoShellScaffold` takes **one** navigation model and renders it three ways — labelled sidebar,
+  icon-only rail, bottom bar. Build the model once. An app that builds its phone navigation
+  separately from its desktop navigation ends up with two that disagree about what exists.
+  Permissions and routes stay in the app: filter the groups and destinations before passing
+  them, and do the filtering inside the app's own observer, not in a value captured outside one.
 - `FoScaffold` owns the controls row — search box, filter, primary action — so list screens stop
   putting those three in three different places at three different widths.
 - `FoSeamGrid` makes a set of related figures read as one object. **Pass a child count that

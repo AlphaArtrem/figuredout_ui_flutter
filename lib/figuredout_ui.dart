@@ -37,6 +37,8 @@ export 'src/patterns/fo_pagination_bar.dart';
 export 'src/patterns/fo_responsive_tile_grid.dart';
 export 'src/patterns/fo_scaffold.dart';
 export 'src/patterns/fo_seam_grid.dart';
+export 'src/patterns/fo_shell_app_bar.dart';
+export 'src/patterns/fo_shell_scaffold.dart';
 export 'src/patterns/fo_stat_card.dart';
 export 'src/patterns/fo_text_prompt.dart';
 export 'src/patterns/fo_toast.dart';

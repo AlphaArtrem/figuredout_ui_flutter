@@ -133,6 +133,31 @@ abstract final class FoTheme {
           ),
         ),
       ),
+      // Left to Material this is elevation 3 over a tinted surface, which is
+      // the one place in the app a shadow would appear that FoShadows did not
+      // paint — rule §3.2. The bar is chrome beside the page, so it takes the
+      // same resting surface the sidebar does.
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: c.surface,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: c.primarySoft,
+        iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+          return IconThemeData(
+            color:
+                states.contains(WidgetState.selected) ? c.primary : c.fgMuted,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((
+          Set<WidgetState> states,
+        ) {
+          return ext.text.label.copyWith(
+            color:
+                states.contains(WidgetState.selected) ? c.primary : c.fgMuted,
+          );
+        }),
+      ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: c.surface,
         elevation: 0,
