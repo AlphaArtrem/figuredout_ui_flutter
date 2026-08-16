@@ -230,6 +230,7 @@ void main() {
           pageLabel: 'Page 1 of 1',
           previousTooltip: 'Previous',
           nextTooltip: 'Next',
+          pageSemanticLabel: (int p) => 'page-$p',
           onPageChanged: (_) {},
         ),
       );
@@ -238,6 +239,104 @@ void main() {
         find.byType(IconButton),
       );
       expect(buttons.every((IconButton b) => b.onPressed == null), isTrue);
+    });
+
+    testWidgets('shows every page when the width has room for them all', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(1400, 400),
+        child: FoPaginationBar(
+          page: 6,
+          totalPages: 12,
+          totalLabel: '12 entries',
+          pageLabel: 'Page 6 of 12',
+          previousTooltip: 'Previous',
+          nextTooltip: 'Next',
+          pageSemanticLabel: (int p) => 'page-$p',
+          onPageChanged: (_) {},
+        ),
+      );
+
+      for (int page = 1; page <= 12; page++) {
+        expect(find.bySemanticsLabel('page-$page'), findsOneWidget);
+      }
+    });
+
+    testWidgets(
+        'drops the labels and shows fewer pages below the compact width',
+        (WidgetTester tester) async {
+      await pumpFo(
+        tester,
+        // Under FoPaginationBar's 480 threshold — arrows and track only.
+        surfaceSize: const Size(400, 400),
+        child: FoPaginationBar(
+          page: 1,
+          totalPages: 5,
+          totalLabel: '5 entries',
+          pageLabel: 'Page 1 of 5',
+          previousTooltip: 'Previous',
+          nextTooltip: 'Next',
+          pageSemanticLabel: (int p) => 'page-$p',
+          onPageChanged: (_) {},
+        ),
+      );
+
+      expect(find.text('5 entries'), findsNothing);
+      expect(find.text('Page 1 of 5'), findsNothing);
+      expect(find.byType(IconButton), findsNWidgets(2));
+      // Some pages still show — the track does not disappear, only the copy.
+      expect(find.bySemanticsLabel('page-1'), findsOneWidget);
+    });
+
+    testWidgets(
+        'a width above the threshold but too narrow for every tile still '
+        'anchors on first, current and last', (WidgetTester tester) async {
+      await pumpFo(
+        tester,
+        // Above the 480 compact threshold, but too narrow for 50 tiles.
+        surfaceSize: const Size(700, 400),
+        child: FoPaginationBar(
+          page: 25,
+          totalPages: 50,
+          totalLabel: '50 entries',
+          pageLabel: 'Page 25 of 50',
+          previousTooltip: 'Previous',
+          nextTooltip: 'Next',
+          pageSemanticLabel: (int p) => 'page-$p',
+          onPageChanged: (_) {},
+        ),
+      );
+
+      expect(find.bySemanticsLabel('page-1'), findsOneWidget);
+      expect(find.bySemanticsLabel('page-25'), findsOneWidget);
+      expect(find.bySemanticsLabel('page-50'), findsOneWidget);
+      // Not every page fits — the far side of the range is not anchored.
+      expect(find.bySemanticsLabel('page-10'), findsNothing);
+    });
+
+    testWidgets('tapping a tile calls onPageChanged with its number', (
+      WidgetTester tester,
+    ) async {
+      int? tapped;
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(1400, 400),
+        child: FoPaginationBar(
+          page: 1,
+          totalPages: 5,
+          totalLabel: '5 entries',
+          pageLabel: 'Page 1 of 5',
+          previousTooltip: 'Previous',
+          nextTooltip: 'Next',
+          pageSemanticLabel: (int p) => 'page-$p',
+          onPageChanged: (int p) => tapped = p,
+        ),
+      );
+
+      await tester.tap(find.bySemanticsLabel('page-3'));
+      expect(tapped, 3);
     });
   });
 

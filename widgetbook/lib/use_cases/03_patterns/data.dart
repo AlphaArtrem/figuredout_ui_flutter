@@ -225,6 +225,7 @@ class _ListChromeState extends State<ListChrome> {
             pageLabel: 'Page $_page of 17',
             previousTooltip: 'Previous page',
             nextTooltip: 'Next page',
+            pageSemanticLabel: (int page) => 'Page $page',
             onPageChanged: (int page) => setState(() => _page = page),
           ),
         ),

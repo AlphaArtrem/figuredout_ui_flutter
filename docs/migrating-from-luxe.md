@@ -101,7 +101,7 @@ Luxe's l10n or its hint registry now takes a parameter.
 | `FoHint` | Takes `message` and `buttonLabel` strings, not a `LuxeHintKey`; and `onCompactTap` instead of calling the toast itself |
 | `FoSectionHeader` | `hint` is a `Widget?` (pass a `FoHint`), not a `LuxeHintKey?` |
 | `FoDataTable` | `errorTitle` and `retryLabel` are required |
-| `FoPaginationBar` | Takes `totalLabel` and `pageLabel` already worded, plus both tooltips |
+| `FoPaginationBar` | Takes `totalLabel` and `pageLabel` already worded, plus both tooltips and a `pageSemanticLabel` for the numbered track |
 | `FoFormPresenter.show` | Takes a `FoDiscardCopy` |
 | `FoFormValidation.validate` | `message` is required |
 | `FoScaffold` | No `usePrimaryActionAsFabOnCompact`; set `FoScaffold.reactiveBuilder` once at startup for `primaryActionBuilder` |
