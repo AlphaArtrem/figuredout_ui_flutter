@@ -333,5 +333,29 @@ void main() {
         greaterThan(tester.getCenter(find.byIcon(Icons.help_outline)).dx),
       );
     });
+
+    testWidgets('status sits beside the title, not among the actions', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(900, 700),
+        child: const Scaffold(
+          appBar: FoShellAppBar(
+            title: 'Luxe',
+            status: Chip(label: Text('Offline')),
+          ),
+          body: SizedBox(),
+        ),
+      );
+
+      expect(find.text('Luxe'), findsOneWidget);
+      expect(find.text('Offline'), findsOneWidget);
+      // Beside, not instead of: the title survives status being present.
+      expect(
+        tester.getCenter(find.text('Offline')).dx,
+        greaterThan(tester.getCenter(find.text('Luxe')).dx),
+      );
+    });
   });
 }

@@ -98,6 +98,7 @@ class FoShellAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Creates a shell app bar.
   const FoShellAppBar({
     required this.title,
+    this.status,
     this.accountMenu,
     this.actions,
     super.key,
@@ -106,6 +107,18 @@ class FoShellAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// The application's name, or the current unit's. Caller-supplied, so it can
   /// be localized.
   final String title;
+
+  /// Ambient state for the app as a whole — a sync indicator, an environment
+  /// tag. Sits beside [title] rather than among [actions]: it describes the
+  /// thing named next to it, not something the bar does.
+  ///
+  /// Ported from `@figuredout/ui-web`'s `DashboardShell.status`
+  /// (`db953bf`), which put the same slot beside the sidebar's title. This
+  /// bar is what titles the application at every window class — the
+  /// scaffold's own sidebar carries no header of its own — so unlike the web
+  /// version there is no separate compact-band location this needs to fall
+  /// back to.
+  final Widget? status;
 
   /// The account menu, pinned last so it is in the same corner on every
   /// screen.
@@ -125,7 +138,15 @@ class FoShellAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(title),
+      title: status == null
+          ? Text(title)
+          : Row(
+              children: <Widget>[
+                Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
+                SizedBox(width: context.foSpacing.sm),
+                status!,
+              ],
+            ),
       actions: <Widget>[
         ...?actions,
         if (accountMenu != null) ...<Widget>[

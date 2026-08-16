@@ -193,9 +193,17 @@ Widget buildShells(BuildContext context) => const Shells();
   path: '03 Patterns',
 )
 Widget buildShellAppBar(BuildContext context) => Scaffold(
-      appBar: const FoShellAppBar(
+      appBar: FoShellAppBar(
         title: 'Luxe',
-        accountMenu: FoAccountMenuButton(
+        // Ambient state for the app as a whole — a sync indicator, an
+        // environment tag — sits beside the title rather than among the
+        // actions on the right.
+        status: Chip(
+          label: const Text('Offline'),
+          visualDensity: VisualDensity.compact,
+          backgroundColor: context.foColors.warningSoft,
+        ),
+        accountMenu: const FoAccountMenuButton(
           userName: 'Priya Nair',
           items: <FoAccountMenuItem>[
             FoAccountMenuItem(
