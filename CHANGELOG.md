@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.3.0
+
+**Ported the responsive fixes from `@figuredout/ui-web`'s `db953bf`** ("Make the system hold
+together on a phone") — the one web commit since the Flutter port's baseline (`c7e0e83`).
+
+### Changed — breaking
+
+- **`FoPaginationBar` gained a numbered track.** It used to be just
+  `totalLabel · ‹ · pageLabel · ›`; it now shows as many page numbers as its own width holds,
+  anchored on first, current and last, and drops `totalLabel` / `pageLabel` below 480 logical
+  pixels — the track's own highlighted tile carries the same information at that width. Fitting
+  is measured on the widget, not the window, the same reason web's version measures on the
+  component rather than the viewport: a bar can be handed a narrow column on a wide screen.
+  Adds a required `pageSemanticLabel` — the track needs a per-tile accessible name and the
+  package holds no copy.
+
+### Changed
+
+- **`FoStageFunnel`'s label and count now sit above a full-width bar at every width**, not only
+  below a 280px threshold. Between a fixed label and a fixed count the bar was the only flexible
+  thing in the row, so it was what reached zero width first as the row narrowed.
+- **`FoToast`'s action is `FoButton(variant: tertiary)`, not a bare `TextButton`.** Unfilled text
+  right after a message reads as padding that failed to line up with the line above it; the tint
+  gives the padding somewhere to belong.
+- **`FoShellAppBar` gained an optional `status` slot**, beside the title — ambient state for the
+  app as a whole (a sync indicator, an environment tag), rather than another action on the right.
+
 ## 0.2.1
 
 ### Fixed — found by Luxe consuming the package
