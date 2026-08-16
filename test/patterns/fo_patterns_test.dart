@@ -498,4 +498,42 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  group('FoToast', () {
+    testWidgets(
+        'the action is a tinted button, not unfilled text, and dismisses '
+        'before it runs', (WidgetTester tester) async {
+      bool ran = false;
+      await pumpFo(
+        tester,
+        child: Builder(
+          builder: (BuildContext context) => ElevatedButton(
+            onPressed: () => FoToast.info(
+              context,
+              'Synced two minutes ago.',
+              action: FoToastAction(
+                label: 'Undo',
+                onPressed: () => ran = true,
+              ),
+            ),
+            child: const Text('show'),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('show'));
+      await tester.pumpAndSettle();
+
+      // A ghost/clear TextButton is unfilled text, which is exactly what
+      // ui-web's toast fix (db953bf) moved away from — the action is a
+      // FoButton now, not a bare TextButton.
+      expect(find.byType(FoButton), findsOneWidget);
+      expect(find.byType(TextButton), findsNothing);
+
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(ran, isTrue);
+      expect(find.text('Synced two minutes ago.'), findsNothing);
+    });
+  });
 }

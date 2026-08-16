@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../primitives/fo_button.dart';
 import '../theme/fo_context.dart';
 import '../tokens/fo_layout.dart';
 import '../tokens/fo_motion.dart';
@@ -131,13 +132,16 @@ abstract final class FoToast {
                   ),
                   if (action != null) ...<Widget>[
                     SizedBox(width: context.foSpacing.sm),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        minimumSize: const Size(
-                          FoLayout.minTouchTarget,
-                          FoLayout.minTouchTarget,
-                        ),
-                      ),
+                    // `tertiary`, not a bare TextButton: unfilled text right
+                    // after the message reads as padding that failed to line
+                    // up with the line above it, not as a button — ported
+                    // from ui-web's toast fix (db953bf), which moved the
+                    // same action from `ghost` to a filled-at-rest variant.
+                    // The tint is what gives the padding somewhere to
+                    // belong.
+                    FoButton(
+                      label: action.label,
+                      variant: FoButtonVariant.tertiary,
                       onPressed: () {
                         // Dismiss first: the action usually navigates, and a
                         // toast left floating over the next screen looks like
@@ -145,7 +149,6 @@ abstract final class FoToast {
                         messenger.hideCurrentSnackBar();
                         action.onPressed();
                       },
-                      child: Text(action.label),
                     ),
                   ],
                 ],
