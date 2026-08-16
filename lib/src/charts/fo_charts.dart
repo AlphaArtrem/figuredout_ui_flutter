@@ -434,11 +434,7 @@ class FoStageFunnel extends StatelessWidget {
   /// it can be localized. Without it the gaps are not shown at all.
   final String Function(int gap, String previousLabel)? gapLabel;
 
-  static const double _labelWidth = 110;
   static const double _barHeight = 18;
-
-  /// Below this the label moves above its bar rather than beside it.
-  static const double _stackLabelBelow = 280;
 
   @override
   Widget build(BuildContext context) {
@@ -446,114 +442,99 @@ class FoStageFunnel extends StatelessWidget {
       stages.map((FoFunnelStage s) => s.qty),
     );
 
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final bool stacked = constraints.maxWidth < _stackLabelBelow;
-
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            for (int i = 0; i < stages.length; i++) ...<Widget>[
-              if (i > 0 &&
-                  gapLabel != null &&
-                  stages[i - 1].qty - stages[i].qty > 0)
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: context.foSpacing.sm,
-                    bottom: context.foSpacing.xs,
-                  ),
-                  child: Text(
-                    gapLabel!(
-                      stages[i - 1].qty - stages[i].qty,
-                      stages[i - 1].label,
-                    ),
-                    style: context.foText.caption,
-                  ),
-                ),
-              // One announcement per stage: the bar carries no text, so name
-              // and quantity would otherwise be read as unrelated fragments.
-              Semantics(
-                container: true,
-                label: '${stages[i].label}: '
-                    '${FoChartTheme.exactNumber.format(stages[i].qty)}',
-                excludeSemantics: true,
-                child: _Stage(
-                  stage: stages[i],
-                  fraction: stages[i].qty / maxQty,
-                  stacked: stacked,
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        for (int i = 0; i < stages.length; i++) ...<Widget>[
+          if (i > 0 &&
+              gapLabel != null &&
+              stages[i - 1].qty - stages[i].qty > 0)
+            Padding(
+              padding: EdgeInsets.only(
+                left: context.foSpacing.sm,
+                bottom: context.foSpacing.xs,
               ),
-              if (i < stages.length - 1) SizedBox(height: context.foSpacing.md),
-            ],
-          ],
-        );
-      },
+              child: Text(
+                gapLabel!(
+                  stages[i - 1].qty - stages[i].qty,
+                  stages[i - 1].label,
+                ),
+                style: context.foText.caption,
+              ),
+            ),
+          // One announcement per stage: the bar carries no text, so name
+          // and quantity would otherwise be read as unrelated fragments.
+          Semantics(
+            container: true,
+            label: '${stages[i].label}: '
+                '${FoChartTheme.exactNumber.format(stages[i].qty)}',
+            excludeSemantics: true,
+            child: _Stage(
+              stage: stages[i],
+              fraction: stages[i].qty / maxQty,
+            ),
+          ),
+          if (i < stages.length - 1) SizedBox(height: context.foSpacing.md),
+        ],
+      ],
     );
   }
 }
 
+/// Label and count on one line, a full-width bar beneath — at every width,
+/// not only a narrow one.
+///
+/// Ported from `@figuredout/ui-web`'s `FunnelBars` (`db953bf`): between a
+/// fixed-width label and a fixed-width count, the bar was the only flexible
+/// thing in the row, so it was what reached zero width first as the row
+/// narrowed — a row of numbers with no chart in it. Stacking removes the
+/// competition; the bar always gets the widget's full width to work in.
 class _Stage extends StatelessWidget {
-  const _Stage({
-    required this.stage,
-    required this.fraction,
-    required this.stacked,
-  });
+  const _Stage({required this.stage, required this.fraction});
 
   final FoFunnelStage stage;
   final double fraction;
-  final bool stacked;
 
   @override
   Widget build(BuildContext context) {
-    final Widget label = Text(stage.label, style: context.foText.label);
-    final Widget value = Text(
-      FoChartTheme.exactNumber.format(stage.qty),
-      style: context.foText.numeric,
-    );
-
-    final Widget bar = Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Expanded(
-          child: Container(
-            height: FoStageFunnel._barHeight,
-            decoration: BoxDecoration(
-              color: context.foColors.surfaceSunken,
-              borderRadius: BorderRadius.circular(context.foRadii.sm),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                stage.label,
+                style: context.foText.label,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            child: FractionallySizedBox(
-              alignment: AlignmentDirectional.centerStart,
-              widthFactor: fraction.clamp(0.0, 1.0),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: context.foCharts.sequential,
-                  borderRadius: BorderRadius.circular(context.foRadii.sm),
-                ),
+            SizedBox(width: context.foSpacing.sm),
+            Text(
+              FoChartTheme.exactNumber.format(stage.qty),
+              style: context.foText.numeric,
+            ),
+          ],
+        ),
+        SizedBox(height: context.foSpacing.xs),
+        Container(
+          height: FoStageFunnel._barHeight,
+          decoration: BoxDecoration(
+            color: context.foColors.surfaceSunken,
+            borderRadius: BorderRadius.circular(context.foRadii.sm),
+          ),
+          child: FractionallySizedBox(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: fraction.clamp(0.0, 1.0),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: context.foCharts.sequential,
+                borderRadius: BorderRadius.circular(context.foRadii.sm),
               ),
             ),
           ),
         ),
-        SizedBox(width: context.foSpacing.sm),
-        value,
-      ],
-    );
-
-    if (stacked) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          label,
-          SizedBox(height: context.foSpacing.xs),
-          bar,
-        ],
-      );
-    }
-
-    return Row(
-      children: <Widget>[
-        SizedBox(width: FoStageFunnel._labelWidth, child: label),
-        SizedBox(width: context.foSpacing.sm),
-        Expanded(child: bar),
       ],
     );
   }

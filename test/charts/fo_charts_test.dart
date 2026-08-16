@@ -241,5 +241,30 @@ void main() {
       // otherwise be read as unrelated fragments.
       expect(find.bySemanticsLabel('Cutting: 4,000'), findsOneWidget);
     });
+
+    testWidgets(
+        'the bar keeps the full width at a narrow width, with a long label',
+        (WidgetTester tester) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(240, 400),
+        child: const FoStageFunnel(
+          stages: <FoFunnelStage>[
+            FoFunnelStage(
+              label: 'A stage with an unusually long name',
+              qty: 100,
+            ),
+          ],
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      // Label and count sit above the bar rather than beside it — ported
+      // from ui-web's FunnelBars (db953bf) — so the bar never shares its row
+      // with a fixed-width label and is never what gives way as the row
+      // narrows.
+      final Size barSize = tester.getSize(find.byType(FractionallySizedBox));
+      expect(barSize.width, greaterThan(150));
+    });
   });
 }
