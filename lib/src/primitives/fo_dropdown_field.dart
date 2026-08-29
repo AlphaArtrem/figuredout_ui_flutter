@@ -10,6 +10,17 @@ import 'fo_spinner.dart';
 /// Like `FoTextField`, everything visual comes from the theme's
 /// `InputDecorationTheme`, and picking a value marks the enclosing
 /// `FoFormSurface` dirty so dismissing it asks first.
+///
+/// **It is controlled: [value] is read on every build.** It was not always.
+/// This was built on `DropdownButtonFormField`, whose `initialValue` a
+/// `FormField` seeds *once* — `FormFieldState.didUpdateWidget` re-applies
+/// nothing — so the field was an uncontrolled widget wearing a controlled
+/// widget's API, and every change made from outside it was silently dropped. A
+/// consuming form that cleared a dependent picker, or selected a row the user
+/// had just created, went on showing the previous choice while the store held
+/// the new one; nothing threw and nothing logged. The `FormField` was never
+/// earning its keep here anyway — this component has no validator — so it is
+/// gone, and an `InputDecorator` gives the same frame with no state to seed.
 class FoDropdownField<T> extends StatelessWidget {
   /// Creates a dropdown.
   const FoDropdownField({
@@ -77,16 +88,26 @@ class FoDropdownField<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ValueChanged<T?>? handler = onChanged;
+    final bool interactive = enabled && handler != null;
+
+    // A value with no option behind it shows as unselected rather than
+    // crashing. `DropdownButton` asserts on one, and the caller that hits that
+    // assert is usually a list that has just been refiltered — a court whose
+    // location changed a frame ago — where an empty field is the honest
+    // rendering and an assert is a crash in front of a user.
+    final T? selected =
+        items.any((DropdownMenuItem<T> item) => item.value == value)
+            ? value
+            : null;
 
     return SizedBox(
       height: FoLayout.singleLineFieldHeight,
-      child: DropdownButtonFormField<T>(
-        initialValue: value,
-        isExpanded: isExpanded,
+      child: InputDecorator(
         decoration: InputDecoration(
           labelText: label == null || !isRequired ? label : '$label *',
           hintText: hintText,
           isDense: true,
+          enabled: interactive,
           suffixIcon: loading
               ? Padding(
                   padding: EdgeInsets.all(context.foSpacing.md),
@@ -94,13 +115,23 @@ class FoDropdownField<T> extends StatelessWidget {
                 )
               : null,
         ),
-        items: items,
-        onChanged: enabled && handler != null
-            ? (T? value) {
-                FoFormScope.markDirty(context);
-                handler(value);
-              }
-            : null,
+        // What makes the label float and the hint show. The decorator cannot
+        // see inside the button, so it has to be told.
+        isEmpty: selected == null,
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<T>(
+            value: selected,
+            items: items,
+            isExpanded: isExpanded,
+            isDense: true,
+            onChanged: interactive
+                ? (T? next) {
+                    FoFormScope.markDirty(context);
+                    handler(next);
+                  }
+                : null,
+          ),
+        ),
       ),
     );
   }

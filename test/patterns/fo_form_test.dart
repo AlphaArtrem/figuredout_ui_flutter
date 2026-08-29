@@ -155,7 +155,7 @@ void main() {
       );
 
       expect(controller.dirty.value, isFalse);
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.tap(find.byType(DropdownButton<String>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Line B').last);
       await tester.pumpAndSettle();
