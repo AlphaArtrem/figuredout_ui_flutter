@@ -18,7 +18,7 @@ Widgetbook plays the role Storybook plays there.
 | --- | --- |
 | `lib/src/tokens/` | `FoTokens` (the only file allowed to hold a literal), `FoColors`, `FoTextStyles`, `FoShadows`, `FoMotion`, `FoLayout`, `FoChartColors` |
 | `lib/src/theme/` | `FoTheme.light()` / `.dark()`, `FoThemeExt`, `FoWindowClass`, and the `context.fo*` extension |
-| `lib/src/primitives/` | `FoButton`, `FoCard`, `FoTextField`, `FoDropdownField`, `FoStatusChip`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `foOverlaySurface` |
+| `lib/src/primitives/` | `FoButton`, `FoCard`, `FoTextField`, `FoDropdownField`, `FoStatusChip`, `FoSwitchTile`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `foOverlaySurface` |
 | `lib/src/patterns/` | `FoDataTable`, `FoDialog`, `FoFormPresenter`, `FoFormSurface`, `FoFormActions`, `FoFormSection`, `FoFormValidation`, `FoToast`, `FoInfoBanner`, `FoEmptyState`, `FoScaffold`, `FoAppBar`, `FoFilterBar`, `FoPaginationBar`, `FoResponsiveTileGrid` |
 | `lib/src/patterns/` (dashboard) | `FoSeamGrid`, `FoSeamCell`, `FoStatCard`, `FoStatCardContent`, `FoDescriptionList`, `FoPageHeader` |
 | `lib/src/charts/` | `FoChartShell`, `FoChartTheme`, `FoChartLegend`, `FoTrendChart`, `FoBarChart`, `FoParetoChart`, `FoStageFunnel`, `FoSparkline` |

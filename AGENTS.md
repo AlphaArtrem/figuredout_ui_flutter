@@ -77,6 +77,11 @@ cd widgetbook && dart run build_runner build -d && flutter test && flutter build
 
 - **`flutter analyze` does not compile the Widgetbook.** A use case can be broken while the
   package is green. Run the web build.
+- **A Widgetbook page can be generated and never pumped.** `widgetbook/test/use_cases_layout_test.dart`
+  registers its pages in a hand-written map. A new use case compiles under `flutter build web`,
+  appears in the running Widgetbook, and is still absent from every window-class and theme check
+  until somebody adds a line to that map — green everywhere, pumped nowhere. `FoSwitchTile`'s use
+  case was in exactly that state until the test count was compared before and after.
 - **A barrel can silently omit an export.** The web package shipped `ChartShell` documented and
   unexported for months. `test/barrel_test.dart` now checks the manifest, the barrel and
   `lib/src/` all agree — in both directions.

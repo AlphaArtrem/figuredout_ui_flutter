@@ -8,6 +8,7 @@ import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/buttons.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/fields.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/indicators.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/surfaces.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/switch_tile.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/data.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/detail.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/feedback.dart';
@@ -26,6 +27,12 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// Each page is pumped at all three window classes, in both themes, and any
 /// overflow is a failure.
+///
+/// **This map is hand-maintained, and that is its weak spot.** A use case can
+/// be written, generated into the Widgetbook and compiled by the web build
+/// while never appearing here — green everywhere, pumped nowhere. Adding a
+/// page means adding a line, and the count below is the only thing that
+/// notices when it did not happen.
 void main() {
   final Map<String, Widget> pages = <String, Widget>{
     'Palette': const Palette(),
@@ -39,6 +46,7 @@ void main() {
     'SectionHeaders': const SectionHeaders(),
     'Fields': const Fields(),
     'StatusChips': const StatusChips(),
+    'SwitchTiles': const SwitchTiles(),
     'LoadingStates': const LoadingStates(),
     'Cells': const Cells(),
     'FocusRings': const FocusRings(),

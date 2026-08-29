@@ -37,6 +37,8 @@
         "FoDropdownField",
         "FoStatusChip",
         "FoStatusTone",
+        "FoSwitchTile",
+        "FoSwitchTileLock",
         "FoBadge",
         "FoThemeToggle",
         "FoSkeleton",

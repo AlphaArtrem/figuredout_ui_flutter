@@ -57,6 +57,7 @@ export 'src/primitives/fo_section_surface.dart';
 export 'src/primitives/fo_skeleton.dart';
 export 'src/primitives/fo_spinner.dart';
 export 'src/primitives/fo_status_chip.dart';
+export 'src/primitives/fo_switch_tile.dart';
 export 'src/primitives/fo_text_field.dart';
 
 // ─── Theme ──────────────────────────────────────────────────────────────────

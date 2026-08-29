@@ -41,9 +41,9 @@ free to mean *lifted*.
 ## Canonical
 
 - **Primitives**: `FoButton`, `FoActionButton`, `FoLoadingButton`, `FoCard`, `FoTextField`,
-  `FoDropdownField`, `FoStatusChip`, `FoBadge`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`,
-  `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `FoThemeToggle`,
-  `foOverlaySurface`
+  `FoDropdownField`, `FoStatusChip`, `FoSwitchTile`, `FoBadge`, `FoSkeleton`, `FoSpinner`,
+  `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`,
+  `FoThemeToggle`, `foOverlaySurface`
 - **Shell**: `FoShellScaffold`, `FoShellAppBar`, `FoAccountMenuButton`
 - **Layout**: `FoScaffold`, `FoAppBar`, `FoPageHeader`, `FoResponsiveTileGrid`, `FoSeamGrid`
 - **Data**: `FoDataTable`, `FoMatrixTable`, `FoPaginationBar`, `FoFilterBar`, `FoListSearchField`,
@@ -70,6 +70,8 @@ free to mean *lifted*.
 | titling a region inside a page | `FoSectionHeader` |
 | interrupting | `FoDialog.confirm`, or `.destructive` for something irreversible |
 | collecting input | `FoFormPresenter.show` — never `showDialog` or `showModalBottomSheet` |
+| collecting a yes/no | `FoSwitchTile` — a boolean is a row, not a bare `Switch` beside a label |
+| showing a yes/no you cannot change | `FoSwitchTile` with a `lock`, or `FoBooleanCell` in a table |
 | reporting the result of an action | `FoToast` |
 | reporting a condition that is still true | `FoInfoBanner` |
 | saying there is nothing here | `FoEmptyState` |
@@ -85,6 +87,17 @@ Two pairs look alike and are not:
 - A **toast** reports the result of an action and leaves. A **banner** reports a condition that
   is still true and stays until it is not. A banner that needs dismissing after three seconds
   should have been a toast.
+- A **switch tile** (`FoSwitchTile`) *collects* a boolean; a **boolean cell** (`FoBooleanCell`)
+  *renders* one in a table. The tile is the input the cell never was, which is why five call
+  sites across two apps had each grown their own out of `FoCard` and a Material `Switch`.
+
+`FoSwitchTile` has one rule worth stating on its own. **A value that can never change is a word,
+never a greyed switch.** Pass a `FoSwitchTileLock` and the switch is replaced by a chip carrying
+the caller's word; a null `onChanged` means "not now" instead, and dims the row while keeping the
+switch's on and off colours. The distinction is not stylistic: a *disabled* Material `Switch`
+that is **on** paints a grey track with the thumb to the right, which reads as **off** at a
+glance. A consuming app shipped five permissions labelled "always on" beside a control that
+looked off, and only a live run on a phone caught it.
 
 ## Rules
 

@@ -4,7 +4,7 @@ description: >-
   package @figuredout/ui-web. Tokens, theme and components, no app data.
 version: 0.3.0
 publish_to: 'none'
-repository: https://github.com/figuredoutai/figuredout_ui_flutter
+repository: https://github.com/AlphaArtrem/figuredout_ui_flutter
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
