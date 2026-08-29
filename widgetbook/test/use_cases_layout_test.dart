@@ -7,6 +7,7 @@ import 'package:figuredout_ui_widgetbook/use_cases/01_foundations/type_ramp.dart
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/buttons.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/fields.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/indicators.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/segmented_control.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/surfaces.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/02_primitives/switch_tile.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/data.dart';
@@ -46,6 +47,7 @@ void main() {
     'SectionHeaders': const SectionHeaders(),
     'Fields': const Fields(),
     'StatusChips': const StatusChips(),
+    'SegmentedControls': const SegmentedControls(),
     'SwitchTiles': const SwitchTiles(),
     'LoadingStates': const LoadingStates(),
     'Cells': const Cells(),

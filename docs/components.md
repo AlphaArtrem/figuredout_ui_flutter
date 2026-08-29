@@ -41,7 +41,8 @@ free to mean *lifted*.
 ## Canonical
 
 - **Primitives**: `FoButton`, `FoActionButton`, `FoLoadingButton`, `FoCard`, `FoTextField`,
-  `FoDropdownField`, `FoStatusChip`, `FoSwitchTile`, `FoBadge`, `FoSkeleton`, `FoSpinner`,
+  `FoDropdownField`, `FoStatusChip`, `FoSwitchTile`, `FoSegmentedControl`, `FoBadge`,
+  `FoSkeleton`, `FoSpinner`,
   `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`,
   `FoThemeToggle`, `foOverlaySurface`
 - **Shell**: `FoShellScaffold`, `FoShellAppBar`, `FoAccountMenuButton`
@@ -71,6 +72,7 @@ free to mean *lifted*.
 | interrupting | `FoDialog.confirm`, or `.destructive` for something irreversible |
 | collecting input | `FoFormPresenter.show` — never `showDialog` or `showModalBottomSheet` |
 | collecting a yes/no | `FoSwitchTile` — a boolean is a row, not a bare `Switch` beside a label |
+| two or three places to be | `FoSegmentedControl` — a segment is a destination, never a filter |
 | showing a yes/no you cannot change | `FoSwitchTile` with a `lock`, or `FoBooleanCell` in a table |
 | reporting the result of an action | `FoToast` |
 | reporting a condition that is still true | `FoInfoBanner` |
@@ -90,6 +92,18 @@ Two pairs look alike and are not:
 - A **switch tile** (`FoSwitchTile`) *collects* a boolean; a **boolean cell** (`FoBooleanCell`)
   *renders* one in a table. The tile is the input the cell never was, which is why five call
   sites across two apps had each grown their own out of `FoCard` and a Material `Switch`.
+- A **segmented control** (`FoSegmentedControl`) is two or three *destinations*; a **filter bar**
+  (`FoFilterBar`) narrows whatever destination you are already in. The difference is not
+  cosmetic: a filter is something you set and can forget you set, and a segment is a place you
+  are, always visible, with the current one legible without opening anything.
+
+`FoSegmentedControl` has two rules of its own. **There is no unselected state**: `selectedIndex`
+is required and an out-of-range one clamps, because a control showing neither option as current
+is one whose user cannot tell where they are — a screen that genuinely has a "neither" wants a
+filter. And **two or three segments, asserted**: four is a tab bar, and four labels do not fit a
+phone in a script that runs longer than English. The track is `surfaceSunken` and the current
+segment rests on `surface`, which is rule 6 read literally — this table had reserved the token
+for "segmented-control tracks" for two releases before the component existed.
 
 `FoSwitchTile` has one rule worth stating on its own. **A value that can never change is a word,
 never a greyed switch.** Pass a `FoSwitchTileLock` and the switch is replaced by a chip carrying

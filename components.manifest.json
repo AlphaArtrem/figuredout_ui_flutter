@@ -39,6 +39,8 @@
         "FoStatusTone",
         "FoSwitchTile",
         "FoSwitchTileLock",
+        "FoSegmentedControl",
+        "FoSegment",
         "FoBadge",
         "FoThemeToggle",
         "FoSkeleton",

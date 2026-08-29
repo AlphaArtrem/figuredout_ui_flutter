@@ -54,6 +54,7 @@ export 'src/primitives/fo_hint.dart';
 export 'src/primitives/fo_overlay_surface.dart';
 export 'src/primitives/fo_section_header.dart';
 export 'src/primitives/fo_section_surface.dart';
+export 'src/primitives/fo_segmented_control.dart';
 export 'src/primitives/fo_skeleton.dart';
 export 'src/primitives/fo_spinner.dart';
 export 'src/primitives/fo_status_chip.dart';
