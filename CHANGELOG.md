@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.4.0
+
+Additive. Nothing existing changed shape.
+
+### Added
+
+- **`FoSwitchTile` and `FoSwitchTileLock`** — the boolean *input* the system did not have.
+  `FoBooleanCell` renders a yes/no value in a table; nothing took one, so every consuming app
+  composed `FoCard` with a Material `Switch` for itself. Five such call sites existed across two
+  apps before this landed, none of them carrying the focus ring, and each about to invent its own
+  locked state.
+
+  Three decisions inside it are worth knowing before reaching for one:
+
+  - **The switch does not handle input; the row does.** The `Switch` is a rendering of `value`
+    inside an `IgnorePointer` and an `ExcludeFocus`, and `FoCard.onTap` owns the gesture. A live
+    switch inside a tappable card fires both handlers and toggles twice — and the row is a far
+    larger target than a 48dp control at the end of it for someone using one hand.
+  - **A value that can never change is a word, never a greyed switch.** Pass a
+    `FoSwitchTileLock` and a `FoStatusChip` carrying the caller's word replaces the switch. A
+    *disabled* Material `Switch` that is **on** paints a grey track with the thumb to the right,
+    which reads as **off** at a glance: a consuming app shipped five permissions labelled
+    "always on" beside a control that looked off, and only a live run on a phone caught it.
+  - **A null `onChanged` is the other thing** — "not now" rather than "not ever". The row dims as
+    a whole and the switch keeps its on and off colours, because the misreading above comes from
+    Material greying both states into one, and dimming uniformly does not.
+
+  The row announces itself once, as a toggle: `FoCard`'s own button role is excluded, so a
+  screen reader hears one control rather than a button containing a switch.
+
+### Fixed
+
+- **`pubspec.yaml`'s `repository:` pointed at a GitHub owner that does not exist**
+  (`figuredoutai`). The repository has lived at `AlphaArtrem/figuredout_ui_flutter` since it was
+  created; the field now says so. Nothing resolved it, which is exactly why it survived — a
+  consumer following it got a 404 and assumed they had the wrong link.
+
+### Internal
+
+- `widgetbook/test/use_cases_layout_test.dart` registers pages by hand, so a use case can be
+  written, generated and compiled by the web build while never being pumped at any window class.
+  This change's own use case was invisible that way until the count was checked. Documented in
+  `AGENTS.md`; the map is still hand-maintained.
+
 ## 0.3.0
 
 **Ported the responsive fixes from `@figuredout/ui-web`'s `db953bf`** ("Make the system hold
