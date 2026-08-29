@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.5.0
+
+Additive. Nothing existing changed shape.
+
+### Added
+
+- **`FoSegmentedControl` and `FoSegment`** — two or three destinations, side by side, with
+  exactly one current. The gap had been visible for two releases: this document has reserved
+  `surfaceSunken` for "segmented-control tracks" since 0.3.0, and a consuming app's conventions
+  named the component in its mapping table before it existed. The token was waiting for it.
+
+  Three decisions worth knowing before reaching for one:
+
+  - **A segment is a destination, not a filter.** A filter is something you set and can forget
+    you set; a segment is a place you are, it is always visible, and the one you are in is
+    legible without opening anything. `FoFilterBar` narrows the destination you are already in;
+    this chooses between destinations.
+  - **There is no unselected state and no third state.** `selectedIndex` is required, and an
+    out-of-range value clamps rather than showing none as current — a control whose user cannot
+    tell where they are is the one failure this component exists to prevent. Tapping the current
+    segment does not fire the callback: it is where you already are, and firing would reload a
+    list under somebody's thumb.
+  - **Two or three, asserted.** Four is a tab bar, and four labels do not fit a phone in a
+    script that runs longer than English. Labels wrap and never ellipsise for the same reason:
+    a Devanagari label is longer than the English one it was sized against, and a truncated
+    destination is not one anybody can read.
+
+  `FoSegment.count` is optional and shows nothing at all when null rather than a zero — a count
+  that has not loaded and a count of none are different things, and a bare zero reads as the
+  second.
+
+  The segment declares its own `onTap` in `Semantics` as well as on the `InkWell`, because
+  `excludeSemantics` drops the latter. Without it a screen-reader user could read the segments
+  and activate none of them; the package's own test caught that, and a review would not have.
+
 ## 0.4.0
 
 Additive. Nothing existing changed shape.
