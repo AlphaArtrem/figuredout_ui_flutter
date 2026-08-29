@@ -48,6 +48,7 @@ export 'src/primitives/fo_badge.dart';
 export 'src/primitives/fo_boolean_cell.dart';
 export 'src/primitives/fo_button.dart';
 export 'src/primitives/fo_card.dart';
+export 'src/primitives/fo_date_field.dart';
 export 'src/primitives/fo_dropdown_field.dart';
 export 'src/primitives/fo_focus_ring.dart';
 export 'src/primitives/fo_hint.dart';

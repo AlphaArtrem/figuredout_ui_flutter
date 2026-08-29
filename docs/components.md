@@ -41,7 +41,8 @@ free to mean *lifted*.
 ## Canonical
 
 - **Primitives**: `FoButton`, `FoActionButton`, `FoLoadingButton`, `FoCard`, `FoTextField`,
-  `FoDropdownField`, `FoStatusChip`, `FoSwitchTile`, `FoSegmentedControl`, `FoBadge`,
+  `FoDropdownField`, `FoDateField`, `FoStatusChip`, `FoSwitchTile`, `FoSegmentedControl`,
+  `FoBadge`,
   `FoSkeleton`, `FoSpinner`,
   `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`,
   `FoThemeToggle`, `foOverlaySurface`
@@ -72,6 +73,7 @@ free to mean *lifted*.
 | interrupting | `FoDialog.confirm`, or `.destructive` for something irreversible |
 | collecting input | `FoFormPresenter.show` — never `showDialog` or `showModalBottomSheet` |
 | collecting a yes/no | `FoSwitchTile` — a boolean is a row, not a bare `Switch` beside a label |
+| collecting a calendar date | `FoDateField` — typed *and* picked, and its text is the value |
 | two or three places to be | `FoSegmentedControl` — a segment is a destination, never a filter |
 | showing a yes/no you cannot change | `FoSwitchTile` with a `lock`, or `FoBooleanCell` in a table |
 | reporting the result of an action | `FoToast` |
@@ -104,6 +106,17 @@ filter. And **two or three segments, asserted**: four is a tab bar, and four lab
 phone in a script that runs longer than English. The track is `surfaceSunken` and the current
 segment rests on `surface`, which is rule 6 read literally — this table had reserved the token
 for "segmented-control tracks" for two releases before the component existed.
+
+`FoDateField` has two rules of its own. **Its value is the controller's text, and that text is
+an ISO-8601 date** — `2026-08-29`. That is a contract rather than a default: it is the one
+written form with no ambiguity between the day and the month, it sorts as a string, and it is
+what the JSON APIs behind these apps already exchange. `foIsoDate` and `foParseIsoDate` convert,
+and the parse is strict about the round trip because `DateTime.parse` accepts `2024-02-31` and
+rolls it quietly into March. And **a date is not an instant**: there is no time and no zone here,
+because a hearing on the 26th stored as a timestamp shows as the 25th to somebody whose phone is
+set to another country. It is also typed *and* picked on purpose — a clerk entering a month of
+records is faster than any calendar, someone who does it twice a month wants the calendar, and
+which of the two a screen has depends on the screen.
 
 `FoSwitchTile` has one rule worth stating on its own. **A value that can never change is a word,
 never a greyed switch.** Pass a `FoSwitchTileLock` and the switch is replaced by a chip carrying
@@ -149,6 +162,12 @@ looked off, and only a live run on a phone caught it.
 
 ## Gotchas worth knowing before you edit
 
+- **A `FormField` seeds from `initialValue` and never re-applies it.**
+  `FormFieldState.didUpdateWidget` reacts to `forceErrorText` and to nothing else, so any
+  wrapper that hands a caller's `value` to a `FormField` is an uncontrolled widget wearing a
+  controlled widget's API — every change made from outside is dropped in silence. That is what
+  `FoDropdownField` was until 0.6.0, and why it is now an `InputDecorator` around a plain
+  `DropdownButton`. Reach for a `FormField` only when you actually want its validation.
 - **A Material child needs a Material ancestor *inside* the fill.** A
   `ListTile` or a `Switch` paints its ink on the nearest `Material`, so one
   sitting above a painted background puts the ink behind that background —

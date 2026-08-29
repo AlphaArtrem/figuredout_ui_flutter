@@ -4,7 +4,7 @@ import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
 import '../../support/doc_page.dart';
 
-/// The two form fields, in every state a form actually produces.
+/// The form fields, in every state a form actually produces.
 class Fields extends StatefulWidget {
   /// Creates the fields page.
   const Fields({super.key});
@@ -15,9 +15,20 @@ class Fields extends StatefulWidget {
 
 class _FieldsState extends State<Fields> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _shipped = TextEditingController(
+    text: '2026-08-29',
+  );
+  final TextEditingController _received = TextEditingController();
   String? _line = 'A';
 
   static const List<String> _lines = <String>['A', 'B', 'C'];
+
+  @override
+  void dispose() {
+    _shipped.dispose();
+    _received.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +83,37 @@ class _FieldsState extends State<Fields> {
                   label: 'Validate',
                   variant: FoButtonVariant.secondary,
                   onPressed: () => _formKey.currentState?.validate(),
+                ),
+              ],
+            ),
+          ),
+          DocSection(
+            title: 'Date',
+            child: Column(
+              children: <Widget>[
+                FoDateField(
+                  label: 'Shipped on',
+                  controller: _shipped,
+                  pickSemanticLabel: 'Pick the shipping date',
+                ),
+                SizedBox(height: context.foSpacing.lg),
+                FoDateField(
+                  label: 'Received on',
+                  controller: _received,
+                  isRequired: true,
+                  hintText: '2026-08-29',
+                  helperText: 'Year, month, day.',
+                  pickSemanticLabel: 'Pick the receiving date',
+                ),
+                SizedBox(height: context.foSpacing.sm),
+                Text(
+                  'Typed or picked, and both write the same value: the '
+                  'field\'s text is an ISO-8601 date. Somebody entering a '
+                  'month of records types faster than any calendar; somebody '
+                  'who does this twice a month wants the calendar.',
+                  style: context.foText.body.copyWith(
+                    color: context.foColors.fgSubtle,
+                  ),
                 ),
               ],
             ),
@@ -148,3 +190,8 @@ Widget buildFields(BuildContext context) => const Fields();
   path: '02 Primitives',
 )
 Widget buildDropdownFields(BuildContext context) => const Fields();
+
+/// The date field, typed and picked. Open the calendar from the button: it
+/// starts on whatever is already in the field.
+@widgetbook.UseCase(name: 'Date', type: FoDateField, path: '02 Primitives')
+Widget buildDateFields(BuildContext context) => const Fields();
