@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.6.0
+
+One addition and one fix. The fix changes no API and no pixels, but it changes what the
+component *does*, and a consuming widget test may need one line changed — see below.
+
+### Added
+
+- **`FoDateField`**, with `foIsoDate` and `foParseIsoDate`. A calendar date, **typed and
+  picked**: a clerk entering a month of records is faster than any calendar can be tapped, and
+  somebody who does this twice a month wants the calendar, so a field offering only one of the
+  two is wrong for half its users and which half depends on the screen.
+
+  Two decisions are contracts rather than defaults:
+
+  - **The value is the controller's text, and that text is ISO-8601** — `2026-08-29`. It is the
+    one written form with no ambiguity between the day and the month, which for a record
+    somebody may have to defend is a safety property and not a style; it sorts as a string; and
+    it is what the JSON APIs behind these apps already exchange. `foParseIsoDate` is strict
+    about the round trip, because `DateTime.parse` accepts `2024-02-31` and rolls it quietly
+    into March — a typo becoming a different date rather than an error.
+  - **A date is not an instant.** No time and no zone. Stored as a timestamp, a hearing on the
+    26th shows as the 25th to somebody whose phone is set to another country; whoever needs an
+    instant derives it from this date and a zone they choose.
+
+  `pickSemanticLabel` is required because the calendar button is icon-only and an unnamed icon
+  is invisible to anyone not looking at it. `firstDate` and `lastDate` default to a century
+  either side — not a guess about your domain, the absence of one. How a date is *worded* for
+  reading is not this field's job: it is an input, and its text is the value.
+
+### Fixed
+
+- **`FoDropdownField` is controlled.** It was built on `DropdownButtonFormField`, which takes an
+  `initialValue` that a `FormField` seeds **once** — `FormFieldState.didUpdateWidget` re-applies
+  nothing — so the component was an uncontrolled widget wearing a controlled widget's API. Every
+  change made from outside the control was dropped, silently: a form that cleared a dependent
+  picker when its parent changed, or that selected a row the user had just created, went on
+  showing the previous choice while the caller held the new one. Nothing threw and nothing
+  logged, which is the worst shape this can have on a form about to be saved.
+
+  The `FormField` was never earning its keep — this component has no validator — so it is gone,
+  and an `InputDecorator` around a plain `DropdownButton` gives the same frame with no state to
+  seed. A value with no matching item now renders as unselected instead of tripping
+  `DropdownButton`'s assert, which is the state a refiltered list passes through for a frame.
+
+  **What this may break:** a widget test that reached for `find.byType(DropdownButtonFormField)`.
+  There is no `DropdownButtonFormField` in the tree any more. Target `FoDropdownField` itself —
+  it wraps both the label and the menu, where Material's internals no longer do.
+
 ## 0.5.0
 
 Additive. Nothing existing changed shape.
