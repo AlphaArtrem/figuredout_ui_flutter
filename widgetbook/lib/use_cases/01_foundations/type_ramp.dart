@@ -114,10 +114,14 @@ class _TabularProof extends StatelessWidget {
           ],
         );
 
-    return Row(
+    // Two specimens side by side while they fit, stacked when they do not —
+    // at 200% text on a compact viewport they do not, and a `Row` here ran
+    // 310 points off the right of the page.
+    return Wrap(
+      spacing: context.foSpacing.xxl,
+      runSpacing: context.foSpacing.xl,
       children: <Widget>[
         column('body — drifts', context.foText.body),
-        SizedBox(width: context.foSpacing.xxl),
         column('numeric — aligns', context.foText.numeric),
       ],
     );

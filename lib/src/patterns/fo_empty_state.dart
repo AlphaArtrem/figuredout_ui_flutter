@@ -77,7 +77,7 @@ class FoEmptyState extends StatelessWidget {
     final Color accent =
         _isError ? context.foColors.danger : context.foColors.primary;
 
-    return Center(
+    final Widget content = Center(
       child: Padding(
         padding: EdgeInsets.all(context.foSpacing.xl),
         child: ConstrainedBox(
@@ -124,6 +124,36 @@ class FoEmptyState extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    // **It scrolls when it does not fit, and is centred when it does.**
+    //
+    // The column is `MainAxisSize.min`, so it takes what it needs and paints
+    // past the bottom of whatever it was given. At twice the system text size
+    // a mark, a title, a hint and a button no longer fit on a phone, and an
+    // empty state is exactly the screen somebody at that text size is most
+    // likely to be reading — it is what the app shows before there is any
+    // content to look at instead.
+    //
+    // `minHeight` is what keeps the ordinary case identical: a `Center` under
+    // an unbounded height shrink-wraps to its child and is then stretched to
+    // the constraint, so a short state sits in the middle of the viewport
+    // exactly as it did before.
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints viewport) {
+        // **An unbounded height is not an error here.** This pattern is put
+        // inside a `Column` and inside a `ListView` by callers; a scroll view
+        // in either would assert, and there is nothing to overflow in the
+        // first place because the parent is already growing to fit.
+        if (!viewport.hasBoundedHeight) return content;
+
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: viewport.maxHeight),
+            child: content,
+          ),
+        );
+      },
     );
   }
 }

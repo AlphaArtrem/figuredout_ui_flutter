@@ -190,5 +190,32 @@ looked off, and only a live run on a phone caught it.
   `FoChartTheme.animation`.
 - **An interactive widget needs a `Material` ancestor** for its ink. `FoCard` carries its own;
   a new interactive component built on a bare `DecoratedBox` will crash outside a `Scaffold`.
+- **A `Row` holding something flexible beside something that is not is a text-scale bug.** A
+  message beside a button, a title beside a chip: the `Expanded` collapses to nothing long
+  before the fixed thing does, and at 200% the fixed thing runs off the right with its own
+  words cut off — which is the whole point of a chip that never relies on colour alone. Use a
+  `Wrap` with `WrapAlignment.spaceBetween`, give it a tight width (`Expanded`, or a
+  `SizedBox(width: double.infinity)` when it is the whole row), and the second thing drops onto
+  its own line at whatever size it stops fitting. **No threshold and no `LayoutBuilder`** — the
+  same fix covers a long label in any language. `FoInfoBanner` does this; `FoSwitchTile` keeps
+  its `Switch` in the `Row` and makes only the lock chip `Flexible`, because a fixed 60-point
+  control never grows and a target that moves with the text size is one somebody has to look
+  for.
+- **A `Wrap` in a `Column` shrink-wraps, and `spaceBetween` then does nothing.** The column
+  hands loose width, the wrap sizes to its content, and an alignment with no free space to
+  distribute silently becomes `start`. Every test still passes; the only symptom is a chip
+  pressed against the label it should be opposite.
+- **A `MainAxisSize.min` column paints past whatever it was given.** `FoEmptyState` did, at
+  200% on a phone — and an empty state is the screen somebody at that text size is most likely
+  to be reading, because it is what an app shows before there is anything else to look at. It
+  is a `SingleChildScrollView` over a `ConstrainedBox(minHeight: viewport)` now, so it is
+  centred when it fits and scrolls when it does not. The `minHeight` is the half that keeps the
+  ordinary case identical.
+- **`widgetbook/test` pumps every page at 200% text**, at the compact viewport in light theme —
+  the combination that runs out of room first, and one pass rather than a third dimension on
+  the 3 × 2 matrix. The `Charts` page is exempt and says why in the test: `FoChartShell` gives
+  its plot a fixed height because `fl_chart` fills its box and asserts on an unbounded one, so
+  a self-sizing chart like `FoStageFunnel` overflows that slot at 200%. Fixing it means an
+  opt-out on the shell, which is an API addition.
 - **Semantic text is measured against its soft wash, not the surface.** See
   [`contrast-report.md`](contrast-report.md).

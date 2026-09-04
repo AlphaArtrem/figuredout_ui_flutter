@@ -268,8 +268,13 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
+    // **A floor, not a fixed height.** This is the slot a chart would have
+    // occupied, and holding it keeps a loading, empty or failed chart from
+    // making the page jump — but the thing in it here is a sentence, and a
+    // sentence at twice the system text size is taller than a plot's height.
+    // A `SizedBox` clipped it and painted the rest past the bottom.
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: height),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

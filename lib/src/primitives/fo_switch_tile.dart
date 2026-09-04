@@ -124,11 +124,20 @@ class FoSwitchTile extends StatelessWidget {
           ),
           SizedBox(width: context.foSpacing.md),
           if (locked)
-            FoStatusChip.tone(
-              label: lock.label,
-              // The chip carries the value as well as the lock: on is a
-              // settled good state, off is simply how things are.
-              tone: value ? FoStatusTone.success : FoStatusTone.neutral,
+            // **`Flexible`, because a chip's label is the caller's words at
+            // the reader's text size.** A `Switch` is a fixed 60-odd points
+            // and never grows; a chip grows with both, and at twice the system
+            // text size *"Not available"* beside a title left the `Expanded`
+            // with nothing and ran 38 points off the right. Constrained, the
+            // chip's own `Text` wraps inside it — two lines of a readable
+            // label rather than half of one off the edge of the screen.
+            Flexible(
+              child: FoStatusChip.tone(
+                label: lock.label,
+                // The chip carries the value as well as the lock: on is a
+                // settled good state, off is simply how things are.
+                tone: value ? FoStatusTone.success : FoStatusTone.neutral,
+              ),
             )
           else
             // Never handed a null onChanged. Material greys an off *and* an on

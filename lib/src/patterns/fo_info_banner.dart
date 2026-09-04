@@ -114,21 +114,40 @@ class FoInfoBanner extends StatelessWidget {
           children: <Widget>[
             Icon(icon ?? defaultIcon, color: ink),
             SizedBox(width: context.foSpacing.sm),
+            // **The message and the action are a `Wrap`, and the icon is
+            // not.** A `Row` gave the action its natural width and the message
+            // whatever was left, which is fine until the action alone is wider
+            // than the banner: at twice the system text size the `Expanded`
+            // collapsed to nothing and the button ran off the right, which is
+            // an action nobody can reach.
+            //
+            // Inside a `Wrap` the button drops under the message the moment
+            // the two stop fitting — at whatever text size, or message length,
+            // that turns out to be. `Expanded` supplies the tight width
+            // `spaceBetween` needs to have anything to put between, and the
+            // icon stays a sibling of it so it keeps its place at the top
+            // left rather than joining the shuffle.
             Expanded(
-              child: Text(
-                text,
-                style: context.foText.body.copyWith(color: ink),
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: context.foSpacing.sm,
+                runSpacing: context.foSpacing.sm,
+                children: <Widget>[
+                  Text(
+                    text,
+                    style: context.foText.body.copyWith(color: ink),
+                  ),
+                  if (onAction != null)
+                    FoButton(
+                      label: actionLabel!,
+                      variant: FoButtonVariant.clear,
+                      icon: tone == FoBannerTone.danger ? Icons.refresh : null,
+                      onPressed: onAction,
+                    ),
+                ],
               ),
             ),
-            if (onAction != null) ...<Widget>[
-              SizedBox(width: context.foSpacing.sm),
-              FoButton(
-                label: actionLabel!,
-                variant: FoButtonVariant.clear,
-                icon: tone == FoBannerTone.danger ? Icons.refresh : null,
-                onPressed: onAction,
-              ),
-            ],
           ],
         ),
       ),

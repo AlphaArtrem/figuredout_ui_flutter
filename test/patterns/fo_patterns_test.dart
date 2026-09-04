@@ -189,6 +189,60 @@ void main() {
     });
   });
 
+  group('FoInfoBanner at 200% text', () {
+    testWidgets(
+        'drops its action under the message rather than off the '
+        'right', (WidgetTester tester) async {
+      // A `Row` gave the action its natural width and the message whatever was
+      // left, which is fine until the action alone is wider than the banner —
+      // and then the `Expanded` collapses to nothing and the button is an
+      // action nobody can reach. Found in a consuming app, at 200%.
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(390, 844),
+        child: FoInfoBanner.error(
+          message: 'That did not save. Nothing has been lost.',
+          retryLabel: 'Try again',
+          onRetry: () {},
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      // Reachable, and whole: the label is the only thing that says what the
+      // button does.
+      expect(find.text('Try again'), findsOneWidget);
+      final Rect message = tester.getRect(
+        find.text('That did not save. Nothing has been lost.'),
+      );
+      final Rect action = tester.getRect(find.text('Try again'));
+      expect(action.top, greaterThanOrEqualTo(message.top));
+      expect(action.right, lessThanOrEqualTo(390));
+    });
+
+    testWidgets('and keeps the action beside the message when it fits', (
+      WidgetTester tester,
+    ) async {
+      // At ordinary size nothing moves: two children in one run sit at either
+      // end, which is what the `Row` did.
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(900, 400),
+        child: FoInfoBanner(
+          message: 'Saved.',
+          actionLabel: 'Undo',
+          onAction: () {},
+        ),
+      );
+
+      final Rect message = tester.getRect(find.text('Saved.'));
+      final Rect action = tester.getRect(find.text('Undo'));
+      expect(action.left, greaterThan(message.right));
+    });
+  });
+
   group('FoEmptyState', () {
     testWidgets('the error variant defaults its action to a retry mark', (
       WidgetTester tester,
@@ -212,6 +266,53 @@ void main() {
         child: const FoEmptyState(icon: Icons.inbox, title: 'Nothing yet'),
       );
       expect(find.byType(FoButton), findsNothing);
+    });
+
+    testWidgets('scrolls rather than overflowing at 200% text', (
+      WidgetTester tester,
+    ) async {
+      // **The screen somebody at 200% is most likely to be reading**: an empty
+      // state is what an app shows before there is any content to look at
+      // instead. A mark, a title, a hint and a button stopped fitting on a
+      // phone, and the column painted past the bottom of what it was given.
+      //
+      // The assertion is the absence of an exception — an overflow is reported
+      // to `FlutterError.onError` during layout and fails the test on its own,
+      // so nothing here names a pixel count and this survives a change of
+      // copy or of the type scale.
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(390, 500),
+        child: FoEmptyState.error(
+          title: 'Could not load this list',
+          hint: 'Check your connection and try again. If it keeps failing, '
+              'somebody may be working on it.',
+          actionLabel: 'Try again',
+          onAction: () {},
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Try again'), findsOneWidget);
+    });
+
+    testWidgets('and is still centred when it does fit', (
+      WidgetTester tester,
+    ) async {
+      // The other half of the scroll view: `minHeight` is what keeps the
+      // ordinary case identical, so a short state sits in the middle of the
+      // viewport rather than pinned to the top of a scroll.
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(390, 800),
+        child: const FoEmptyState(icon: Icons.inbox, title: 'Nothing yet'),
+      );
+
+      final Rect title = tester.getRect(find.text('Nothing yet'));
+      expect(title.center.dy, closeTo(400, 60));
     });
   });
 

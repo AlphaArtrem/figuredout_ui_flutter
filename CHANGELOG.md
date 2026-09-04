@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.6.1
+
+Five layout fixes, all of them the same bug at twice the system text size, and a test that
+would have found them. No API change; the ordinary case is pixel-identical.
+
+**Found in a consuming app, not here.** The Widgetbook's layout test pumped every page at three
+viewports in both themes and fails on overflow — and never once at a text scale, so `FoEmptyState`
+and `FoInfoBanner` had been shipping overflows through four releases. That test now makes one more
+pass per page at 200% text, compact and light, which is the combination that runs out of room
+first. Running it for the first time found three more.
+
+### Fixed
+
+- **`FoInfoBanner` no longer runs its action off the right.** The message and the button were a
+  `Row`, so the button kept its natural width and the message got whatever was left — until the
+  button alone was wider than the banner, at which point the `Expanded` collapsed to nothing and
+  the action became one nobody could reach. They are a `Wrap` now: the button drops under the
+  message when the two stop fitting, at whatever text size or message length that turns out to
+  be. The icon stays outside it, so it keeps its place at the top left. At ordinary size the
+  layout is unchanged — two children in one run sit at either end, which is what the `Row` did.
+- **`FoEmptyState` no longer paints past the bottom.** Its column is `MainAxisSize.min`, so a
+  mark, a title, a hint and a button simply overflowed once they stopped fitting on a phone. It
+  is a `SingleChildScrollView` over a `ConstrainedBox(minHeight: viewport)` now — centred when it
+  fits, scrolling when it does not. An unbounded height returns the old widget untouched, because
+  callers put this inside a `Column` and inside a `ListView` and a scroll view in either would
+  assert. **This is the one worth caring about**: an empty state is what an app shows before there
+  is any content to look at instead, so it is the screen somebody at 200% is most likely to be
+  reading.
+- **`FoSwitchTile`'s lock chip is `Flexible`.** A `Switch` is a fixed 60-odd points and never
+  grows; a chip carries the caller's words at the reader's text size and does. Constrained, the
+  chip's own text wraps inside it — two readable lines rather than half of one off the edge.
+- **`FoChartShell`'s message slot is a floor rather than a fixed height.** Holding the plot's
+  height keeps a loading, empty or failed chart from making the page jump, but the thing in that
+  slot is a sentence, and a sentence at 200% is taller than a plot.
+- **The type ramp use case wraps.** Two specimen columns side by side ran 310 points off a compact
+  page at 200%.
+
+### Known gap
+
+`FoChartShell` gives its plot a fixed height because `fl_chart` fills whatever box it is in and
+asserts on an unbounded one. A chart that is *not* a plot — `FoStageFunnel` — is therefore a
+self-sizing widget in a fixed slot, and its labels run past the bottom at 200%. The `Charts` page
+is skipped in the 200% pass, by name and with the reason in the test. The fix is an opt-out on the
+shell saying "this content sizes itself", which is an API addition rather than a layout change.
+
 ## 0.6.0
 
 One addition and one fix. The fix changes no API and no pixels, but it changes what the
