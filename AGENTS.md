@@ -102,3 +102,35 @@ cd widgetbook && dart run build_runner build -d && flutter test && flutter build
   `FoChartTheme.animation`, which is `Duration.zero`.
 - **A `Column` at its default `MainAxisSize.max` fills whatever it is given.** `FoDescriptionList`
   did, so it never visibly stacked and pushed everything below it off screen.
+
+## Session Start
+
+Read `docs/README.md` first: it gives the read order (`docs/state.md`, `docs/plan.md`,
+`docs/external-facts.md`) and the rule for which file each kind of finding goes to. Edit
+`docs/state.md` in place when the state or the next action changes.
+
+## Answer shape: full technical answer, then a plain-language summary
+
+Every response ends with a short plain-language summary. The body above it stays fully
+technical — numbers, file paths, commands, evidence, caveats, all of it. The summary does not
+replace that detail and does not repeat it; it says what the work MEANS.
+
+1. **The answer, in full.** Whatever the question needed: measurements with their sample size
+   and time window, the query or command that produced them, what was verified and what was
+   assumed, what failed and why. Do not thin this out to make room for the summary.
+2. **A separator (`---`), then a section headed "Summary".** A few sentences or a handful of
+   bullets. Ordinary words. Only what the reader needs to decide what happens next.
+
+What belongs in the summary:
+- What changed, in terms of cost, risk, users, or what the system will now do differently.
+- Anything that did NOT work, stated outright rather than left as a caveat above.
+- The one decision or action that is now the reader's, if there is one.
+
+What does not:
+- Numbers repeated for their own sake. A number earns its place only when it is the point.
+- Internal shorthand, symbol names, or implementation details the body already explained.
+- Hedging. If the body concluded something, the summary says it.
+
+**Why:** the technical body makes the work checkable and is what future sessions read. The
+summary is what a busy reader uses to decide where time and money go next. Both parts are
+required — the rule is "and", never "or".
