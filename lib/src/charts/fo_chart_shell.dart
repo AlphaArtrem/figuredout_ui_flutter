@@ -73,6 +73,7 @@ class FoChartShell extends StatefulWidget {
     this.onRetry,
     this.height = FoChartTheme.defaultHeight,
     this.legend,
+    this.chartSizesItself = false,
     super.key,
   });
 
@@ -100,8 +101,19 @@ class FoChartShell extends StatefulWidget {
   /// Reloads.
   final VoidCallback? onRetry;
 
-  /// The plot's height.
+  /// The plot's height — a fixed slot for a plot, a floor for a chart that
+  /// [chartSizesItself].
   final double height;
+
+  /// Whether [chart] is a widget that measures itself — `FoStageFunnel`, a
+  /// column of labelled bars — rather than a plot that fills its box.
+  ///
+  /// A plot (`fl_chart` underneath) fills whatever it is given and asserts on
+  /// an unbounded height, so by default the shell gives it exactly [height].
+  /// A self-sizing chart in that fixed slot ran past the bottom as soon as
+  /// its labels grew: at 200% text the funnel overflowed by 200 points. With
+  /// this set, [height] is a floor and the chart is as tall as it needs.
+  final bool chartSizesItself;
 
   /// An optional legend, shown above the chart and hidden with it.
   final Widget? legend;
@@ -160,7 +172,13 @@ class _FoChartShellState extends State<FoChartShell> {
             widget.legend!,
             SizedBox(height: context.foSpacing.md),
           ],
-          SizedBox(height: widget.height, child: widget.chart),
+          if (widget.chartSizesItself)
+            ConstrainedBox(
+              constraints: BoxConstraints(minHeight: widget.height),
+              child: widget.chart,
+            )
+          else
+            SizedBox(height: widget.height, child: widget.chart),
         ],
       ],
     );

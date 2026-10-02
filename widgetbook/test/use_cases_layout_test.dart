@@ -121,16 +121,13 @@ void main() {
     /// chip, the chart shell's message slot, and the type ramp use case
     /// itself.
     ///
-    /// **Charts is exempt, and named rather than skipped quietly.**
-    /// `FoChartShell` gives its plot a fixed height because `fl_chart` fills
-    /// whatever box it is in and asserts on an unbounded one — so a chart that
-    /// is *not* a plot, like `FoStageFunnel`, is a self-sizing widget in a
-    /// fixed slot, and at 200% its labels run 200 points past the bottom. The
-    /// fix is an opt-out on the shell saying "this content sizes itself",
-    /// which is an API addition rather than a layout change; until then this
-    /// page is a known gap and not a passing one.
+    /// **Charts was exempt until 0.6.2.** `FoChartShell` gives a plot a
+    /// fixed height because `fl_chart` fills whatever box it is in and asserts
+    /// on an unbounded one — so `FoStageFunnel`, a self-sizing column of
+    /// labelled bars, ran 200 points past the bottom of that slot at 200%.
+    /// The shell's `chartSizesItself` makes the height a floor for such a
+    /// chart, and the page runs here like every other.
     testWidgets(
-      skip: page.key == 'Charts',
       '${page.key} fits at compact 480, light, 200% text',
       (
         WidgetTester tester,
