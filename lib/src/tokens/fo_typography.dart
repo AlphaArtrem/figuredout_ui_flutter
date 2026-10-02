@@ -55,63 +55,109 @@ class FoTextStyles {
   /// [fg] carries prose and headings; [fgMuted] carries the caption, which
   /// names rather than states and should never compete with the value beside
   /// it.
+  ///
+  /// [fontFamilyFallback] is the consuming app's own script coverage — a
+  /// Devanagari face, say, which Geist does not have — tried in order after
+  /// Geist for any glyph it lacks. The families are looked up in the
+  /// **consuming app's** font manifest, as written.
+  ///
+  /// That is why it is a parameter and not something to `apply` afterwards.
+  /// Every style here carries `package: 'figuredout_ui'`, and `TextStyle`
+  /// applies the package **in its `fontFamilyFallback` getter**: a fallback
+  /// added to one of these styles by `apply`, `copyWith` or `merge` comes back
+  /// as `packages/figuredout_ui/<family>`, is looked up in this package's
+  /// manifest, is not there, and the platform's own face is used instead —
+  /// silently, at a different metric, so line heights jump between scripts.
+  /// With a fallback, each style is built with no `package` and the family
+  /// already resolved (`packages/figuredout_ui/Geist`), so Geist still comes
+  /// from here and the fallback from the app.
   factory FoTextStyles.forColors({
     required Color fg,
     required Color fgMuted,
-  }) =>
-      FoTextStyles(
-        display: TextStyle(
-          fontFamily: FoTokens.fontSans,
-          package: FoTokens.fontPackage,
-          fontSize: FoTokens.fontDisplay,
-          fontWeight: FontWeight.w700,
-          color: fg,
-        ),
-        title: TextStyle(
-          fontFamily: FoTokens.fontSans,
-          package: FoTokens.fontPackage,
-          fontSize: FoTokens.fontTitle,
-          fontWeight: FontWeight.w600,
-          color: fg,
-        ),
-        subtitle: TextStyle(
-          fontFamily: FoTokens.fontSans,
-          package: FoTokens.fontPackage,
-          fontSize: FoTokens.fontSubtitle,
-          fontWeight: FontWeight.w600,
-          color: fg,
-        ),
-        body: TextStyle(
-          fontFamily: FoTokens.fontSans,
-          package: FoTokens.fontPackage,
-          fontSize: FoTokens.fontBody,
-          fontWeight: FontWeight.w400,
-          color: fg,
-        ),
-        label: TextStyle(
-          fontFamily: FoTokens.fontSans,
-          package: FoTokens.fontPackage,
-          fontSize: FoTokens.fontLabel,
-          fontWeight: FontWeight.w600,
-          color: fg,
-        ),
-        caption: TextStyle(
-          fontFamily: FoTokens.fontMono,
-          package: FoTokens.fontPackage,
-          fontSize: FoTokens.fontCaption,
-          fontWeight: FontWeight.w500,
-          letterSpacing: FoTokens.captionLetterSpacing,
-          color: fgMuted,
-        ),
-        numeric: TextStyle(
-          fontFamily: FoTokens.fontMono,
-          package: FoTokens.fontPackage,
-          fontSize: FoTokens.fontBody,
-          fontWeight: FontWeight.w500,
-          color: fg,
-          fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-        ),
-      );
+    List<String>? fontFamilyFallback,
+  }) {
+    final List<String>? fallback =
+        fontFamilyFallback == null || fontFamilyFallback.isEmpty
+            ? null
+            : List<String>.unmodifiable(fontFamilyFallback);
+
+    TextStyle style({
+      required String family,
+      required double size,
+      required FontWeight weight,
+      required Color color,
+      double? letterSpacing,
+      List<FontFeature>? fontFeatures,
+    }) =>
+        fallback == null
+            ? TextStyle(
+                fontFamily: family,
+                package: FoTokens.fontPackage,
+                fontSize: size,
+                fontWeight: weight,
+                letterSpacing: letterSpacing,
+                color: color,
+                fontFeatures: fontFeatures,
+              )
+            : TextStyle(
+                // Resolved by hand, so no `package` is left to rewrite the
+                // fallback below into this package's manifest.
+                fontFamily: 'packages/${FoTokens.fontPackage}/$family',
+                fontFamilyFallback: fallback,
+                fontSize: size,
+                fontWeight: weight,
+                letterSpacing: letterSpacing,
+                color: color,
+                fontFeatures: fontFeatures,
+              );
+
+    return FoTextStyles(
+      display: style(
+        family: FoTokens.fontSans,
+        size: FoTokens.fontDisplay,
+        weight: FontWeight.w700,
+        color: fg,
+      ),
+      title: style(
+        family: FoTokens.fontSans,
+        size: FoTokens.fontTitle,
+        weight: FontWeight.w600,
+        color: fg,
+      ),
+      subtitle: style(
+        family: FoTokens.fontSans,
+        size: FoTokens.fontSubtitle,
+        weight: FontWeight.w600,
+        color: fg,
+      ),
+      body: style(
+        family: FoTokens.fontSans,
+        size: FoTokens.fontBody,
+        weight: FontWeight.w400,
+        color: fg,
+      ),
+      label: style(
+        family: FoTokens.fontSans,
+        size: FoTokens.fontLabel,
+        weight: FontWeight.w600,
+        color: fg,
+      ),
+      caption: style(
+        family: FoTokens.fontMono,
+        size: FoTokens.fontCaption,
+        weight: FontWeight.w500,
+        letterSpacing: FoTokens.captionLetterSpacing,
+        color: fgMuted,
+      ),
+      numeric: style(
+        family: FoTokens.fontMono,
+        size: FoTokens.fontBody,
+        weight: FontWeight.w500,
+        color: fg,
+        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+      ),
+    );
+  }
 
   /// Every style, by name — the basis of the Widgetbook type-ramp use case.
   Map<String, TextStyle> toMap() => <String, TextStyle>{

@@ -21,15 +21,33 @@ import 'fo_window_class.dart';
 /// instead; the mapping here is a safety net, not the interface.
 abstract final class FoTheme {
   /// The light theme.
-  static ThemeData light() =>
-      _build(FoColors.light, FoThemeExt.light(), Brightness.light);
+  ///
+  /// [fontFamilyFallback] names families in the **consuming app's** font
+  /// manifest to try, in order, for any glyph Geist lacks — a Devanagari face
+  /// for Hindi, say. It reaches every style the theme hands out: the
+  /// `context.foText` ramp, `textTheme`, and every sub-theme built from them
+  /// (app bar, dialog, inputs, buttons, chips, navigation, tooltip,
+  /// snackbar). Pass it here rather than `apply`ing it to the result: these
+  /// styles carry `package: 'figuredout_ui'`, which rewrites any fallback added
+  /// afterwards into this package's manifest — see [FoTextStyles.forColors].
+  static ThemeData light({List<String>? fontFamilyFallback}) => _build(
+        FoColors.light,
+        FoThemeExt.light(fontFamilyFallback: fontFamilyFallback),
+        Brightness.light,
+      );
 
   /// The dark theme, in [palette] — the web package's ink/sky unless an app
-  /// opts into [FoDarkPalette.graphite].
-  static ThemeData dark({FoDarkPalette palette = FoDarkPalette.inkSky}) =>
+  /// opts into [FoDarkPalette.graphite]. [fontFamilyFallback] as for [light].
+  static ThemeData dark({
+    FoDarkPalette palette = FoDarkPalette.inkSky,
+    List<String>? fontFamilyFallback,
+  }) =>
       _build(
         palette.colors,
-        FoThemeExt.dark(palette: palette),
+        FoThemeExt.dark(
+          palette: palette,
+          fontFamilyFallback: fontFamilyFallback,
+        ),
         Brightness.dark,
       );
 
