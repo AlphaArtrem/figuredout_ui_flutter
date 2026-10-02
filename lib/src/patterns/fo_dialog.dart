@@ -116,7 +116,7 @@ abstract final class FoDialog {
             useSafeArea: true,
             backgroundColor: context.foColors.surfaceRaised,
             elevation: 0,
-            builder: (BuildContext ctx) => SingleChildScrollView(
+            builder: (BuildContext ctx) => Padding(
               padding: EdgeInsets.all(ctx.foSpacing.xl),
               child: content(ctx, stacked: true),
             ),
@@ -133,7 +133,7 @@ abstract final class FoDialog {
               ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: _maxWidth),
-                child: SingleChildScrollView(
+                child: Padding(
                   padding: EdgeInsets.all(ctx.foSpacing.xl),
                   child: content(ctx, stacked: cancelLabel == null),
                 ),
@@ -199,7 +199,12 @@ class _Body extends StatelessWidget {
             onPressed: () => Navigator.of(context).pop(false),
           );
 
-    return Column(
+    // **The words scroll; the buttons stay.** Where the question and the
+    // buttons together are taller than the room — a phone at 200% text, a
+    // 237-point browser-zoom window — the whole body used to scroll, which
+    // put the choice below the fold, and `textContrastGuideline` measured the
+    // hidden button against the text over it. Now only the question scrolls.
+    final Widget question = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -227,6 +232,14 @@ class _Body extends StatelessWidget {
           textAlign: TextAlign.center,
           style: context.foText.body.copyWith(color: context.foColors.fgMuted),
         ),
+      ],
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Flexible(child: SingleChildScrollView(child: question)),
         SizedBox(height: context.foSpacing.xl),
         if (stacked || cancelButton == null)
           // Confirm on top: on a phone that is where the thumb already is,

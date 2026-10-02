@@ -87,6 +87,62 @@ void main() {
     }
   });
 
+  /// The buttons stay on screen while the words scroll. A first fix scrolled
+  /// the buttons with the words, which put the choice below the fold of a
+  /// phone at 200% text — and `textContrastGuideline` then measured the
+  /// off-screen "Stay" against the message it was hidden under (3.76:1),
+  /// which is how a consuming app's tour found it.
+  for (final (String name, Size size, double ratio, double scale)
+      in <(String, Size, double, double)>[
+    ('a phone at 200% text', const Size(1170, 2532), 3, 2),
+    ('a 300% browser zoom window', const Size(1281, 711), 3, 1),
+  ]) {
+    testWidgets('on $name the buttons are on screen without scrolling', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = ratio;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      late BuildContext host;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: FoTheme.light(),
+          home: Scaffold(
+            body: Builder(
+              builder: (BuildContext context) {
+                host = context;
+                return const SizedBox.expand();
+              },
+            ),
+          ),
+        ),
+      );
+      FoDialog.destructive(
+        host,
+        title: 'Leave this firm?',
+        message: 'You will lose access to all cases and hearings in this '
+            'firm. Your account stays intact — you can join or create '
+            'another firm.',
+        confirmLabel: 'Leave firm',
+        cancelLabel: 'Stay',
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      final Size window = size / ratio;
+      for (final String label in <String>['Leave firm', 'Stay']) {
+        final Rect rect = tester.getRect(find.text(label));
+        expect(rect.top, greaterThanOrEqualTo(0), reason: label);
+        expect(rect.bottom, lessThanOrEqualTo(window.height), reason: label);
+      }
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
+      handle.dispose();
+    });
+  }
+
   group('FoDialog', () {
     testWidgets('cancel resolves false', (WidgetTester tester) async {
       final Future<bool> result = await _open(
