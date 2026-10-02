@@ -1,5 +1,69 @@
 # Changelog
 
+## 0.7.2
+
+The nine defects a consuming app (legal_app) found with its accessibility tour, its 300% text pass
+and its browser-zoom sweep, fixed here rather than patched there. Also released for the 0.6 line
+as v0.6.2 (branch `release/0.6.x`), for an app that has not taken 0.7.0's palette. The tertiary
+button's and primary chip's contrast was already fixed by 0.7.0's palette; only its test is new
+here.
+
+Additive except where "Changed" says; every new parameter defaults to the old behaviour or to
+the fix.
+
+### Added
+
+- **`FoTheme.light/dark({fontFamilyFallback})`** (also `FoThemeExt.light/dark` and
+  `FoTextStyles.forColors`; `dark` keeps its `palette`): the app's own script coverage, resolved
+  in the app's font manifest and reaching every style the theme hands out. See README, Fonts.
+  Null or empty builds the 0.7.1 styles exactly.
+- **`FoButton.maxLines`** (`int?`, default null — wrap). See "Changed".
+- **`FoChartShell.chartSizesItself`** (`bool`, default false): the plot height becomes a floor
+  for a chart that measures itself, like `FoStageFunnel`. Closes the 0.6.1 known gap.
+- **`FoCard.labelReplacesContent`** (`bool`, default false): `semanticLabel` replaces the card's
+  content in the announcement, as `aria-label` does, so a labelled card is read once ("Roles",
+  not "Roles, Roles"). Opt-in, because replacing drops what the content says and makes a button
+  inside the card unreachable: set it only where the label is the card's complete summary and
+  nothing inside is tappable. The default is the existing merge.
+
+### Changed
+
+- **`FoButton` wraps a label that does not fit** instead of fading it mid-word on one line. A
+  label that fits is unchanged in size. `maxLines: 1` restores the faded single line for a
+  fixed-height row. `FoActionButton` and `FoLoadingButton` inherit the default.
+- **`FoDialog` scrolls its question and keeps its buttons on screen.** 0.7.0 scrolled the whole
+  body, so where it was taller than the room the buttons were below the fold (a phone at 200%
+  text, a 237-point browser-zoom window). Where everything fits nothing moves.
+- **`FoDropdownField` is a `StatefulWidget`** (it owns the button's focus node). Constructors
+  and fields are unchanged.
+
+### Fixed
+
+- **`FoDropdownField`'s tap target is the whole field, with one name.** The tappable node was
+  the button's one line of text — 24dp inside a 56dp field — and had no label with nothing
+  chosen. The frame is now one merged semantics node and a tap anywhere on it opens the menu.
+- **`FoFormSurface` no longer overflows a sheet whose header and footer do not fit.** At 300%
+  text the column overflowed by up to 287 points with the sheet's primary action off the screen.
+  When the header and footer leave the body less than a third of the height, the whole surface
+  scrolls as one.
+- **`FoSkeletonList` fits a bounded height**, showing as many whole rows as fit, instead of
+  asserting in any box shorter than four cards.
+- **The Widgetbook's `Charts` page runs in the 200% pass**, with no page skipped.
+
+### Tests
+
+New: `test/primitives/fo_ink_contrast_test.dart` (ink and fill read off the rendered widget) and
+`test/patterns/fo_dialog_test.dart`; new cases in the card, button, dropdown, form, chart,
+skeleton and theme tests (including Graphite with a fallback). Every fix has a case that fails
+on 0.6.1.
+
+### For Luxe, when it repins from v0.7.1
+
+No public API is removed or renamed. Three behaviour changes may show: a long `FoButton` label
+now wraps (pass `maxLines: 1` where a row must stay one line tall); `FoDialog`'s buttons stay
+put while its question scrolls; `FoSkeletonList` in a short box shows fewer rows. `FoCard` is
+unchanged unless `labelReplacesContent` is set.
+
 ## 0.7.1
 
 What the Luxe redesign boards still needed from the shell, the lookup picker and the search

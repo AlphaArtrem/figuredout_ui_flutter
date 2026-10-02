@@ -1,14 +1,17 @@
 # State
 
-Edit in place. No dated or per-session sections. Last derived on 2026-10-02 from branch
-`feat/luxe-redesign-components` (worktree `figuredout_ui_flutter-luxe-redesign`, from `main`
-`2031db2`), with the 0.7.0 work uncommitted.
+Edit in place. No dated or per-session sections. Last derived on 2026-10-02 from `main` at
+the 0.7.2 release (branch `fix/consumer-defects` from `0d8e1e4`, v0.7.1).
 
 ## What exists
 
-- **Package `figuredout_ui` 0.7.0 on the branch** (`main` and the last tag are 0.6.1). Not
-  published (`publish_to: 'none'`); consumed by path/git. 0.7.0 ports the FiguredoutAI palette
-  from `@figuredout/ui-web` and adds the production-floor components (`CHANGELOG.md` 0.7.0).
+- **Package `figuredout_ui` 0.7.2 on `main`** (tags v0.7.0, v0.7.1, v0.7.2). Not published
+  (`publish_to: 'none'`); consumed by git tag. 0.7.0 ports the FiguredoutAI palette from
+  `@figuredout/ui-web` and adds the production-floor components; 0.7.2 carries the nine fixes
+  legal_app filed (`CHANGELOG.md` 0.7.2).
+- **A 0.6 maintenance line**, branch `release/0.6.x` from v0.6.1, tag v0.6.2: the same fixes
+  without 0.7.0's palette, for an app (legal_app) that has not taken the visual change. Fix on
+  `main` first; backport to `release/0.6.x` only for a consumer still on 0.6.
 - **Two dark palettes:** `FoDarkPalette.inkSky` (default, the web package's) and `.graphite`
   (opt-in, Luxe's choice). Graphite has no web-package counterpart; its values come from the Luxe
   canvas and are checked by `test/tokens/graphite_test.dart`.
@@ -47,8 +50,6 @@ Edit in place. No dated or per-session sections. Last derived on 2026-10-02 from
 
 ## Known gaps and drift
 
-- **`FoStageFunnel` overflows at 200% text** inside `FoChartShell`'s fixed plot slot; the
-  `Charts` page is skipped in the 200% pass (`CHANGELOG.md` 0.6.1, Known gap).
 - **Chart series 6 equals the axis-label ink** in both themes — inherited verbatim from
   `@figuredout/ui-web`; recorded as a known exception in `test/charts/fo_charts_test.dart`.
 - **Tokens were 0.6.1 green until 0.7.0** although the web package went teal in its `60926da`;
@@ -59,9 +60,9 @@ Edit in place. No dated or per-session sections. Last derived on 2026-10-02 from
 
 ## Next action
 
-Review the 0.7.0 branch, commit and tag it, then point Luxe at it and migrate its screens
-(`docs/migrating-from-luxe.md`, "0.7.0"). `legal_app` pins `v0.6.1` and will change colour when
-it bumps — tell its owner before it does.
+Point Luxe at v0.7.2 and migrate its screens (`docs/migrating-from-luxe.md`, "0.7.0") — 0.7.2's
+behaviour changes are listed in its CHANGELOG entry. `legal_app` pins `v0.6.2` and will change
+colour when it moves to 0.7.x — its owner decides when.
 
 ## Predicted hazards
 

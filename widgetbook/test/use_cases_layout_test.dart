@@ -153,7 +153,7 @@ void main() {
     /// chip, the chart shell's message slot, and the type ramp use case
     /// itself.
     ///
-    /// **Charts was exempt until 0.6.2.** `FoChartShell` gives a plot a
+    /// **Charts was exempt until 0.7.2 (0.6.2).** `FoChartShell` gives a plot a
     /// fixed height because `fl_chart` fills whatever box it is in and asserts
     /// on an unbounded one — so `FoStageFunnel`, a self-sizing column of
     /// labelled bars, ran 200 points past the bottom of that slot at 200%.

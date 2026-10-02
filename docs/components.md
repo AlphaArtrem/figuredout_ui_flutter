@@ -281,9 +281,30 @@ Six rules the components now enforce, so a screen gets them by composing rather 
   ordinary case identical.
 - **`widgetbook/test` pumps every page at 200% text**, at the compact viewport in light theme —
   the combination that runs out of room first, and one pass rather than a third dimension on
-  the 3 × 2 matrix. The `Charts` page is exempt and says why in the test: `FoChartShell` gives
-  its plot a fixed height because `fl_chart` fills its box and asserts on an unbounded one, so
-  a self-sizing chart like `FoStageFunnel` overflows that slot at 200%. Fixing it means an
-  opt-out on the shell, which is an API addition.
+  the 3 × 2 matrix. Since 0.7.2 no page is exempt: `FoChartShell` gives a plot a fixed height
+  because `fl_chart` fills its box and asserts on an unbounded one, and a self-sizing chart like
+  `FoStageFunnel` passes `chartSizesItself: true` so that height is a floor instead.
+- **A column with only its body flexible overflows when its fixed parts do not fit.**
+  `FoFormSurface` (header, scrolling body, pinned footer) did, at 300% text and in a 237-point
+  browser-zoom window — with a sheet's primary action below the edge. It now measures its header
+  and footer first and scrolls as one when they leave the body less than a third of the height.
+  A fixed stack of placeholders is the same bug: `FoSkeletonList` shows only the rows that fit a
+  bounded height.
+- **Test the contrast of what is painted, not only of the tokens.** On the 0.6 line the token
+  test waived `primary` on its own wash and two components painted exactly that pair as text.
+  `test/primitives/fo_ink_contrast_test.dart` reads ink and fill off the rendered widget.
+- **A label merged with its content is read twice; a label that replaces it can lose more.** A
+  `Semantics(label:)` over children that carry their own text announces both. Excluding the
+  children fixes that and drops everything else they say — and any button among them. So
+  `FoCard.labelReplacesContent` is opt-in, for a label that is the card's complete summary.
+- **Scroll the question, not the answer.** A dialog or sheet taller than its room should scroll
+  its words and keep its buttons on screen. Scrolling the buttons with the words puts the
+  choice below the fold, and `textContrastGuideline` then measures a hidden button against the
+  text over it. `FoDialog` and `FoFormSurface` (while its header and footer fit) both do this.
+- **A consuming app's font fallback goes through `FoTheme`, never `apply`.** Every style here
+  carries `package: 'figuredout_ui'`, and `TextStyle` rewrites each fallback entry to
+  `packages/figuredout_ui/<family>` in its getter. `FoTheme.light(fontFamilyFallback: [...])`
+  builds the styles with the family pre-resolved and no `package`, so the fallback resolves in
+  the app's manifest.
 - **Semantic text is measured against its soft wash, not the surface.** See
   [`contrast-report.md`](contrast-report.md).

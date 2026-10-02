@@ -107,11 +107,11 @@ class FoButton extends StatelessWidget {
   /// The most lines the label may take. Null — the default — wraps it onto
   /// as many as it needs, and the button grows taller.
   ///
-  /// Until 0.7.2 (0.6.2 on the 0.6 line) the label was always one line that faded out what did not
-  /// fit. At the largest system text size a two-word label on a button
-  /// already the width of its card was cut mid-word with a gradient, which
-  /// looks deliberate rather than broken and announces itself nowhere — no
-  /// overflow stripe, nothing in the console. A label that fits on one line
+  /// Until 0.7.2 (0.6.2 on the 0.6 line) the label was always one line that
+  /// faded out what did not fit. At the largest system text size a two-word
+  /// label on a button already the width of its card was cut mid-word with a
+  /// gradient, which looks deliberate rather than broken and announces itself
+  /// nowhere — no overflow stripe, nothing in the console. A label that fits on one line
   /// renders exactly as before. Pass 1 only where a taller button would break
   /// a fixed-height row; the label then fades as it used to.
   final int? maxLines;

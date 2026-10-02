@@ -15,12 +15,12 @@ Phased build order. Acceptance is a demonstration, not a passing suite. Status i
 | 8 | Luxe consumes the package through the typedef shim | Luxe runs on `figuredout_ui` with the shim; `flutter analyze` lists the rename worklist | In progress — fixes found by Luxe shipped in 0.2.1 and 0.6.1; completion is not recorded in this repo |
 | Post-port | Additions requested by consumers (`FoSwitchTile`, `FoSegmentedControl`, `FoDateField`, controlled dropdown, 200% text) | Released with use case, test and changelog entry | Done through v0.6.1 |
 | 9 | FiguredoutAI palette parity with `@figuredout/ui-web`; the production-floor components of the Luxe redesign; the owner's six layout rules | Widgetbook `06 Production` pages pumped at three widths, both themes and 200% text; contrast report with no waivers | Built on `feat/luxe-redesign-components`, uncommitted, 0.7.0 — not released |
+| Consumer fixes | The nine defects legal_app filed (FoCard announcement, dropdown target, form surface and dialog overflow, button wrap, skeleton, chart shell opt-out, font fallback, contrast) | Each has a test that fails on 0.6.1; Widgetbook 200% pass with no skip | Done, v0.7.2 (`main`) and v0.6.2 (`release/0.6.x`) |
 
 ## Not started (candidates found in the repo, not committed work)
 
 | Item | Source | Acceptance demo |
 | --- | --- | --- |
-| `FoChartShell` opt-out for self-sizing content | `CHANGELOG.md` 0.6.1 Known gap | `Charts` page passes the 200% text pass with its skip removed |
 | Chart series 6 ≠ axis ink | `CHANGELOG.md` 0.7.0 Known gap (owned by `@figuredout/ui-web`) | The known-collision exception in `test/charts/fo_charts_test.dart` deleted |
 | Tablet rail "Stages" flyout group | Luxe `ShellTablet` board | A `FoNavGroup` collapses to one rail item with a flyout of counts |
 | Choose a licence | `README.md` Licence | `LICENSE` is no longer the placeholder |

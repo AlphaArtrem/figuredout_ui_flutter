@@ -132,6 +132,21 @@ Without it the family resolves against the *consuming app's* font manifest and f
 to Roboto with no warning — invisible from inside this package, which is why
 `test/theme/fo_theme_test.dart` asserts it.
 
+Geist covers Latin only. An app that needs another script — Devanagari, say — bundles its own
+face and passes it to the theme, which is the only place it can go:
+
+```dart
+MaterialApp(
+  theme: FoTheme.light(fontFamilyFallback: const <String>['NotoSansDevanagari']),
+  darkTheme: FoTheme.dark(fontFamilyFallback: const <String>['NotoSansDevanagari']),
+)
+```
+
+The family is looked up in the **app's** font manifest. Adding it afterwards with
+`textTheme.apply(fontFamilyFallback: …)` does not work: the package on these styles rewrites
+every fallback entry to `packages/figuredout_ui/<family>`, which does not exist, and the
+platform's own face is used instead.
+
 ## Licence
 
 Not yet chosen — `LICENSE` is still the `flutter create` placeholder. The bundled fonts are
