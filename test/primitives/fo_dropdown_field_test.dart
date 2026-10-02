@@ -1,5 +1,6 @@
 import 'package:figuredout_ui/figuredout_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/pump.dart';
@@ -156,6 +157,114 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('Line A'), findsNothing);
+    });
+  });
+
+  /// Found by a consuming app's accessibility tour (legal_app traps §110).
+  /// The field was an `isDense` `InputDecorator` around a `DropdownButton`, so
+  /// the node that took the tap was one line of text — 24dp inside a field
+  /// drawn 56dp tall — and with nothing chosen that node had no label at all.
+  group('FoDropdownField tap target', () {
+    Widget field({String? value, ValueChanged<String?>? onChanged}) => SizedBox(
+          width: 320,
+          child: FoDropdownField<String>(
+            label: 'Period',
+            value: value,
+            items: const <DropdownMenuItem<String>>[
+              DropdownMenuItem<String>(value: 'w', child: Text('This week')),
+              DropdownMenuItem<String>(value: 'm', child: Text('This month')),
+            ],
+            onChanged: onChanged ?? (_) {},
+          ),
+        );
+
+    for (final String? value in <String?>[null, 'm']) {
+      final String state = value == null ? 'empty' : 'chosen';
+
+      testWidgets('$state: the whole field is one labelled 48dp target', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        await pumpFo(tester, child: field(value: value));
+
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+
+        final SemanticsNode node = tester.getSemantics(
+          find.byType(FoDropdownField<String>),
+        );
+        expect(node.label, contains('Period'));
+        expect(node.rect.height, greaterThanOrEqualTo(48));
+        handle.dispose();
+      });
+    }
+
+    testWidgets('a tap on the frame, off the text line, opens the menu once', (
+      WidgetTester tester,
+    ) async {
+      String? picked;
+      await pumpFo(
+        tester,
+        child: field(onChanged: (String? next) => picked = next),
+      );
+
+      final Rect frame = tester.getRect(find.byType(FoDropdownField<String>));
+      // Just inside the bottom edge: below the button's own line of text.
+      await tester.tapAt(Offset(frame.center.dx, frame.bottom - 4));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byWidgetPredicate(
+          (Widget w) => w.runtimeType.toString().startsWith('_DropdownMenu<'),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('This week').last);
+      await tester.pumpAndSettle();
+      expect(picked, 'w');
+    });
+
+    testWidgets('a tap on the text line still opens exactly one menu', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(tester, child: field(value: 'm'));
+
+      await tester.tap(find.text('This month'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byWidgetPredicate(
+          (Widget w) => w.runtimeType.toString().startsWith('_DropdownMenu<'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a disabled field opens nothing', (WidgetTester tester) async {
+      await pumpFo(
+        tester,
+        child: const SizedBox(
+          width: 320,
+          child: FoDropdownField<String>(
+            label: 'Period',
+            items: <DropdownMenuItem<String>>[
+              DropdownMenuItem<String>(value: 'w', child: Text('This week')),
+            ],
+            onChanged: null,
+          ),
+        ),
+      );
+
+      final Rect frame = tester.getRect(find.byType(FoDropdownField<String>));
+      await tester.tapAt(Offset(frame.center.dx, frame.bottom - 4));
+      await tester.pumpAndSettle();
+      expect(
+        find.byWidgetPredicate(
+          (Widget w) => w.runtimeType.toString().startsWith('_DropdownMenu<'),
+        ),
+        findsNothing,
+      );
     });
   });
 }

@@ -21,7 +21,16 @@ import 'fo_spinner.dart';
 /// the new one; nothing threw and nothing logged. The `FormField` was never
 /// earning its keep here anyway — this component has no validator — so it is
 /// gone, and an `InputDecorator` gives the same frame with no state to seed.
-class FoDropdownField<T> extends StatelessWidget {
+///
+/// **The whole field is the target, and it has one name.** The decorator is
+/// drawn *around* the button, so on its own the button's tappable area is one
+/// line of text — 24dp inside a 56dp field — and with nothing chosen its node
+/// carries no label. A thumb on the frame opened nothing and a screen reader
+/// met an unnamed button. The field now merges its label, its value and the
+/// button into one semantics node the size of the frame, and a tap anywhere on
+/// the frame opens the menu through the button's own `ActivateIntent` — the
+/// path the keyboard already takes, so there is one way to open it.
+class FoDropdownField<T> extends StatefulWidget {
   /// Creates a dropdown.
   const FoDropdownField({
     required this.items,
@@ -86,29 +95,51 @@ class FoDropdownField<T> extends StatelessWidget {
   final bool loading;
 
   @override
+  State<FoDropdownField<T>> createState() => _FoDropdownFieldState<T>();
+}
+
+class _FoDropdownFieldState<T> extends State<FoDropdownField<T>> {
+  final FocusNode _buttonFocus = FocusNode(debugLabel: 'FoDropdownField');
+
+  @override
+  void dispose() {
+    _buttonFocus.dispose();
+    super.dispose();
+  }
+
+  /// Opens the menu as the keyboard does. The focus node's context sits
+  /// under the button's own `Actions`, so the intent reaches its handler.
+  void _open() {
+    final BuildContext? button = _buttonFocus.context;
+    if (button == null) return;
+    Actions.maybeInvoke<ActivateIntent>(button, const ActivateIntent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ValueChanged<T?>? handler = onChanged;
-    final bool interactive = enabled && handler != null;
+    final ValueChanged<T?>? handler = widget.onChanged;
+    final bool interactive = widget.enabled && handler != null;
+    final String? label = widget.label;
 
     // A value with no option behind it shows as unselected rather than
     // crashing. `DropdownButton` asserts on one, and the caller that hits that
     // assert is usually a list that has just been refiltered — a court whose
     // location changed a frame ago — where an empty field is the honest
     // rendering and an assert is a crash in front of a user.
-    final T? selected =
-        items.any((DropdownMenuItem<T> item) => item.value == value)
-            ? value
-            : null;
+    final T? selected = widget.items
+            .any((DropdownMenuItem<T> item) => item.value == widget.value)
+        ? widget.value
+        : null;
 
-    return SizedBox(
+    final Widget frame = SizedBox(
       height: FoLayout.singleLineFieldHeight,
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: label == null || !isRequired ? label : '$label *',
-          hintText: hintText,
+          labelText: label == null || !widget.isRequired ? label : '$label *',
+          hintText: widget.hintText,
           isDense: true,
           enabled: interactive,
-          suffixIcon: loading
+          suffixIcon: widget.loading
               ? Padding(
                   padding: EdgeInsets.all(context.foSpacing.md),
                   child: const FoSpinner(),
@@ -121,9 +152,10 @@ class FoDropdownField<T> extends StatelessWidget {
         child: DropdownButtonHideUnderline(
           child: DropdownButton<T>(
             value: selected,
-            items: items,
-            isExpanded: isExpanded,
+            items: widget.items,
+            isExpanded: widget.isExpanded,
             isDense: true,
+            focusNode: _buttonFocus,
             onChanged: interactive
                 ? (T? next) {
                     FoFormScope.markDirty(context);
@@ -132,6 +164,19 @@ class FoDropdownField<T> extends StatelessWidget {
                 : null,
           ),
         ),
+      ),
+    );
+
+    // One node, the size of the frame: the floating label, the value or the
+    // hint, and the button's role and tap. The frame's own tap goes through
+    // the button (see [_open]); a tap on the text line is won by the button's
+    // InkWell, which is deeper, so the menu never opens twice.
+    return MergeSemantics(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        excludeFromSemantics: true,
+        onTap: interactive ? _open : null,
+        child: frame,
       ),
     );
   }
