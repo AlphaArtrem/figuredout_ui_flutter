@@ -12,6 +12,7 @@ import '../theme/fo_context.dart';
 import '../tokens/fo_motion.dart';
 import '../tokens/fo_tokens.dart';
 import 'fo_info_banner.dart';
+import 'fo_status_tabs.dart';
 
 /// One hit in a [FoSearchPalette].
 @immutable
@@ -57,7 +58,8 @@ class FoSearchGroup {
     this.seeAllLabel,
     this.onSeeAll,
     this.emptyText,
-  });
+    this.total,
+  }) : assert(total == null || total >= 0, 'a count is not negative');
 
   /// "Orders". Caller-supplied.
   final String title;
@@ -77,6 +79,15 @@ class FoSearchGroup {
   /// Why the group is empty — "No people match. Search by first name." An
   /// empty group with no reason is hidden.
   final String? emptyText;
+
+  /// How many hits the group has in all, of which [results] are the first
+  /// few — "Entries 24". The count on the group's type tab, and its share of
+  /// "Everything". Null counts [results].
+  final int? total;
+
+  int get _count => total ?? results.length;
+
+  bool get _shown => results.isNotEmpty || emptyText != null;
 }
 
 /// The words a [FoSearchPalette] needs.
@@ -95,6 +106,8 @@ class FoSearchPaletteCopy {
     this.moveHint,
     this.openHint,
     this.footerNote,
+    this.everythingLabel,
+    this.typesLabel,
   });
 
   /// "Search orders, entries, people".
@@ -129,6 +142,16 @@ class FoSearchPaletteCopy {
 
   /// "Codes work too: 10031, PRS-415".
   final String? footerNote;
+
+  /// "Everything" — the first type tab. Setting it turns the type tabs on:
+  /// "Everything 26 · Orders 1 · Entries 24 …", one tab per group with
+  /// something to show, each with its [FoSearchGroup.total], filtering the
+  /// results in place. Shown when a search returns two or more groups.
+  final String? everythingLabel;
+
+  /// What the type tabs choose — "Show". Read before the tabs; falls back to
+  /// [fieldLabel].
+  final String? typesLabel;
 }
 
 /// Search everything from one box — the Ctrl K palette on a wide window, a
@@ -219,8 +242,26 @@ class _PaletteState extends State<_Palette> {
   int _active = 0;
   int _generation = 0;
 
+  /// The type tab in force, by group title; null is "Everything". Kept
+  /// across searches while the new answer still has that group.
+  String? _type;
+
+  /// The groups with something to show — a hit, or a reason for none.
+  List<FoSearchGroup> get _shownGroups =>
+      _groups.where((FoSearchGroup g) => g._shown).toList();
+
+  bool get _hasTypeTabs =>
+      widget.copy.everythingLabel != null && _shownGroups.length >= 2;
+
+  /// The groups the current type tab lets through.
+  List<FoSearchGroup> get _filtered {
+    final List<FoSearchGroup> shown = _shownGroups;
+    if (!_hasTypeTabs || _type == null) return shown;
+    return shown.where((FoSearchGroup g) => g.title == _type).toList();
+  }
+
   List<FoSearchResult> get _flat => <FoSearchResult>[
-        for (final FoSearchGroup g in _groups) ...g.results,
+        for (final FoSearchGroup g in _filtered) ...g.results,
       ];
 
   @override
@@ -258,6 +299,9 @@ class _PaletteState extends State<_Palette> {
         _groups = groups;
         _loading = false;
         _active = 0;
+        if (!groups.any((FoSearchGroup g) => g.title == _type && g._shown)) {
+          _type = null;
+        }
       });
     } on Object catch (_) {
       // Logged by the caller's search; here it is said, with a retry.
@@ -376,8 +420,7 @@ class _PaletteState extends State<_Palette> {
       );
     } else {
       int index = 0;
-      for (final FoSearchGroup g in _groups) {
-        if (g.results.isEmpty && g.emptyText == null) continue;
+      for (final FoSearchGroup g in _filtered) {
         body.add(
           _Caption(
               g.qualifier == null ? g.title : '${g.title} · ${g.qualifier}'),
@@ -464,6 +507,8 @@ class _PaletteState extends State<_Palette> {
               ],
             ),
           ),
+          if (q.isNotEmpty && !_loading && !_failed && _hasTypeTabs)
+            _typeTabs(context),
           Flexible(
             child: Semantics(
               liveRegion: true,
@@ -508,6 +553,38 @@ class _PaletteState extends State<_Palette> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  /// "Everything 26 · Orders 1 · Entries 24 …" — one row that scrolls
+  /// sideways, filtering the groups in place.
+  Widget _typeTabs(BuildContext context) {
+    final List<FoSearchGroup> shown = _shownGroups;
+    final int current =
+        _type == null ? 0 : 1 + shown.indexWhere((g) => g.title == _type);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        context.foSpacing.lg,
+        0,
+        context.foSpacing.lg,
+        context.foSpacing.sm,
+      ),
+      child: FoStatusTabs(
+        tabs: <FoStatusTab>[
+          FoStatusTab(
+            label: widget.copy.everythingLabel!,
+            count: shown.fold<int>(0, (int sum, g) => sum + g._count),
+          ),
+          for (final FoSearchGroup g in shown)
+            FoStatusTab(label: g.title, count: g._count),
+        ],
+        selectedIndex: current,
+        onSelected: (int i) => setState(() {
+          _type = i == 0 ? null : shown[i - 1].title;
+          _active = 0;
+        }),
+        semanticLabel: widget.copy.typesLabel ?? widget.copy.fieldLabel,
       ),
     );
   }

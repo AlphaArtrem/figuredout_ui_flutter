@@ -758,6 +758,8 @@ class FloorChrome extends StatelessWidget {
                 onPressed: () => FoSearchPalette.show(
                   context,
                   recentSearches: const <String>['crew', 'PRS-415'],
+                  // The SearchWeb board: grouped, with type tabs counting
+                  // each group's total.
                   search: (String q) async => <FoSearchGroup>[
                     FoSearchGroup(
                       title: 'Orders',
@@ -770,10 +772,44 @@ class FloorChrome extends StatelessWidget {
                         ),
                       ],
                     ),
+                    FoSearchGroup(
+                      title: 'Entries',
+                      qualifier: 'newest first',
+                      total: 24,
+                      seeAllLabel: 'See all 24 entries for Crew Tee',
+                      onSeeAll: () {},
+                      results: <FoSearchResult>[
+                        FoSearchResult(
+                          title: 'PRS-00415 · Pressing',
+                          subtitle: 'Jet Black · 96 pieces · 1 Oct',
+                          icon: Icons.assignment_outlined,
+                          onSelected: () {},
+                        ),
+                        FoSearchResult(
+                          title: 'TCUT-00212 · Thread cutting',
+                          subtitle: 'Jet Black · 120 pieces · 1 Oct',
+                          icon: Icons.assignment_outlined,
+                          onSelected: () {},
+                        ),
+                      ],
+                    ),
+                    FoSearchGroup(
+                      title: 'Fabric received',
+                      results: <FoSearchResult>[
+                        FoSearchResult(
+                          title: 'GRN-00034 · Single Jersey 180',
+                          subtitle: 'For Heavyweight Crew Tee · received '
+                              '29 Sep',
+                          icon: Icons.layers_outlined,
+                          onSelected: () {},
+                        ),
+                      ],
+                    ),
                     const FoSearchGroup(
                       title: 'People',
                       results: <FoSearchResult>[],
-                      emptyText: 'No people match. Search by first name.',
+                      emptyText: 'Nobody called "crew". People search looks '
+                          'at names and roles, like "Imran" or "Line 2".',
                     ),
                   ],
                   copy: FoSearchPaletteCopy(
@@ -786,6 +822,8 @@ class FloorChrome extends StatelessWidget {
                     moveHint: 'move',
                     openHint: 'open',
                     footerNote: 'Codes work too: 10031, PRS-415',
+                    everythingLabel: 'Everything',
+                    typesLabel: 'Show',
                   ),
                 ),
               ),

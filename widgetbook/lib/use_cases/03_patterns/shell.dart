@@ -17,7 +17,19 @@ class Shells extends StatefulWidget {
 }
 
 class _ShellsState extends State<Shells> {
-  String _selectedId = 'dashboard';
+  String _selectedId = 'pressing';
+
+  static const List<(String, String)> _stages = <(String, String)>[
+    ('cutting', 'Cutting'),
+    ('loading', 'Line loading'),
+    ('midline', 'Midline'),
+    ('output', 'Output'),
+    ('qc', 'QC'),
+    ('bartek', 'Bartek'),
+    ('thread', 'Thread cutting'),
+    ('pressing', 'Pressing'),
+    ('packing', 'Packing'),
+  ];
   int _selectedIndex = 0;
   String _lastAction = '—';
   ThemeMode _mode = ThemeMode.system;
@@ -42,7 +54,6 @@ class _ShellsState extends State<Shells> {
           ],
         ),
         FoNavGroup(
-          label: 'Production',
           items: <FoNavItem>[
             FoNavItem(
               id: 'orders',
@@ -52,19 +63,32 @@ class _ShellsState extends State<Shells> {
               onSelected: () => _go('orders'),
             ),
             FoNavItem(
-              id: 'cutting',
-              label: 'Cutting',
-              icon: Icons.content_cut_outlined,
-              selectedIcon: Icons.content_cut,
-              onSelected: () => _go('cutting'),
+              id: 'approvals',
+              label: 'Approvals',
+              icon: Icons.fact_check_outlined,
+              selectedIcon: Icons.fact_check,
+              onSelected: () => _go('approvals'),
+              // A pill at the end of the sidebar row; on the rail, a count
+              // on the icon.
+              badgeCount: 3,
+              badgeSemanticLabel: '3 waiting for you',
             ),
-            FoNavItem(
-              id: 'pressing',
-              label: 'Pressing',
-              icon: Icons.iron_outlined,
-              selectedIcon: Icons.iron,
-              onSelected: () => _go('pressing'),
-            ),
+          ],
+        ),
+        FoNavGroup(
+          label: 'Production stages',
+          items: <FoNavItem>[
+            // Numbered: the stages are an order, so each leads with its
+            // place in it rather than a picture.
+            for (int i = 0; i < _stages.length; i++)
+              FoNavItem(
+                id: _stages[i].$1,
+                label: _stages[i].$2,
+                icon: Icons.circle_outlined,
+                selectedIcon: Icons.circle,
+                onSelected: () => _go(_stages[i].$1),
+                number: i + 1,
+              ),
           ],
         ),
         FoNavGroup(
@@ -92,23 +116,20 @@ class _ShellsState extends State<Shells> {
           }),
         ),
         FoNavDestination(
-          label: 'Worklists',
+          label: 'Stages',
           icon: Icons.view_list_outlined,
           selectedIcon: Icons.view_list,
           sheet: FoNavSheet(
-            title: 'Worklists',
-            emptyLabel: 'No destinations available',
+            title: 'Production stages',
+            emptyLabel: 'No stages for your role',
             actions: <FoNavAction>[
-              FoNavAction(
-                label: 'Orders',
-                icon: Icons.receipt_long_outlined,
-                onTap: () => _go('orders'),
-              ),
-              FoNavAction(
-                label: 'Cutting',
-                icon: Icons.content_cut_outlined,
-                onTap: () => _go('cutting'),
-              ),
+              for (int i = 0; i < _stages.length; i++)
+                FoNavAction(
+                  label: _stages[i].$2,
+                  icon: Icons.circle_outlined,
+                  onTap: () => _go(_stages[i].$1),
+                  number: i + 1,
+                ),
             ],
           ),
         ),

@@ -222,6 +222,7 @@
         "FoEntityPickerOption",
         "FoEntityPickerCopy",
         "FoLookupPicker",
+        "FoLookupScope",
         "showFoTextPrompt"
       ]
     },
@@ -300,6 +301,7 @@
     "FoListRowLeading",
     "FoListSearchField",
     "FoLookupPicker",
+    "FoLookupScope",
     "FoMarkedScreenshot",
     "FoMatrixColumn",
     "FoMatrixHeaderText",

@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.7.1
+
+What the Luxe redesign boards still needed from the shell, the lookup picker and the search
+palette (Main sidebar, ShellTablet, PickerWeb, PickerPhone, SearchWeb, SearchPhone), and the real
+Flutter floor. Additive except where "Changed" says.
+
+### Added
+
+- **`FoNavItem.number` and `FoNavAction.number`** (`int?`): the leading mark is a `FoDisc` with
+  the number — filled primary when the item is current, ringed otherwise — on the sidebar, the
+  labelled rail and in `FoNavSheet` rows. `icon` / `selectedIcon` stay required (the bottom bar
+  and the icon-only rail still use them). The digits shrink to fit at 200% text; the disc stays a
+  circle of `FoTokens.iconMedium`.
+- **`FoLookupPicker.show` / `FoEntityPickerField`:** `likely` options under
+  `FoEntityPickerCopy.likelyLabel`, after `recent` and before the search's own answer (which no
+  longer repeats what those two show); `scopes` (`FoLookupScope{label, count}`, chips in one row
+  that scrolls, never wraps) with `initialScope` and `onScopeChanged` — the picker re-runs
+  `search` with the same query after a switch; `noneLabel`, which resolves with the sentinel
+  `FoLookupPicker.none` (`FoEntityPickerOption.isNone`; the field clears and reports null);
+  `subtitle`, the caption over the title on a wide window and a line under it on a phone;
+  `totalLabel(shown, total)`, the line under the list ("Showing the first 8 of 22 · keep typing");
+  arrow keys and Enter on a wide window, with a footer of `FoKeyHint`s from the new
+  `moveHint`, `chooseHint` and `closeHint`. `copy.scopesLabel` names the scope row.
+- **`FoSearchPalette` type tabs:** `FoSearchGroup.total` and, when
+  `FoSearchPaletteCopy.everythingLabel` is set and a search returns two or more groups, a
+  `FoStatusTabs` row — "Everything 26 · Orders 1 · Entries 24 …" — that filters the groups in
+  place. `typesLabel` names the row.
+
+### Changed
+
+- **`pubspec.yaml` declares `flutter: '>=3.27.0'`**, the real floor (`Color.withValues`); it
+  said `>=3.19.0`, which let an older SDK resolve and then fail to compile.
+- **A sidebar badge is a pill at the end of the row** (warning tone, as on the Main board's
+  "Approvals 3"); the rail keeps the count on the icon. `badgeSemanticLabel` is read either way.
+- **`FoLookupPicker.dialogSize` is 660 × 720** (was 560 × 600), the PickerWeb dialog, to make room
+  for the scope row and the footer.
+- **On a phone the picker's scan button is an icon button** named by `copy.scanLabel` — the
+  labelled button beside the search box overflowed 390 points at 200% text.
+
 ## 0.7.0
 
 The FiguredoutAI palette, and the components the Luxe Production Tracker redesign needs — built

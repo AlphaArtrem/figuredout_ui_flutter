@@ -124,6 +124,135 @@ class _PickersAndPromptsState extends State<PickersAndPrompts> {
   String? _pickedId;
   String? _promptResult;
 
+  /// The order filter: null is "All", and the scope the picker was last on.
+  FoEntityPickerOption? _order;
+  int _orderScope = 0;
+
+  // The PickerWeb and PickerPhone boards: running orders first, all on ask.
+  static const List<(FoEntityPickerOption, bool)> _orders =
+      <(FoEntityPickerOption, bool)>[
+    (
+      FoEntityPickerOption(
+        id: '10024',
+        label: 'Pique Polo',
+        supportingText: 'JOB-2026-10024 · Hanworth & Vale',
+        meta: '308 waiting to press',
+      ),
+      true,
+    ),
+    (
+      FoEntityPickerOption(
+        id: '10019',
+        label: 'Slim Chino',
+        supportingText: 'JOB-2026-10019 · Meridian Basics Co.',
+        meta: '212 waiting to press',
+      ),
+      true,
+    ),
+    (
+      FoEntityPickerOption(
+        id: '10031',
+        label: 'Heavyweight Crew Tee',
+        supportingText: 'JOB-2026-10031 · Kestrel Outfitters',
+        meta: '96 waiting to press',
+      ),
+      true,
+    ),
+    (
+      FoEntityPickerOption(
+        id: '10027',
+        label: 'Oxford Button-Down',
+        supportingText: 'JOB-2026-10027 · Nordstrom Apparel Group',
+        meta: 'Due 21 Oct',
+      ),
+      true,
+    ),
+    (
+      FoEntityPickerOption(
+        id: '10029',
+        label: 'Brushed Fleece Hoodie',
+        supportingText: 'JOB-2026-10029 · Kestrel Outfitters',
+        meta: 'Due 6 Nov',
+      ),
+      true,
+    ),
+    (
+      FoEntityPickerOption(
+        id: '10022',
+        label: 'Canvas Work Jacket',
+        supportingText: 'JOB-2026-10022 · Hanworth & Vale',
+        meta: 'On hold',
+      ),
+      false,
+    ),
+    (
+      FoEntityPickerOption(
+        id: '10014',
+        label: 'Jersey Henley',
+        supportingText: 'JOB-2026-10014 · Nordstrom Apparel Group',
+        meta: 'Sent 26 Sep',
+      ),
+      false,
+    ),
+  ];
+
+  static const List<FoLookupScope> _orderScopes = <FoLookupScope>[
+    FoLookupScope(label: 'Running', count: 22),
+    FoLookupScope(label: 'All orders', count: 25),
+  ];
+
+  static const FoEntityPickerCopy _orderCopy = FoEntityPickerCopy(
+    searchHint: 'Job number, article or buyer',
+    emptyText: 'No orders match. Check the job number, or look in all '
+        'orders, not just running ones.',
+    errorText: "Couldn't load orders.",
+    clearTooltip: 'Clear',
+    requiredMessage: 'Choose an order.',
+    closeLabel: 'Close without choosing',
+    recentLabel: 'You used recently',
+    likelyLabel: 'Pieces waiting at pressing',
+    resultsLabel: 'All running orders, due soonest first',
+    scanLabel: 'Scan job card',
+    retryLabel: 'Try again',
+    scopesLabel: 'Which orders',
+    moveHint: 'move',
+    chooseHint: 'choose',
+    closeHint: 'close',
+  );
+
+  Future<List<FoEntityPickerOption>> _searchOrders(String query) async {
+    final String q = query.toLowerCase();
+    return <FoEntityPickerOption>[
+      for (final (FoEntityPickerOption o, bool running) in _orders)
+        if ((_orderScope == 1 || running) &&
+            '${o.label} ${o.supportingText}'.toLowerCase().contains(q))
+          o,
+    ];
+  }
+
+  Future<void> _chooseOrder(BuildContext context) async {
+    final FoEntityPickerOption? picked = await FoLookupPicker.show(
+      context,
+      title: 'Choose an order',
+      subtitle: 'Filter pressing entries',
+      copy: _orderCopy,
+      search: _searchOrders,
+      recent: <FoEntityPickerOption>[_orders[0].$1, _orders[1].$1],
+      likely: <FoEntityPickerOption>[_orders[2].$1],
+      scopes: _orderScopes,
+      initialScope: _orderScope,
+      onScopeChanged: (int i) => _orderScope = i,
+      noneLabel: 'No filter: all orders',
+      onScan: () async => _orders[2].$1,
+      totalLabel: (int shown, int? total) => total == null || shown >= total
+          ? null
+          : 'Showing the first $shown of $total. Keep typing to narrow it '
+              'down.',
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _order = picked.isNone ? null : picked);
+  }
+
   static const List<FoEntityPickerOption> _options = <FoEntityPickerOption>[
     FoEntityPickerOption(
       id: '1',
@@ -213,6 +342,20 @@ class _PickersAndPromptsState extends State<PickersAndPrompts> {
                 ),
               ),
             ],
+          ),
+        ),
+        DocSection(
+          title: 'Lookup picker with scopes',
+          child: Builder(
+            builder: (BuildContext context) => Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FoFilterButton(
+                label: 'Order',
+                value: _order?.label ?? 'All',
+                isActive: _order != null,
+                onPressed: () => _chooseOrder(context),
+              ),
+            ),
           ),
         ),
         DocSection(

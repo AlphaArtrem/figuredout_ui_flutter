@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../primitives/fo_badge.dart';
+import '../primitives/fo_disc.dart';
 import '../primitives/fo_focus_ring.dart';
+import '../primitives/fo_status_chip.dart';
 import '../theme/fo_context.dart';
 import '../theme/fo_window_class.dart';
 import '../tokens/fo_layout.dart';
@@ -24,7 +27,8 @@ class FoNavItem {
     required this.onSelected,
     this.badgeCount,
     this.badgeSemanticLabel,
-  });
+    this.number,
+  }) : assert(number == null || number >= 0, 'a step number is not negative');
 
   /// Identifies the item, and is what [FoShellScaffold.selectedItemId] is
   /// matched against.
@@ -50,6 +54,16 @@ class FoNavItem {
   /// What the count means: "3 unread alerts". Without it a screen reader
   /// announces a bare number with nothing attaching it to its subject.
   final String? badgeSemanticLabel;
+
+  /// A place in a sequence — production stage 1 to 9. When set, the item's
+  /// mark on the sidebar and the labelled rail is a disc carrying the number
+  /// (filled primary while selected, ringed otherwise) instead of [icon], so
+  /// a run of steps reads as an order rather than as nine unrelated pictures.
+  ///
+  /// Exactly one of the two drives the mark: [icon] and [selectedIcon] are
+  /// still required, because the compact bottom bar and the icon-only rail
+  /// have no room for a numbered disc to mean anything without its label.
+  final int? number;
 }
 
 /// A labelled group of sidebar destinations.
@@ -76,13 +90,19 @@ class FoNavAction {
     required this.label,
     required this.icon,
     required this.onTap,
-  });
+    this.number,
+  }) : assert(number == null || number >= 0, 'a step number is not negative');
 
   /// What it does. Caller-supplied, so it can be localized.
   final String label;
 
   /// Its icon.
   final IconData icon;
+
+  /// A place in a sequence, shown as a ringed disc in place of [icon] — the
+  /// same mark as [FoNavItem.number], so a stage reads the same in a phone's
+  /// sheet as it does in the sidebar.
+  final int? number;
 
   /// Performs it.
   final VoidCallback onTap;
@@ -303,7 +323,13 @@ class _ExpandedShell extends StatelessWidget {
                                   icon: _NavIcon(
                                     item: item,
                                     isSelected: item.id == selectedItemId,
+                                    // The sidebar has room for the count as a
+                                    // pill at the end of the row; the rail
+                                    // keeps it on the mark.
+                                    badgeOnMark: collapsed,
                                   ),
+                                  trailing:
+                                      collapsed ? null : _NavCount.maybe(item),
                                   isSelected: item.id == selectedItemId,
                                   onTap: item.onSelected,
                                   collapsed: collapsed,
@@ -318,9 +344,10 @@ class _ExpandedShell extends StatelessWidget {
                       const Divider(),
                       _SidebarTile(
                         label: footer!.label,
-                        icon: Icon(
-                          footer!.icon,
-                          color: context.foColors.fgMuted,
+                        icon: _NavMark(
+                          icon: footer!.icon,
+                          number: footer!.number,
+                          isSelected: false,
                         ),
                         isSelected: false,
                         onTap: footer!.onTap,
@@ -376,6 +403,7 @@ class _SidebarTile extends StatelessWidget {
     required this.onTap,
     required this.collapsed,
     this.labelled = false,
+    this.trailing,
   });
 
   final String label;
@@ -384,6 +412,9 @@ class _SidebarTile extends StatelessWidget {
   final VoidCallback onTap;
   final bool collapsed;
   final bool labelled;
+
+  /// At the end of an expanded row — the item's count.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -423,6 +454,10 @@ class _SidebarTile extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (trailing != null) ...<Widget>[
+                        SizedBox(width: context.foSpacing.sm),
+                        trailing!,
+                      ],
                       SizedBox(width: context.foSpacing.sm),
                     ],
                   ),
@@ -514,20 +549,28 @@ extension on _SidebarTile {
 }
 
 class _NavIcon extends StatelessWidget {
-  const _NavIcon({required this.item, required this.isSelected});
+  const _NavIcon({
+    required this.item,
+    required this.isSelected,
+    this.badgeOnMark = true,
+  });
 
   final FoNavItem item;
   final bool isSelected;
 
+  /// Draws the count on the mark. False when the row shows it at its end.
+  final bool badgeOnMark;
+
   @override
   Widget build(BuildContext context) {
-    final Widget icon = Icon(
-      isSelected ? item.selectedIcon : item.icon,
-      color: isSelected ? context.foColors.primary : context.foColors.fgMuted,
+    final Widget mark = _NavMark(
+      icon: isSelected ? item.selectedIcon : item.icon,
+      number: item.number,
+      isSelected: isSelected,
     );
 
     final int count = item.badgeCount ?? 0;
-    if (count == 0) return icon;
+    if (count == 0 || !badgeOnMark) return mark;
 
     return Semantics(
       container: true,
@@ -537,7 +580,82 @@ class _NavIcon extends StatelessWidget {
         count: count,
         backgroundColor: context.foColors.danger,
         textColor: context.foColors.dangerFg,
-        child: icon,
+        child: mark,
+      ),
+    );
+  }
+}
+
+/// An item's count as a pill at the end of a sidebar row — "Approvals 3".
+class _NavCount extends StatelessWidget {
+  const _NavCount({required this.count, required this.semanticLabel});
+
+  /// Null when the item has nothing to count.
+  static Widget? maybe(FoNavItem item) {
+    final int count = item.badgeCount ?? 0;
+    if (count == 0) return null;
+    return _NavCount(count: count, semanticLabel: item.badgeSemanticLabel);
+  }
+
+  final int count;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) => FoBadge(
+        label: '$count',
+        // Waiting on somebody is a call to act, not a failure.
+        tone: FoStatusTone.warning,
+        semanticLabel: semanticLabel,
+      );
+}
+
+/// A destination's leading mark: its icon, or its number in a disc.
+class _NavMark extends StatelessWidget {
+  const _NavMark({
+    required this.icon,
+    required this.number,
+    required this.isSelected,
+  });
+
+  final IconData icon;
+  final int? number;
+  final bool isSelected;
+
+  /// The disc's diameter: the icon's box, so a numbered row and an iconned
+  /// row put their labels on the same line.
+  static const double discSize = FoTokens.iconMedium;
+
+  @override
+  Widget build(BuildContext context) {
+    final int? n = number;
+    if (n == null) {
+      return Icon(
+        icon,
+        color: isSelected ? context.foColors.primary : context.foColors.fgMuted,
+      );
+    }
+    return FoDisc(
+      size: discSize,
+      color: isSelected ? context.foColors.primary : null,
+      borderColor: isSelected ? null : context.foColors.edgeStrong,
+      // At 200% text the digits would outgrow the disc; they shrink to fit
+      // instead, and the disc stays a circle of its own size.
+      child: Padding(
+        padding: const EdgeInsets.all(2),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            '$n',
+            style: context.foText.numeric.copyWith(
+              fontSize: FoTokens.fontCaption,
+              fontWeight: FontWeight.w600,
+              height: 1,
+              color: isSelected
+                  ? context.foColors.primaryFg
+                  : context.foColors.fgMuted,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -643,7 +761,13 @@ class _NavSheetList extends StatelessWidget {
                     children: <Widget>[
                       for (final FoNavAction action in sheet.actions)
                         ListTile(
-                          leading: Icon(action.icon),
+                          leading: action.number == null
+                              ? Icon(action.icon)
+                              : _NavMark(
+                                  icon: action.icon,
+                                  number: action.number,
+                                  isSelected: false,
+                                ),
                           title: Text(action.label),
                           onTap: () => onTap(action),
                           minTileHeight: FoLayout.minTouchTarget,

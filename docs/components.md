@@ -193,6 +193,24 @@ Six rules the components now enforce, so a screen gets them by composing rather 
   separately from its desktop navigation ends up with two that disagree about what exists.
   Permissions and routes stay in the app: filter the groups and destinations before passing
   them, and do the filtering inside the app's own observer, not in a value captured outside one.
+  Steps in an order (production stages 1–9) take `FoNavItem.number` / `FoNavAction.number`: the
+  mark becomes a `FoDisc` with the number — filled primary when current, ringed otherwise — on
+  the sidebar, the labelled rail and in a nav sheet; the icon is still required for the bottom
+  bar and the icon-only rail. A `badgeCount` is a warning pill at the end of a sidebar row
+  ("Approvals 3") and a count on the icon on the rail.
+- `FoLookupPicker.show` (and `FoEntityPickerField`) take the whole PickerWeb / PickerPhone board:
+  `subtitle` (what the choice is for), `recent` then `likely` (under `copy.likelyLabel`) then the
+  search's own answer without the ones already shown, `scopes` (`FoLookupScope` chips in one row
+  that scrolls; on a switch `onScopeChanged` fires and the picker searches again with the same
+  query, so the caller's `search` answers for the scope it was last told), `noneLabel` ("No
+  filter: all orders") which resolves with `FoLookupPicker.none` — test `option.isNone`, because
+  null still means "closed without choosing" — and `totalLabel(shown, total)` for the line under
+  the list. On a wide window ↑ ↓ and Enter pick, with `FoKeyHint`s from `copy.moveHint`,
+  `chooseHint`, `closeHint`; on a phone the scan button is a named glyph.
+- `FoSearchPalette` grows type tabs when `copy.everythingLabel` is set and a search returns two or
+  more groups: "Everything 26 · Orders 1 · Entries 24 …", one `FoStatusTabs` row, each count the
+  group's `FoSearchGroup.total` (or its result count), filtering the groups in place — the arrow
+  keys walk only what the tab lets through.
 - `FoScaffold` owns the controls row — search box, filter, primary action — so list screens stop
   putting those three in three different places at three different widths.
 - `FoSeamGrid` makes a set of related figures read as one object. **Pass a child count that
