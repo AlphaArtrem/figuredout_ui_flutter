@@ -31,6 +31,7 @@ class FoCard extends StatefulWidget {
     this.padding,
     this.onTap,
     this.semanticLabel,
+    this.labelReplacesContent = false,
     this.tone = FoCardTone.resting,
     super.key,
   });
@@ -47,15 +48,26 @@ class FoCard extends StatefulWidget {
   /// ring; without it the card is inert and takes no focus.
   final VoidCallback? onTap;
 
-  /// The card's whole name for a screen reader. Only meaningful with [onTap].
+  /// What tapping the card does, for a screen reader. Only meaningful with
+  /// [onTap].
   ///
-  /// It **replaces** the card's content in the announcement rather than
-  /// prefixing it, the way `aria-label` replaces a button's text on the web.
-  /// Until 0.6.2 it was merged with the content, so a card labelled with its
-  /// own visible words — or with a summary of them — was read twice: "Roles,
-  /// Roles". Make the label complete (a summary, not only a verb), or leave it
-  /// null and the content is read as it is.
+  /// By default it is **merged** with the card's content: the announcement is
+  /// the label, then everything the content says. A label that repeats the
+  /// content's own words is therefore read twice ("Roles, Roles") — see
+  /// [labelReplacesContent].
   final String? semanticLabel;
+
+  /// Whether [semanticLabel] **replaces** the content in the announcement,
+  /// the way `aria-label` replaces a button's text on the web, so a labelled
+  /// card is read once.
+  ///
+  /// Opt-in, because replacing drops everything the content would have said
+  /// — a status chip, a count, a date — **and makes any button inside the
+  /// card unreachable to a screen reader**. Set it only where the label is
+  /// the card's complete summary and the card holds nothing tappable of its
+  /// own. A consuming app's audit found most of its labelled cards were
+  /// neither, which is why replacing is not the default.
+  final bool labelReplacesContent;
 
   /// Which step of the ladder the card sits on. [FoCardTone.raised] is for a
   /// card that *is* the overlay — a dialog's body, a menu's frame — not for a
@@ -76,11 +88,13 @@ class _FoCardState extends State<FoCard> {
     final bool interactive = widget.onTap != null;
     final bool lifted = interactive && _hovered;
 
-    // A labelled tappable card is one control with one name. The content's
-    // own semantics are excluded *inside* the InkWell, so the tap action, the
-    // button role and focus survive while the words are not read a second
-    // time after the label.
-    final bool labelled = interactive && widget.semanticLabel != null;
+    // A card whose label replaces its content is one control with one name.
+    // The content's own semantics are excluded *inside* the InkWell, so the
+    // tap action, the button role and focus survive while the words are not
+    // read a second time after the label.
+    final bool labelled = interactive &&
+        widget.semanticLabel != null &&
+        widget.labelReplacesContent;
     final Widget content = Padding(
       padding: widget.padding ?? EdgeInsets.all(context.foSpacing.lg),
       child: ExcludeSemantics(excluding: labelled, child: widget.child),

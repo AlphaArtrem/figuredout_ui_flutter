@@ -135,7 +135,11 @@ void main() {
 
       final SemanticsNode node = tester.getSemantics(find.byType(FoCard));
 
-      expect(node.label, 'Open order 1024');
+      // By default the label prefixes the card's own content rather than
+      // replacing it — "Open order 1024, Body": nothing the content says is
+      // lost, which is what an unaudited call site needs.
+      expect(node.label, startsWith('Open order 1024'));
+      expect(node.label, contains('Body'));
       expect(
         node,
         isSemantics(isButton: true, hasTapAction: true, isFocusable: true),
@@ -146,7 +150,8 @@ void main() {
     // the label was merged with the content, so every card labelled with its
     // own words was read twice — `label: "Roles\nRoles"` — and a card labelled
     // with a summary read the summary and then the same facts again.
-    testWidgets('a labelled card is announced once, by its label', (
+    testWidgets('labelReplacesContent: a card is announced once, by its label',
+        (
       WidgetTester tester,
     ) async {
       final SemanticsHandle handle = tester.ensureSemantics();
@@ -156,6 +161,7 @@ void main() {
         child: FoCard(
           onTap: () => taps++,
           semanticLabel: 'Roles',
+          labelReplacesContent: true,
           child: const Text('Roles'),
         ),
       );
@@ -167,6 +173,37 @@ void main() {
       // The tap still reaches the card through the semantics action.
       tester.semantics.tap(find.semantics.byLabel('Roles'));
       expect(taps, 1);
+      handle.dispose();
+    });
+
+    testWidgets('by default a button inside a labelled card stays reachable', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await pumpFo(
+        tester,
+        child: FoCard(
+          onTap: () {},
+          semanticLabel: 'Principal',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text('Principal'),
+              IconButton(
+                tooltip: 'Delete role',
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
+      );
+
+      // Its own node, a button named by its tooltip, beside the card's.
+      expect(
+        tester.getSemantics(find.byTooltip('Delete role')),
+        isSemantics(isButton: true, tooltip: 'Delete role', hasTapAction: true),
+      );
       handle.dispose();
     });
 
