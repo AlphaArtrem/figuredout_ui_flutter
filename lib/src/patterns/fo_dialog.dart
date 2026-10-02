@@ -114,51 +114,10 @@ abstract final class FoDialog {
                 onPressed: () => Navigator.of(ctx).pop(false),
               );
 
-        return AlertDialog(
-          backgroundColor: ctx.foColors.surfaceRaised,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(ctx.foRadii.lg),
-            side: BorderSide(color: ctx.foColors.edge),
-          ),
-          title: Column(
-            children: <Widget>[
-              Container(
-                width: _markSize,
-                height: _markSize,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: FoTokens.softWashAlpha),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: accent, size: FoTokens.iconMedium),
-              ),
-              SizedBox(height: ctx.foSpacing.md),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: ctx.foText.title,
-              ),
-            ],
-          ),
-          content: Text(
-            message,
-            textAlign: TextAlign.center,
-            style: ctx.foText.body.copyWith(color: ctx.foColors.fgMuted),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actionsPadding: EdgeInsets.fromLTRB(
-            ctx.foSpacing.xl,
-            0,
-            ctx.foSpacing.xl,
-            ctx.foSpacing.xl,
-          ),
-          actions: <Widget>[
-            if (stacked)
-              // Confirm on top: on a phone that is where the thumb already is,
-              // and the cancel below it is still the easier miss.
-              Column(
+        final Widget buttons = stacked
+            // Confirm on top: on a phone that is where the thumb already is,
+            // and the cancel below it is still the easier miss.
+            ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   confirmButton,
@@ -168,15 +127,69 @@ abstract final class FoDialog {
                   ],
                 ],
               )
-            else
-              Row(
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Expanded(child: cancelButton!),
                   SizedBox(width: ctx.foSpacing.md),
                   Expanded(child: confirmButton),
                 ],
+              );
+
+        // **The buttons scroll with the words.** In a short window — 237
+        // points tall at 300% browser zoom, a phone at 300% text — the mark,
+        // the title, the message and two stacked buttons are taller than the
+        // room, and AlertDialog's own title/content/actions column overflowed
+        // with the confirming action below the edge. One scrolling column
+        // keeps every part reachable; where it fits, it looks as it did.
+        return AlertDialog(
+          backgroundColor: ctx.foColors.surfaceRaised,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ctx.foRadii.lg),
+            side: BorderSide(color: ctx.foColors.edge),
+          ),
+          scrollable: true,
+          // The title names the dialog when it opens, as it did when the
+          // title sat in AlertDialog.title.
+          semanticLabel: title,
+          contentPadding: EdgeInsets.all(ctx.foSpacing.xl),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Center(
+                child: Container(
+                  width: _markSize,
+                  height: _markSize,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: FoTokens.softWashAlpha),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: accent, size: FoTokens.iconMedium),
+                ),
               ),
-          ],
+              SizedBox(height: ctx.foSpacing.md),
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: ctx.foText.title,
+                ),
+              ),
+              SizedBox(height: ctx.foSpacing.md),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: ctx.foText.body.copyWith(color: ctx.foColors.fgMuted),
+              ),
+              SizedBox(height: ctx.foSpacing.xl),
+              buttons,
+            ],
+          ),
         );
       },
     );
