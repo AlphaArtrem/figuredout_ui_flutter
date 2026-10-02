@@ -135,15 +135,52 @@ void main() {
 
       final SemanticsNode node = tester.getSemantics(find.byType(FoCard));
 
-      // The label prefixes the card's own content rather than replacing it —
-      // the announcement is "Open order 1024, Body", which is what a user
-      // wants: what tapping does, then what they are tapping.
-      expect(node.label, startsWith('Open order 1024'));
-      expect(node.label, contains('Body'));
+      expect(node.label, 'Open order 1024');
       expect(
         node,
-        isSemantics(isButton: true, hasTapAction: true),
+        isSemantics(isButton: true, hasTapAction: true, isFocusable: true),
       );
+    });
+
+    // Found by a consuming app's accessibility tour (legal_app traps §84):
+    // the label was merged with the content, so every card labelled with its
+    // own words was read twice — `label: "Roles\nRoles"` — and a card labelled
+    // with a summary read the summary and then the same facts again.
+    testWidgets('a labelled card is announced once, by its label', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      int taps = 0;
+      await pumpFo(
+        tester,
+        child: FoCard(
+          onTap: () => taps++,
+          semanticLabel: 'Roles',
+          child: const Text('Roles'),
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.byType(FoCard));
+      expect(node.label, 'Roles');
+      expect(find.bySemanticsLabel('Roles'), findsOneWidget);
+
+      // The tap still reaches the card through the semantics action.
+      tester.semantics.tap(find.semantics.byLabel('Roles'));
+      expect(taps, 1);
+      handle.dispose();
+    });
+
+    testWidgets('an unlabelled interactive card is named by its content', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        child: FoCard(onTap: () {}, child: const Text('Body')),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.byType(FoCard));
+      expect(node.label, 'Body');
+      expect(node, isSemantics(isButton: true, hasTapAction: true));
     });
 
     testWidgets('a Material child paints its ink inside the card, not behind', (
