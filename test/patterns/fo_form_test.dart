@@ -319,6 +319,61 @@ void main() {
       });
     }
 
+    // In the fallback the body's own scroll view has nothing to scroll, and a
+    // drag that starts on it must still move the surface — a finger on the
+    // form's fields is where a reader at 300% will try first.
+    testWidgets('when everything scrolls as one, a drag on the body scrolls it',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = 3;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: FoTheme.light(),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                height: 700,
+                child: FoFormSurface(
+                  title: 'Invite a member of the firm',
+                  child: Column(
+                    children: <Widget>[
+                      for (int i = 0; i < 20; i++) Text('Line $i of the form'),
+                      FoFormActions(
+                        actions: <FoFormAction>[
+                          FoFormAction(
+                            label: 'Send',
+                            variant: FoButtonVariant.primary,
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      final Finder body = find.text('Line 0 of the form');
+      final double start = tester.getRect(body).center.dy;
+      expect(start, lessThan(680), reason: 'the drag starts on the body');
+      final double before = tester.getRect(find.text('Send')).top;
+      expect(before, greaterThan(700), reason: 'Send starts below the fold');
+
+      await tester.drag(body, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.text('Send')).top, lessThan(before - 100));
+    });
+
     testWidgets(
         'a form that fits keeps its footer pinned under a scrolling body',
         (WidgetTester tester) async {
