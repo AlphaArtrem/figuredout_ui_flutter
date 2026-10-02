@@ -114,35 +114,17 @@ abstract final class FoDialog {
                 onPressed: () => Navigator.of(ctx).pop(false),
               );
 
-        final Widget buttons = stacked
-            // Confirm on top: on a phone that is where the thumb already is,
-            // and the cancel below it is still the easier miss.
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  confirmButton,
-                  if (cancelButton != null) ...<Widget>[
-                    SizedBox(height: ctx.foSpacing.sm),
-                    cancelButton,
-                  ],
-                ],
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(child: cancelButton!),
-                  SizedBox(width: ctx.foSpacing.md),
-                  Expanded(child: confirmButton),
-                ],
-              );
-
-        // **The buttons scroll with the words.** In a short window — 237
-        // points tall at 300% browser zoom, a phone at 300% text — the mark,
-        // the title, the message and two stacked buttons are taller than the
-        // room, and AlertDialog's own title/content/actions column overflowed
-        // with the confirming action below the edge. One scrolling column
-        // keeps every part reachable; where it fits, it looks as it did.
+        // **The words scroll; the buttons stay.** In a short window — 237
+        // points tall at 300% browser zoom — the mark, the title, the message
+        // and two stacked buttons are taller than the room, and the dialog's
+        // unscrolled column overflowed with the confirm below the edge.
+        // `scrollable` puts the title and the message in one scroll view and
+        // keeps the buttons pinned under it, so the choice is always on
+        // screen and the question is a drag away.
         return AlertDialog(
+          scrollable: true,
+          // The title names the dialog when it opens.
+          semanticLabel: title,
           backgroundColor: ctx.foColors.surfaceRaised,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
@@ -150,26 +132,17 @@ abstract final class FoDialog {
             borderRadius: BorderRadius.circular(ctx.foRadii.lg),
             side: BorderSide(color: ctx.foColors.edge),
           ),
-          scrollable: true,
-          // The title names the dialog when it opens, as it did when the
-          // title sat in AlertDialog.title.
-          semanticLabel: title,
-          contentPadding: EdgeInsets.all(ctx.foSpacing.xl),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          title: Column(
             children: <Widget>[
-              Center(
-                child: Container(
-                  width: _markSize,
-                  height: _markSize,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: FoTokens.softWashAlpha),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: accent, size: FoTokens.iconMedium),
+              Container(
+                width: _markSize,
+                height: _markSize,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: FoTokens.softWashAlpha),
+                  shape: BoxShape.circle,
                 ),
+                child: Icon(icon, color: accent, size: FoTokens.iconMedium),
               ),
               SizedBox(height: ctx.foSpacing.md),
               Semantics(
@@ -180,16 +153,43 @@ abstract final class FoDialog {
                   style: ctx.foText.title,
                 ),
               ),
-              SizedBox(height: ctx.foSpacing.md),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: ctx.foText.body.copyWith(color: ctx.foColors.fgMuted),
-              ),
-              SizedBox(height: ctx.foSpacing.xl),
-              buttons,
             ],
           ),
+          content: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: ctx.foText.body.copyWith(color: ctx.foColors.fgMuted),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actionsPadding: EdgeInsets.fromLTRB(
+            ctx.foSpacing.xl,
+            0,
+            ctx.foSpacing.xl,
+            ctx.foSpacing.xl,
+          ),
+          actions: <Widget>[
+            if (stacked)
+              // Confirm on top: on a phone that is where the thumb already is,
+              // and the cancel below it is still the easier miss.
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  confirmButton,
+                  if (cancelButton != null) ...<Widget>[
+                    SizedBox(height: ctx.foSpacing.sm),
+                    cancelButton,
+                  ],
+                ],
+              )
+            else
+              Row(
+                children: <Widget>[
+                  Expanded(child: cancelButton!),
+                  SizedBox(width: ctx.foSpacing.md),
+                  Expanded(child: confirmButton),
+                ],
+              ),
+          ],
         );
       },
     );
