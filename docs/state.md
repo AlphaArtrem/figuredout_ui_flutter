@@ -1,12 +1,17 @@
 # State
 
-Edit in place. No dated or per-session sections. Last derived from the repository on 2026-09-17
-(branch `main`, head `84b48e3`, clean tree).
+Edit in place. No dated or per-session sections. Last derived on 2026-10-02 from branch
+`feat/luxe-redesign-components` (worktree `figuredout_ui_flutter-luxe-redesign`, from `main`
+`2031db2`), with the 0.7.0 work uncommitted.
 
 ## What exists
 
-- **Package `figuredout_ui` 0.6.1** (`pubspec.yaml`, tag `v0.6.1`, 2026-09-05). Not published
-  (`publish_to: 'none'`); consumed by path/git.
+- **Package `figuredout_ui` 0.7.0 on the branch** (`main` and the last tag are 0.6.1). Not
+  published (`publish_to: 'none'`); consumed by path/git. 0.7.0 ports the FiguredoutAI palette
+  from `@figuredout/ui-web` and adds the production-floor components (`CHANGELOG.md` 0.7.0).
+- **Two dark palettes:** `FoDarkPalette.inkSky` (default, the web package's) and `.graphite`
+  (opt-in, Luxe's choice). Graphite has no web-package counterpart; its values come from the Luxe
+  canvas and are checked by `test/tokens/graphite_test.dart`.
 - **Tokens, theme, primitives, patterns, charts** under `lib/src/`, all exported through the
   single barrel `lib/figuredout_ui.dart`. The export list is `components.manifest.json`.
 - **The Luxe port is complete** as of 0.2.0 (2026-08-15, per `CHANGELOG.md`): every `Luxe*`
@@ -35,7 +40,8 @@ Edit in place. No dated or per-session sections. Last derived from the repositor
 | No opacity literal outside tokens | Same, for opacity | Nothing (review only) |
 | Every token is in `FoColors.toMap()` and `FoColors.lerp` | Colour freezes during theme animation | A test (per `AGENTS.md`) |
 | Font styles pass `package: 'figuredout_ui'` | Consumer falls back to Roboto, only in the consuming app | `test/theme/fo_theme_test.dart` |
-| Semantic ink meets AA, including on its `-soft` wash | Unreadable chips and banners | `test/tokens/contrast_test.dart` (two waivers, below) |
+| Semantic ink meets AA, including on its `-soft` wash | Unreadable chips and banners | `test/tokens/contrast_test.dart` (no waivers since 0.7.0; light, dark and Graphite) |
+| Graphite keeps the checks it was chosen on | A dark palette that drifts back to invisible edges | `test/tokens/graphite_test.dart` |
 | Every Widgetbook use case is registered in the layout test's page map | Use case compiles but is never checked for overflow | Nothing (hand-written map) |
 | Use cases compile | Widgetbook broken while the package is green | `flutter build web` in `widgetbook/` only |
 
@@ -43,20 +49,19 @@ Edit in place. No dated or per-session sections. Last derived from the repositor
 
 - **`FoStageFunnel` overflows at 200% text** inside `FoChartShell`'s fixed plot slot; the
   `Charts` page is skipped in the 200% pass (`CHANGELOG.md` 0.6.1, Known gap).
-- **Light-mode `primary` fails AA** on `surfaceSunken` (4.16:1) and on its own wash (4.10:1);
-  waived in `docs/contrast-report.md`. Fix is expected upstream in `@figuredout/ui-web` first.
-- **`README.md` status block is stale:** it still lists `FoShellScaffold`, `FoMatrixTable`,
-  `FoDetailTable`, `FoEntityPickerField` and `FoTextPrompt` as "still to port" and names a
-  `COMPONENT_GUIDE.md` that does not exist. The code and `CHANGELOG.md` 0.2.0 say otherwise.
+- **Chart series 6 equals the axis-label ink** in both themes — inherited verbatim from
+  `@figuredout/ui-web`; recorded as a known exception in `test/charts/fo_charts_test.dart`.
+- **Tokens were 0.6.1 green until 0.7.0** although the web package went teal in its `60926da`;
+  parity is now re-ported from its `569b4a2`. Nothing checks it automatically (see hazards below).
 - **SDK constraint drift:** `pubspec.yaml` declares `flutter: '>=3.19.0'`, but `pubspec.lock`
   resolved packages requiring `flutter >=3.27.0` / `dart >=3.10.0-0`. See `external-facts.md`.
 - **No licence chosen:** `LICENSE` is the `flutter create` placeholder.
 
 ## Next action
 
-Not recorded in the repository. The smallest open item with a stated fix is the
-`FoChartShell` "content sizes itself" opt-out, which would let the `Charts` page rejoin the 200%
-pass. Confirm priority with the owner before starting.
+Review the 0.7.0 branch, commit and tag it, then point Luxe at it and migrate its screens
+(`docs/migrating-from-luxe.md`, "0.7.0"). `legal_app` pins `v0.6.1` and will change colour when
+it bumps — tell its owner before it does.
 
 ## Predicted hazards
 

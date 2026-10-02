@@ -4,13 +4,10 @@ The Flutter design system for FiguredOut apps — the sibling of the React packa
 `@figuredout/ui-web`. Same visual language, same rules, same documentation surface.
 Widgetbook plays the role Storybook plays there.
 
-> **Status: phases 0–6 complete.** Tokens, theme, the Widgetbook surface, the primitives, and
-> the patterns — feedback, overlays, forms, data and page layout — the charts, and the Tier A gap
-> components. The full doc set — `AGENTS.md`, `COMPONENT_GUIDE.md`,
-> `docs/components.md`, `docs/migrating-from-luxe.md`, `components.manifest.json` — in phase 7.
->
-> Still to port from Luxe: `FoShellScaffold`, `FoMatrixTable`, `FoDetailTable`,
-> `FoEntityPickerField` and `FoTextPrompt`.
+> **Status: 0.7.0.** The FiguredoutAI palette (ported from `@figuredout/ui-web`), and the
+> production-floor components the Luxe redesign needs — record flow, size counts, lists with a
+> side panel, lookup picker, scanning, reasons, help. See `CHANGELOG.md` and
+> `docs/components.md`.
 
 ## What is here
 
@@ -18,9 +15,10 @@ Widgetbook plays the role Storybook plays there.
 | --- | --- |
 | `lib/src/tokens/` | `FoTokens` (the only file allowed to hold a literal), `FoColors`, `FoTextStyles`, `FoShadows`, `FoMotion`, `FoLayout`, `FoChartColors` |
 | `lib/src/theme/` | `FoTheme.light()` / `.dark()`, `FoThemeExt`, `FoWindowClass`, and the `context.fo*` extension |
-| `lib/src/primitives/` | `FoButton`, `FoCard`, `FoTextField`, `FoDropdownField`, `FoDateField`, `FoStatusChip`, `FoSwitchTile`, `FoSegmentedControl`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `foOverlaySurface` |
+| `lib/src/primitives/` | `FoButton`, `FoIconButton`, `FoCard`, `FoTextField`, `FoDropdownField`, `FoDateField`, `FoNumberField`, `FoChoiceGroup`, `FoPinPad`, `FoStatusChip`, `FoBadge`, `FoSwitchTile`, `FoSegmentedControl`, `FoProgressBar`, `FoProportionBar`, `FoSizeValueStrip`, `FoDisclosure`, `FoAvatar`, `FoColourSwatch`, `FoDisc`, `FoKeyHint`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`, `foOverlaySurface` |
 | `lib/src/patterns/` | `FoDataTable`, `FoDialog`, `FoFormPresenter`, `FoFormSurface`, `FoFormActions`, `FoFormSection`, `FoFormValidation`, `FoToast`, `FoInfoBanner`, `FoEmptyState`, `FoScaffold`, `FoAppBar`, `FoFilterBar`, `FoPaginationBar`, `FoResponsiveTileGrid` |
 | `lib/src/patterns/` (dashboard) | `FoSeamGrid`, `FoSeamCell`, `FoStatCard`, `FoStatCardContent`, `FoDescriptionList`, `FoPageHeader` |
+| `lib/src/patterns/` (production floor, 0.7.0) | Record work: `FoStepFlow`, `FoStepFlowScaffold`, `FoStepper`, `FoSizeCountGrid`, `FoDoneState`. Lists: `FoStatusTabs`, `FoToolbar`, `FoFilterButton`, `FoListDetailLayout`, `FoSidePanel`, `FoListCard`, `FoActionBar`. Finding: `FoLookupPicker`, `FoSearchPalette`, `FoDateRangePicker`, `FoScanViewfinder`, `FoScanField`. Deciding: `FoReasonField`, `FoReasonDialog`, `FoConsequenceList`, `FoChangeDiff`. Overviews: `FoStageRail`, `FoAttentionList`, `FoMetricCard`, `FoChecklist`, `FoShortfallCard`, `FoCapacityGrid`, `FoTimeline`, `FoListGroup`, `FoEqualHeightRow`, `FoOutboxItem`, `FoPageState`. Entry: `FoQuantityMatrix`, `FoEntryListEditor`, `FoAttachmentGrid`, `FoPrintPreview`. Help: `FoHelpGuide`, `FoGuideStep`, `FoMarkedScreenshot`, `FoHelpfulVote` |
 | `lib/src/charts/` | `FoChartShell`, `FoChartTheme`, `FoChartLegend`, `FoTrendChart`, `FoBarChart`, `FoParetoChart`, `FoStageFunnel`, `FoSparkline` |
 | `lib/fonts/` | Geist and Geist Mono static weights, bundled rather than fetched |
 | `widgetbook/` | A separate package — the live surface, and the only thing that compiles the use cases |

@@ -24,9 +24,14 @@ abstract final class FoTheme {
   static ThemeData light() =>
       _build(FoColors.light, FoThemeExt.light(), Brightness.light);
 
-  /// The dark theme.
-  static ThemeData dark() =>
-      _build(FoColors.dark, FoThemeExt.dark(), Brightness.dark);
+  /// The dark theme, in [palette] — the web package's ink/sky unless an app
+  /// opts into [FoDarkPalette.graphite].
+  static ThemeData dark({FoDarkPalette palette = FoDarkPalette.inkSky}) =>
+      _build(
+        palette.colors,
+        FoThemeExt.dark(palette: palette),
+        Brightness.dark,
+      );
 
   static ThemeData _build(FoColors c, FoThemeExt ext, Brightness brightness) {
     final ColorScheme scheme = ColorScheme.fromSeed(
@@ -94,6 +99,8 @@ abstract final class FoTheme {
         ),
       ),
       dialogTheme: DialogThemeData(
+        // One scrim for every overlay, the web package's: ink at 28%.
+        barrierColor: c.fg.withValues(alpha: FoTokens.scrimOpacity),
         backgroundColor: c.surfaceRaised,
         elevation: 0,
         shadowColor: Colors.transparent,
@@ -105,6 +112,7 @@ abstract final class FoTheme {
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
+        modalBarrierColor: c.fg.withValues(alpha: FoTokens.scrimOpacity),
         backgroundColor: c.surfaceRaised,
         elevation: 0,
         surfaceTintColor: Colors.transparent,

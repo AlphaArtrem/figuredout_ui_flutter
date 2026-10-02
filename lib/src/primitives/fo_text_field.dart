@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../patterns/fo_form_scope.dart';
 import '../tokens/fo_layout.dart';
+import 'fo_icon_button.dart';
 
 /// The standard text input.
 ///
@@ -33,6 +34,8 @@ class FoTextField extends StatelessWidget {
     this.hintText,
     this.helperText,
     this.isRequired = false,
+    this.revealLabel,
+    this.concealLabel,
     super.key,
   });
 
@@ -54,6 +57,14 @@ class FoTextField extends StatelessWidget {
 
   /// Hides input, for a password.
   final bool obscureText;
+
+  /// With [obscureText], adds a show/hide toggle named by this — "Show
+  /// password". A password nobody can check is a password typed twice; the
+  /// toggle is how somebody on a shop-floor tablet sees what they typed.
+  final String? revealLabel;
+
+  /// The toggle's name while the text is shown — "Hide password".
+  final String? concealLabel;
 
   /// Soft-keyboard hint.
   final TextInputType? keyboardType;
@@ -79,6 +90,13 @@ class FoTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (obscureText && revealLabel != null && concealLabel != null) {
+      return _RevealableField(field: this);
+    }
+    return _build(context, obscureText, suffixIcon);
+  }
+
+  Widget _build(BuildContext context, bool obscure, Widget? suffix) {
     assert(
       controller == null || initialValue == null,
       'Provide either controller or initialValue, not both.',
@@ -91,7 +109,7 @@ class FoTextField extends StatelessWidget {
       initialValue: controller == null ? initialValue : null,
       validator: validator,
       enabled: enabled,
-      obscureText: obscureText,
+      obscureText: obscure,
       keyboardType: keyboardType,
       onChanged: (String value) {
         FoFormScope.markDirty(context);
@@ -102,7 +120,7 @@ class FoTextField extends StatelessWidget {
         labelText: isRequired ? '$label *' : label,
         hintText: hintText,
         helperText: helperText,
-        suffixIcon: suffixIcon,
+        suffixIcon: suffix,
       ),
     );
 
@@ -111,5 +129,35 @@ class FoTextField extends StatelessWidget {
     if (effectiveMaxLines != 1 || helperText != null) return field;
 
     return SizedBox(height: FoLayout.singleLineFieldHeight, child: field);
+  }
+}
+
+/// A password field with its show/hide toggle. The shown state is the only
+/// state here; everything else is the wrapped field's.
+class _RevealableField extends StatefulWidget {
+  const _RevealableField({required this.field});
+
+  final FoTextField field;
+
+  @override
+  State<_RevealableField> createState() => _RevealableFieldState();
+}
+
+class _RevealableFieldState extends State<_RevealableField> {
+  bool _shown = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final FoTextField f = widget.field;
+    return f._build(
+      context,
+      !_shown,
+      FoIconButton(
+        icon:
+            _shown ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+        semanticLabel: _shown ? f.concealLabel! : f.revealLabel!,
+        onPressed: () => setState(() => _shown = !_shown),
+      ),
+    );
   }
 }

@@ -4,6 +4,7 @@ import '../primitives/fo_focus_ring.dart';
 import '../theme/fo_context.dart';
 import '../theme/fo_window_class.dart';
 import '../tokens/fo_layout.dart';
+import '../tokens/fo_tokens.dart';
 
 /// One destination in the shell's sidebar.
 ///
@@ -166,6 +167,7 @@ class FoShellScaffold extends StatelessWidget {
     this.destinations = const <FoNavDestination>[],
     this.selectedDestinationIndex = 0,
     this.footer,
+    this.railLabels = false,
     super.key,
   }) : assert(
           destinations.length != 1,
@@ -192,6 +194,16 @@ class FoShellScaffold extends StatelessWidget {
 
   /// A pinned action at the foot of the sidebar — a theme toggle, a sign-out.
   final FoNavAction? footer;
+
+  /// Prints each destination's name under its icon on the medium band's rail
+  /// (88 points wide) instead of leaving it to a tooltip. A tablet has no
+  /// pointer to hover with, so for an app used on tablets the tooltip is not
+  /// a way to read the label at all. Off by default, which keeps the 72-point
+  /// icon-only rail existing apps have.
+  final bool railLabels;
+
+  /// The labelled rail's width.
+  static const double labelledRailWidth = 88;
 
   /// The labelled sidebar's width.
   static const double sidebarWidth = 240;
@@ -221,6 +233,7 @@ class FoShellScaffold extends StatelessWidget {
       selectedItemId: selectedItemId,
       footer: footer,
       collapsed: windowClass == FoWindowClass.medium,
+      railLabels: railLabels,
     );
   }
 }
@@ -232,6 +245,7 @@ class _ExpandedShell extends StatelessWidget {
     required this.selectedItemId,
     required this.footer,
     required this.collapsed,
+    required this.railLabels,
   });
 
   final Widget body;
@@ -239,6 +253,7 @@ class _ExpandedShell extends StatelessWidget {
   final String? selectedItemId;
   final FoNavAction? footer;
   final bool collapsed;
+  final bool railLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +262,9 @@ class _ExpandedShell extends StatelessWidget {
         children: <Widget>[
           SizedBox(
             width: collapsed
-                ? FoShellScaffold.railWidth
+                ? (railLabels
+                    ? FoShellScaffold.labelledRailWidth
+                    : FoShellScaffold.railWidth)
                 : FoShellScaffold.sidebarWidth,
             child: DecoratedBox(
               decoration: BoxDecoration(color: context.foColors.surface),
@@ -290,6 +307,7 @@ class _ExpandedShell extends StatelessWidget {
                                   isSelected: item.id == selectedItemId,
                                   onTap: item.onSelected,
                                   collapsed: collapsed,
+                                  labelled: railLabels,
                                 ),
                             ],
                           ],
@@ -307,6 +325,7 @@ class _ExpandedShell extends StatelessWidget {
                         isSelected: false,
                         onTap: footer!.onTap,
                         collapsed: collapsed,
+                        labelled: railLabels,
                       ),
                       SizedBox(height: context.foSpacing.sm),
                     ],
@@ -356,6 +375,7 @@ class _SidebarTile extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     required this.collapsed,
+    this.labelled = false,
   });
 
   final String label;
@@ -363,10 +383,12 @@ class _SidebarTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final bool collapsed;
+  final bool labelled;
 
   @override
   Widget build(BuildContext context) {
     final BorderRadius radius = BorderRadius.circular(context.foRadii.md);
+    if (collapsed && labelled) return _labelledRailTile(context, radius);
 
     final Widget tile = Material(
       type: MaterialType.transparency,
@@ -416,6 +438,77 @@ class _SidebarTile extends StatelessWidget {
       ),
       // The label is gone from the rail, so it has to be reachable somehow.
       child: collapsed ? Tooltip(message: label, child: tile) : tile,
+    );
+  }
+}
+
+extension on _SidebarTile {
+  /// The labelled rail: the icon in a pill, the name under it — selected is
+  /// the pill on the primary wash and the name in primary, semibold.
+  Widget _labelledRailTile(BuildContext context, BorderRadius radius) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: context.foSpacing.xs,
+        vertical: context.foSpacing.xs / 2,
+      ),
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        onTap: onTap,
+        excludeSemantics: true,
+        child: Material(
+          type: MaterialType.transparency,
+          child: FoFocusRing(
+            borderRadius: radius,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: radius,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: FoLayout.minTouchTarget + 8,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: context.foSpacing.xs),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        width: 56,
+                        height: 32,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? context.foColors.primarySoft
+                              : Colors.transparent,
+                          borderRadius:
+                              BorderRadius.circular(context.foRadii.pill),
+                        ),
+                        child: icon,
+                      ),
+                      SizedBox(height: context.foSpacing.xs),
+                      Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.foText.body.copyWith(
+                          fontSize: FoTokens.fontCaption,
+                          color: isSelected
+                              ? context.foColors.primary
+                              : context.foColors.fgMuted,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

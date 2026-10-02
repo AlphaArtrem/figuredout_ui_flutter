@@ -27,6 +27,23 @@ enum FoButtonVariant {
   /// A quiet filled action — a soft wash of primary, for a third-rank action
   /// that still needs to look pressable.
   tertiary,
+
+  /// An action an owner has to say yes to — "Request a change", "Send for
+  /// approval". Consequential but not destructive: the warning wash, warning
+  /// ink and a warning hairline, the web package's `variant="warning"`. Red
+  /// stays [destructive]'s, for what cannot be undone.
+  warning,
+}
+
+/// How tall a button is.
+enum FoButtonSize {
+  /// The 48dp shop-floor floor. Every button on a wide window, and every
+  /// button on a phone that is not the screen's main one.
+  regular,
+
+  /// 56dp — the one main action pinned to the bottom of a phone screen, where
+  /// it is reached by a thumb rather than aimed at.
+  large,
 }
 
 /// The standard button.
@@ -49,9 +66,11 @@ class FoButton extends StatelessWidget {
     required this.variant,
     required this.onPressed,
     this.icon,
+    this.trailingIcon,
     this.tooltip,
     this.fullWidth = false,
     this.isLoading = false,
+    this.size = FoButtonSize.regular,
     super.key,
   });
 
@@ -66,6 +85,13 @@ class FoButton extends StatelessWidget {
 
   /// Optional leading icon.
   final IconData? icon;
+
+  /// Optional trailing icon — an arrow on a "Next: check and submit" that
+  /// moves somebody forward through a flow. Decorative: the label says it.
+  final IconData? trailingIcon;
+
+  /// How tall the button is. See [FoButtonSize].
+  final FoButtonSize size;
 
   /// Optional hover/long-press explanation.
   final String? tooltip;
@@ -87,7 +113,8 @@ class FoButton extends StatelessWidget {
     final Widget button = switch (variant) {
       FoButtonVariant.primary ||
       FoButtonVariant.destructive ||
-      FoButtonVariant.tertiary =>
+      FoButtonVariant.tertiary ||
+      FoButtonVariant.warning =>
         FilledButton(
           onPressed: handler,
           style: style,
@@ -147,13 +174,26 @@ class FoButton extends StatelessWidget {
           background: Colors.transparent,
           border: BorderSide.none,
         ),
+      // Ink on its own wash — the pairing the contrast test measures — and a
+      // hairline in the ink at the banner's strength, so the button has an
+      // edge on a ground that is itself warm.
+      FoButtonVariant.warning => _Palette(
+          foreground: c.warning,
+          background: c.warningSoft,
+          border: BorderSide(color: c.warningRing),
+        ),
     };
   }
 
   ButtonStyle _styleFor(BuildContext context, _Palette palette) {
     return ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll<Size>(
-        Size(0, FoLayout.minTouchTarget),
+      minimumSize: WidgetStatePropertyAll<Size>(
+        Size(
+          0,
+          size == FoButtonSize.large
+              ? FoLayout.singleLineFieldHeight
+              : FoLayout.minTouchTarget,
+        ),
       ),
       padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
         EdgeInsets.symmetric(
@@ -237,15 +277,21 @@ class FoButton extends StatelessWidget {
 
   Widget _content(BuildContext context) {
     final Widget labelWidget = _labelText(label);
-    if (icon == null) return labelWidget;
+    if (icon == null && trailingIcon == null) return labelWidget;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Icon(icon, size: FoTokens.iconSmall),
-        SizedBox(width: context.foSpacing.sm),
+        if (icon != null) ...<Widget>[
+          Icon(icon, size: FoTokens.iconSmall),
+          SizedBox(width: context.foSpacing.sm),
+        ],
         Flexible(child: labelWidget),
+        if (trailingIcon != null) ...<Widget>[
+          SizedBox(width: context.foSpacing.sm),
+          Icon(trailingIcon, size: FoTokens.iconSmall),
+        ],
       ],
     );
   }
@@ -285,8 +331,12 @@ class FoActionButton extends StatelessWidget {
     this.icon,
     this.tooltip,
     this.fullWidth = false,
+    this.size = FoButtonSize.regular,
     super.key,
   });
+
+  /// How tall the button is — [FoButtonSize.large] in a phone's action bar.
+  final FoButtonSize size;
 
   /// Visible text.
   final String label;
@@ -311,6 +361,7 @@ class FoActionButton extends StatelessWidget {
         icon: icon,
         tooltip: tooltip,
         fullWidth: fullWidth,
+        size: size,
       );
 }
 

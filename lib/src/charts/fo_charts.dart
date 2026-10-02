@@ -105,6 +105,13 @@ class FoBarGroup {
 }
 
 /// A grouped bar chart, with an optional dashed target rule.
+///
+/// The compact form — [compact], [showValues], a single [color] — is the
+/// "sewn each hour against the target" strip in a line's side panel: no
+/// value axis and no grid, just the baseline, the dashed target and each
+/// bar's figure printed over it, so the reading never depends on a tooltip a
+/// shop-floor tablet cannot hover. Give it a [semanticLabel] that says the
+/// whole series in words; the drawing is then hidden from a screen reader.
 class FoBarChart extends StatelessWidget {
   /// Creates a bar chart.
   const FoBarChart({
@@ -112,8 +119,30 @@ class FoBarChart extends StatelessWidget {
     required this.seriesLabels,
     this.targetValue,
     this.targetLabel,
+    this.showValues = false,
+    this.compact = false,
+    this.color,
+    this.barWidth = _barWidth,
+    this.semanticLabel,
     super.key,
   });
+
+  /// Prints each bar's figure over it, always — not only on touch.
+  final bool showValues;
+
+  /// Drops the value axis and the grid; the baseline and the target stay.
+  final bool compact;
+
+  /// Draws every bar in one colour instead of the series palette — the
+  /// warning ink for a line that is behind. A status, so a semantic colour.
+  final Color? color;
+
+  /// The bar's width.
+  final double barWidth;
+
+  /// The whole chart in words — "Pieces sewn each hour on Line 3 today: 8:00
+  /// 24, 9:00 30, … Target 47 an hour." Hides the drawing when set.
+  final String? semanticLabel;
 
   /// The categories.
   final List<FoBarGroup> groups;
@@ -135,13 +164,16 @@ class FoBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BarChart(
+    final Widget chart = BarChart(
       duration: FoChartTheme.animation,
       BarChartData(
-        gridData: FoChartTheme.grid(context),
+        gridData: compact
+            ? const FlGridData(show: false)
+            : FoChartTheme.grid(context),
         borderData: FoChartTheme.border(context),
         titlesData: FlTitlesData(
-          leftTitles: FoChartTheme.leftAxis(context),
+          leftTitles:
+              compact ? FoChartTheme.noAxis : FoChartTheme.leftAxis(context),
           bottomTitles: FoChartTheme.categoryAxis(
             context,
             groups.map((FoBarGroup g) => g.label).toList(),
@@ -149,15 +181,19 @@ class FoBarChart extends StatelessWidget {
           topTitles: FoChartTheme.noAxis,
           rightTitles: FoChartTheme.noAxis,
         ),
-        barTouchData: FoChartTheme.barTouch(
-          context,
-          label: (int groupIndex, int rodIndex, double y) {
-            final String group = groups[groupIndex].label;
-            final String name =
-                rodIndex < seriesLabels.length ? seriesLabels[rodIndex] : '';
-            return '$group · $name\n${FoChartTheme.exactNumber.format(y)}';
-          },
-        ),
+        barTouchData: showValues
+            ? FoChartTheme.barValues(context)
+            : FoChartTheme.barTouch(
+                context,
+                label: (int groupIndex, int rodIndex, double y) {
+                  final String group = groups[groupIndex].label;
+                  final String name = rodIndex < seriesLabels.length
+                      ? seriesLabels[rodIndex]
+                      : '';
+                  return '$group · $name\n'
+                      '${FoChartTheme.exactNumber.format(y)}';
+                },
+              ),
         extraLinesData: targetValue == null
             ? null
             : ExtraLinesData(
@@ -183,12 +219,17 @@ class FoBarChart extends StatelessWidget {
             BarChartGroupData(
               x: g,
               barsSpace: _barsSpace,
+              showingTooltipIndicators: showValues
+                  ? <int>[
+                      for (int s = 0; s < groups[g].values.length; s++) s,
+                    ]
+                  : const <int>[],
               barRods: <BarChartRodData>[
                 for (int s = 0; s < groups[g].values.length; s++)
                   BarChartRodData(
                     toY: groups[g].values[s].toDouble(),
-                    width: _barWidth,
-                    color: context.foCharts.series(s),
+                    width: barWidth,
+                    color: color ?? context.foCharts.series(s),
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(context.foRadii.sm),
                     ),
@@ -197,6 +238,13 @@ class FoBarChart extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    if (semanticLabel == null) return chart;
+    return Semantics(
+      container: true,
+      label: semanticLabel,
+      child: ExcludeSemantics(child: chart),
     );
   }
 }

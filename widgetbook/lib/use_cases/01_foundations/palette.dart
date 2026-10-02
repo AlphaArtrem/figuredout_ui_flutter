@@ -15,7 +15,9 @@ class Palette extends StatelessWidget {
     final FoColors c = context.foColors;
     return DocPage(
       title: 'Palette',
-      lede: 'Ported verbatim from @figuredout/ui-web. Every ratio below is '
+      lede: 'Ported verbatim from @figuredout/ui-web (light and dark); pick '
+          'the "Dark · Graphite" theme to see the alternative dark palette. '
+          'Every ratio below is '
           'measured at render time, so a token change shows up here at the '
           'same moment it shows up in docs/contrast-report.md.',
       children: <Widget>[

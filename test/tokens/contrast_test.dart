@@ -168,6 +168,7 @@ void main() {
   test('every semantic ink clears WCAG AA on its surfaces and its wash', () {
     measureTheme('light', FoColors.light, FoChartColors.light);
     measureTheme('dark', FoColors.dark, FoChartColors.dark);
+    measureTheme('graphite', FoColors.graphite, FoChartColors.graphite);
     expect(rows, isNotEmpty);
   });
 
@@ -181,22 +182,11 @@ void main() {
 /// **owned by the web package** — the colours are ported verbatim from
 /// `styles/tokens.css` (plan §2), so the fix belongs there, not here.
 ///
-/// Both entries are light-mode `primary` (`#15803d`), which is the same shape
-/// of problem the web package already fixed once for `--color-success`.
-const Map<String, _Waiver> _waivers = <String, _Waiver>{
-  'light/primary on surfaceSunken': _Waiver(
-    floor: 4.0,
-    why: 'primary #15803d reaches only 4.16:1 on the sunken step. Primary as '
-        'body text inside a well is rare; primary as a large mark or an icon '
-        'there still clears 3:1.',
-  ),
-  'light/primary on primarySoft over surface': _Waiver(
-    floor: 4.0,
-    why: 'primary #15803d on its own 12% wash reaches 4.11:1 — the exact '
-        'composite a chip or a badge produces. Fix in @figuredout/ui-web by '
-        'darkening primary the way --color-success was darkened, then re-port.',
-  ),
-};
+/// Empty since 0.7.0. The two entries that lived here were light-mode
+/// `primary` (`#15803d`) on `surfaceSunken` and on its own wash; the web
+/// package fixed both upstream when it moved to the FiguredoutAI palette, and
+/// the deep teal `#15586b` on a 0.10 wash clears 4.5:1 on both.
+const Map<String, _Waiver> _waivers = <String, _Waiver>{};
 
 @immutable
 class _Waiver {
@@ -257,7 +247,7 @@ String _report(List<_Row> rows) {
     )
     ..writeln();
 
-  for (final String theme in <String>['light', 'dark']) {
+  for (final String theme in <String>['light', 'dark', 'graphite']) {
     out
       ..writeln('## ${theme[0].toUpperCase()}${theme.substring(1)}')
       ..writeln()

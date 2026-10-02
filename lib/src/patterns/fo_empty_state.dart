@@ -14,6 +14,13 @@ import '../tokens/fo_tokens.dart';
 /// **An error state without an action is a dead end.** `FoEmptyState.error`
 /// takes [onAction] as its retry; a screen that cannot retry should say what
 /// the user should do instead.
+///
+/// **Couldn't-load never looks like nothing-here.** The three constructors
+/// differ in more than their words: first use leads with the page's *main*
+/// action, filled, on a primary mark ("Record pressing"); no-results offers a
+/// way back ("Clear filters") as a secondary button on a neutral mark; and an
+/// error offers "Try again", secondary, on a danger mark. A failed load shown
+/// as an empty list tells somebody their work is gone.
 class FoEmptyState extends StatelessWidget {
   /// Nothing here yet — first use.
   const FoEmptyState({
@@ -24,9 +31,10 @@ class FoEmptyState extends StatelessWidget {
     this.onAction,
     this.actionIcon,
     super.key,
-  }) : _isError = false;
+  }) : _kind = _Kind.empty;
 
-  /// A search or filter produced no rows.
+  /// A search or filter produced no rows. [onAction] is usually "Clear
+  /// filters" — the way back to everything.
   const FoEmptyState.noResults({
     required this.title,
     this.icon = Icons.search_off_outlined,
@@ -35,9 +43,10 @@ class FoEmptyState extends StatelessWidget {
     this.onAction,
     this.actionIcon,
     super.key,
-  }) : _isError = false;
+  }) : _kind = _Kind.noResults;
 
-  /// Loading failed. [onAction] is the retry.
+  /// Loading failed. [onAction] is the retry — "Try again". Say in [hint]
+  /// that nothing the user entered is lost, when that is true.
   const FoEmptyState.error({
     required this.title,
     this.icon = Icons.cloud_off_outlined,
@@ -46,7 +55,7 @@ class FoEmptyState extends StatelessWidget {
     this.onAction,
     this.actionIcon,
     super.key,
-  }) : _isError = true;
+  }) : _kind = _Kind.error;
 
   /// The mark at the top. Something recognisable at a glance, not decorative.
   final IconData icon;
@@ -63,19 +72,26 @@ class FoEmptyState extends StatelessWidget {
   /// What the action does.
   final VoidCallback? onAction;
 
-  /// The action's icon. Defaults to a refresh arrow on an error and a plus
-  /// elsewhere — pass it whenever the action is not "add something".
+  /// The action's icon. Defaults to a refresh arrow on an error, none on
+  /// no-results, and a plus on first use — pass it whenever the action is not
+  /// "add something".
   final IconData? actionIcon;
 
-  final bool _isError;
+  final _Kind _kind;
 
   /// The circle's diameter, and the icon's size inside it.
   static const double _markSize = 64;
 
   @override
   Widget build(BuildContext context) {
-    final Color accent =
-        _isError ? context.foColors.danger : context.foColors.primary;
+    final (Color accent, Color ground) = switch (_kind) {
+      _Kind.empty => (context.foColors.primary, context.foColors.primarySoft),
+      _Kind.noResults => (
+          context.foColors.fgMuted,
+          context.foColors.surfaceSunken,
+        ),
+      _Kind.error => (context.foColors.danger, context.foColors.dangerSoft),
+    };
 
     final Widget content = Center(
       child: Padding(
@@ -90,7 +106,7 @@ class FoEmptyState extends StatelessWidget {
                 height: _markSize,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: FoTokens.softWashAlpha),
+                  color: ground,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: FoTokens.iconMedium, color: accent),
@@ -115,8 +131,17 @@ class FoEmptyState extends StatelessWidget {
                 SizedBox(height: context.foSpacing.xl),
                 FoButton(
                   label: actionLabel!,
-                  variant: FoButtonVariant.primary,
-                  icon: actionIcon ?? (_isError ? Icons.refresh : Icons.add),
+                  // The page's main action is filled; a way back or a retry
+                  // is not the page's main action, so it is not filled.
+                  variant: _kind == _Kind.empty
+                      ? FoButtonVariant.primary
+                      : FoButtonVariant.secondary,
+                  icon: actionIcon ??
+                      switch (_kind) {
+                        _Kind.empty => Icons.add,
+                        _Kind.noResults => null,
+                        _Kind.error => Icons.refresh,
+                      },
                   onPressed: onAction,
                 ),
               ],
@@ -157,3 +182,5 @@ class FoEmptyState extends StatelessWidget {
     );
   }
 }
+
+enum _Kind { empty, noResults, error }

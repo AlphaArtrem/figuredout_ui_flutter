@@ -58,14 +58,18 @@ class FoThemeExt extends ThemeExtension<FoThemeExt> {
         shadows: FoShadows.light,
       );
 
-  /// The dark theme's extension.
-  factory FoThemeExt.dark() => FoThemeExt(
-        colors: FoColors.dark,
+  /// The dark theme's extension, in [palette] — the web package's ink/sky
+  /// by default.
+  factory FoThemeExt.dark({FoDarkPalette palette = FoDarkPalette.inkSky}) =>
+      FoThemeExt(
+        colors: palette.colors,
         text: FoTextStyles.forColors(
-          fg: FoColors.dark.fg,
-          fgMuted: FoColors.dark.fgMuted,
+          fg: palette.colors.fg,
+          fgMuted: palette.colors.fgMuted,
         ),
-        charts: FoChartColors.dark,
+        charts: palette.charts,
+        // Both dark palettes shade with black: a hue-matched shadow is
+        // invisible on a near-black ground, and depth comes from the ladder.
         shadows: FoShadows.dark,
       );
 
@@ -99,4 +103,26 @@ class FoThemeExt extends ThemeExtension<FoThemeExt> {
       radii: radii,
     );
   }
+}
+
+/// Which dark palette [FoThemeExt.dark] and `FoTheme.dark` use.
+///
+/// [inkSky] is the default and stays identical to `@figuredout/ui-web`'s
+/// dark scheme — parity with it is this package's rule. [graphite] is an
+/// alternative an app opts into: neutral greys, the light theme's teal, and
+/// opaque washes, chosen by Luxe after its floor found ink/sky hard to read.
+enum FoDarkPalette {
+  /// The web package's dark: ink ground, sky primary.
+  inkSky(FoColors.dark, FoChartColors.dark),
+
+  /// Graphite: neutral greys, teal primary, true status hues.
+  graphite(FoColors.graphite, FoChartColors.graphite);
+
+  const FoDarkPalette(this.colors, this.charts);
+
+  /// The palette's colours.
+  final FoColors colors;
+
+  /// The palette's chart colours.
+  final FoChartColors charts;
 }

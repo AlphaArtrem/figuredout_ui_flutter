@@ -23,8 +23,15 @@ class FoResponsiveTileGrid<T> extends StatelessWidget {
     required this.items,
     required this.itemBuilder,
     this.columnsBuilder,
+    this.equalHeight = true,
     super.key,
   });
+
+  /// Stretches every tile in a row to the tallest one's height — on by
+  /// default since 0.7.0, because a row of cards that stop at different
+  /// heights reads as some of them having failed to load. Turn it off only
+  /// for a grid of very different things where the gap carries meaning.
+  final bool equalHeight;
 
   /// What to lay out.
   final List<T> items;
@@ -55,9 +62,8 @@ class FoResponsiveTileGrid<T> extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             for (int r = 0; r < rows.length; r++) ...<Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
+              _row(
+                <Widget>[
                   for (int c = 0; c < rows[r].length; c++) ...<Widget>[
                     Expanded(child: itemBuilder(context, rows[r][c])),
                     if (c < rows[r].length - 1) SizedBox(width: gap),
@@ -72,9 +78,78 @@ class FoResponsiveTileGrid<T> extends StatelessWidget {
     );
   }
 
+  Widget _row(List<Widget> children) => equalHeight
+      ? IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          ),
+        )
+      : Row(crossAxisAlignment: CrossAxisAlignment.start, children: children);
+
   static int _defaultColumns(double maxWidth) {
     if (maxWidth >= FoLayout.expandedBreakpoint) return 4;
     if (maxWidth >= FoLayout.compactBreakpoint) return 3;
     return 2;
+  }
+}
+
+/// Two or three cards side by side, the same height — "Needs your attention"
+/// beside "Orders due" — and stacked, full width, below [stackBelow].
+///
+/// Each child is stretched to the tallest one's height, so the cards' bottom
+/// edges line up; put the part of a card that should take up the slack in an
+/// `Expanded` inside it. [flex] sets each child's share of the width.
+class FoEqualHeightRow extends StatelessWidget {
+  /// Creates an equal-height row.
+  const FoEqualHeightRow({
+    required this.children,
+    this.flex,
+    this.stackBelow = FoLayout.expandedBreakpoint,
+    super.key,
+  }) : assert(
+          flex == null || flex.length == children.length,
+          'one flex per child',
+        );
+
+  /// The cards.
+  final List<Widget> children;
+
+  /// Each card's share of the width. Equal by default.
+  final List<int>? flex;
+
+  /// Below this width the cards stack.
+  final double stackBelow;
+
+  @override
+  Widget build(BuildContext context) {
+    final double gap = context.foSpacing.lg;
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (constraints.maxWidth < stackBelow) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              for (int i = 0; i < children.length; i++) ...<Widget>[
+                if (i > 0) SizedBox(height: gap),
+                children[i],
+              ],
+            ],
+          );
+        }
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              for (int i = 0; i < children.length; i++) ...<Widget>[
+                if (i > 0) SizedBox(width: gap),
+                Expanded(flex: flex?[i] ?? 1, child: children[i]),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 }

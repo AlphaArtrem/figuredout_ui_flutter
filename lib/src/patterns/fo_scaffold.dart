@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/fo_context.dart';
+import 'fo_toolbar.dart';
 
 /// The standard top app bar.
 ///
@@ -195,27 +196,24 @@ class _ControlsBar extends StatelessWidget {
     );
   }
 
+  Widget _toolbar() => FoToolbar(
+        search: searchField,
+        filters: <Widget>[
+          if (dropdown != null)
+            SizedBox(width: _dropdownWidth, child: dropdown),
+          ...customWidgets,
+        ],
+      );
+
+  // Search and every filter share one row at every width — a filter never
+  // wraps onto a line of its own; when they do not fit, the row scrolls.
   Widget _wide(BuildContext context) => Row(
         children: <Widget>[
-          Expanded(
-            child: Row(
-              children: <Widget>[
-                if (searchField != null) Flexible(flex: 2, child: searchField!),
-                if (searchField != null && dropdown != null)
-                  SizedBox(width: context.foSpacing.md),
-                if (dropdown != null)
-                  SizedBox(width: _dropdownWidth, child: dropdown!),
-                if (dropdown != null && customWidgets.isNotEmpty)
-                  SizedBox(width: context.foSpacing.lg),
-                for (int i = 0; i < customWidgets.length; i++) ...<Widget>[
-                  customWidgets[i],
-                  if (i != customWidgets.length - 1)
-                    SizedBox(width: context.foSpacing.md),
-                ],
-              ],
-            ),
-          ),
-          if (primaryAction != null) primaryAction!,
+          Expanded(child: _toolbar()),
+          if (primaryAction != null) ...<Widget>[
+            SizedBox(width: context.foSpacing.lg),
+            primaryAction!,
+          ],
         ],
       );
 
@@ -226,19 +224,7 @@ class _ControlsBar extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (searchField != null) searchField!,
-        if (searchField != null && dropdown != null)
-          SizedBox(height: context.foSpacing.sm),
-        if (dropdown != null) dropdown!,
-        if ((searchField != null || dropdown != null) &&
-            customWidgets.isNotEmpty)
-          SizedBox(height: context.foSpacing.sm),
-        if (customWidgets.isNotEmpty)
-          Wrap(
-            spacing: context.foSpacing.md,
-            runSpacing: context.foSpacing.sm,
-            children: customWidgets,
-          ),
+        if (hasFilters) _toolbar(),
         if (hasFilters && primaryAction != null)
           SizedBox(height: context.foSpacing.sm),
         if (primaryAction != null)

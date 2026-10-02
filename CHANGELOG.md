@@ -1,5 +1,128 @@
 # Changelog
 
+## 0.7.0
+
+The FiguredoutAI palette, and the components the Luxe Production Tracker redesign needs — built
+here so every app gets them. **Breaking, visually and in a few APIs**: read "Changed — breaking"
+before bumping.
+
+### Changed — breaking
+
+- **The palette is the web package's again.** `@figuredout/ui-web` moved from the green it was
+  ported with to the FiguredoutAI palette in its `60926da` — deep teal `#15586b` on cool paper in
+  light, sky `#90c2e7` on ink in dark — and this package had not followed. Every colour token in
+  `FoTokens` is re-ported verbatim from `styles/tokens.css` (`569b4a2`), including the hue-matched
+  shadows and the six chart hues. Nothing was green on purpose: the token file has always said
+  "ported verbatim", and no consumer overrides `FoColors`. Any app that bumps will look different
+  — that is the intent. `legal_app` pins `v0.6.1` and is untouched until it bumps.
+  - The two contrast waivers are gone: teal on the sunken step and on its own 10% wash both clear
+    4.5:1 (6.5:1). `docs/contrast-report.md` has no ⚠︎ and no ❌ rows.
+  - `FoChartColors` gained a required `track` (`--chart-track`). Code that constructs a
+    `FoChartColors` by hand must pass it.
+- **Radii are the web package's**: buttons and fields 10 (was 8), cards 16 (was 12), plus a new
+  `FoRadii.pill`. Spacing and touch targets stay Luxe's.
+- **Status chips and badges are pills.** `FoStatusChip` and `FoBadge` use `FoRadii.pill`.
+- **`FoDialog` is a bottom sheet on a phone** — the same words, rising from where the thumb is.
+  A widget test that looked for `AlertDialog` should look for the title text; the wide form is a
+  `Dialog`, not an `AlertDialog`.
+- **`FoEmptyState.noResults` and `.error` use a secondary action** ("Clear filters", "Try again")
+  and their own marks (neutral, danger), so couldn't-load never looks like first use.
+- **`FoToast` lost its left accent rule**: the mark sits in a disc of its wash, and an optional
+  `title` names the event while the message names the record.
+- **`FoEntityPickerField` opens `FoLookupPicker`**, a dialog on a wide window and a full screen on
+  a phone, instead of `FoFormPresenter`'s sheet. `FoEntityPickerCopy.discardCopy` is deprecated and
+  ignored; `closeLabel` is new and optional (falls back to the framework's "Close").
+- **Status tabs, chip rows, toolbars never wrap** (the owner's layout review): `FoStatusTabs` and
+  `FoChoiceGroup`'s chips are one row that scrolls sideways; `FoScaffold`'s controls row and
+  `FoFilterBar` lay search and filters out in one row through `FoToolbar` — on a phone too, where
+  `FoScaffold` used to stack them.
+- **`FoResponsiveTileGrid` rows are equal height** by default (`equalHeight: false` restores the
+  old top-aligned rows). Tiles that contain a `LayoutBuilder` cannot be measured intrinsically —
+  turn it off for those.
+- **`FoNumberField.boxWidth` → `defaultBoxWidth`** (the constant); `boxWidth` is now a parameter.
+- Dialogs and sheets share one scrim, the web package's: primary ink at 28%
+  (`FoTokens.scrimOpacity`), set on the theme's dialog and bottom-sheet themes.
+
+### Added — Graphite, an alternative dark palette
+
+- **`FoTheme.dark(palette: FoDarkPalette.graphite)`** (also `FoThemeExt.dark(palette:)`,
+  `FoColors.graphite`, `FoChartColors.graphite`). The default stays `FoDarkPalette.inkSky`,
+  identical to `@figuredout/ui-web`'s dark, because parity is this package's rule; Graphite is
+  opt-in, chosen by Luxe's owner after the floor found ink/sky hard to read. Neutral near-black
+  greys, the light theme's teal lifted for a dark ground (`#3cc4c9`), true status hues, opaque
+  washes, a focus ring at primary × 0.6, a needs-approval ring at warning × 0.5, chart colours
+  whose sixth series is not the axis ink, and black shadows like the default dark. Values from the
+  canvas `darkthemes.json`; `test/tokens/graphite_test.dart` checks every row of the contrast
+  table in `notes/dark-themes.md` (7:1 body text, 3:1 input rings, ΔL* surface steps, ΔE washes),
+  and `docs/contrast-report.md` now has a Graphite section. The Widgetbook has a
+  "Dark · Graphite" theme, and its layout test pumps every page in it.
+- **Two new colour roles on every palette:** `FoColors.swatchRing` — the ring round a garment
+  colour dot, light (white × 0.35) on every dark palette so Deep Navy and Jet Black do not vanish
+  — and `FoColors.warningRing`, the needs-approval button's hairline. `FoColourSwatch` and the
+  warning `FoButton` use them. **Breaking for code that constructs `FoColors` by hand**: both are
+  required.
+
+### Added — primitives
+
+- `FoIconButton` — a named 48dp glyph button on the one focus ring.
+- `FoNumberField` — a controlled whole number between − and +, **always typeable**, warning and
+  error rings. `FoMatrixNumericCell` and the old dropdown were uncontrolled; this is not.
+- `FoProgressBar` — one value toward a total, never only as a bar (`semanticValue` is required).
+- `FoProportionBar` — one whole split into outcomes (passed / alter / reject), with a legend.
+- `FoSizeValueStrip` — per-size figures, read-only; wraps instead of shrinking.
+- `FoChoiceGroup` — single or multiple choice as chips, a grid, cards or a list: the one control
+  for every "which of these". Radio/checkbox semantics, error state, counts.
+- `FoPinPad` — a PIN on a big keypad, with the wrong-PIN state.
+- `FoDisclosure`, `FoAvatar`, `FoColourSwatch`, `FoKeyHint`, and `FoDisc` — a circle that stays a
+  circle under any constraints; every round mark in the package is now guarded the same way.
+- `FoButton`: `FoButtonVariant.warning` (needs an owner's yes), `FoButtonSize.large` (56dp phone
+  action bar), `trailingIcon`. `FoActionButton` takes `size`.
+- `FoStatusChip`: `icon`, and typed vocabularies `FoStatusChip.entry` (`FoEntryStatus`: Draft,
+  Submitted, Change requested, Needs approval), `.order` (`FoOrderStatus`: New, Running, On hold,
+  Completed, Cancelled — Running and Completed no longer share a green), `.due` (`FoDueStatus`).
+  The words stay the caller's.
+- `FoTextField`: `revealLabel` / `concealLabel` add a show/hide toggle to a password.
+- `FoHint.guide` — the `?` that opens a guide at every width.
+
+### Added — patterns
+
+- Recording work: `FoStepFlow.show` + `FoStepFlowScaffold` + `FoStepper` (dialog with stepper and
+  pinned footer on a wide window, full screen with segmented progress and fixed footer on a
+  phone); `FoSizeCountGrid` / `FoSizeCountRow` (Ready per size, Fill all ready, over-limit warning
+  not error, extra columns, live totals); `FoDoneState`.
+- Lists: `FoStatusTabs`, `FoToolbar`, `FoFilterButton`, `FoFilterBar` apply mode (`onApply`,
+  `pendingMessage`), `FoListDetailLayout` + `FoSidePanel` + `FoListCard` (the list fills the height
+  beside the panel, pagination at the bottom), `FoActionBar` (the bottom bar that never covers the
+  list).
+- Feedback: `FoInfoBanner.offline`, `.locked` (Request a change), `title`, `trailing`, a `neutral`
+  tone, and a titled `.error`; `FoPageState` (no access, not found); `FoOutboxItem` (offline
+  entries: waiting, sent, needs you).
+- Decisions: `FoReasonField` + `FoReasonDialog` (quick reasons, required reason, named confirm),
+  `FoConsequenceList`, `FoChangeDiff` (before/after as a table, tiles or a list).
+- Overviews: `FoStageRail` / `FoStageTile`, `FoAttentionList` / `FoAttentionItem` (with `trailing`
+  and `unseen`), `FoMetricCard`, `FoChecklist`, `FoShortfallCard`, `FoCapacityGrid`,
+  `FoTimeline`, `FoListGroup` / `FoListRow`, `FoEqualHeightRow`.
+- Entry: `FoQuantityMatrix` (colour × size with ratio split, copy, spreadsheet paste parsing,
+  pinned names, live totals, edit floors), `FoEntryListEditor` (a list typed line by line),
+  `FoScanViewfinder` + `FoScanField` (the app supplies the camera), `FoAttachmentGrid`,
+  `FoPrintPreview`.
+- Finding: `FoLookupPicker` (search as you type, recent first, scan, stale answers dropped),
+  `FoSearchPalette` (grouped global search, arrow keys and Enter), `FoDateRangePicker` (presets
+  first, future days shut).
+- Help: `FoHelpGuide.show` (drawer on a wide window, sheet on a phone; `eyebrow`, footer
+  `actions`, `scrollTo` an anchor), `FoGuideStep`, `FoMarkedScreenshot`, `FoHelpfulVote`.
+- `FoPageHeader.titleAccessory` (the `?` beside the title); `FoBarChart` `compact`, `showValues`,
+  `color`, `barWidth`, `semanticLabel` (the hourly strip against a target);
+  `FoShellScaffold.railLabels` (an 88dp rail with names under the icons, for tablets).
+
+### Known gap
+
+- `@figuredout/ui-web`'s sixth categorical hue equals its axis-label ink in both themes; the
+  chart test records the collision as a known exception that fails once the web package fixes it.
+- Not built, decided app-side: the tablet rail's "Stages" flyout group, the QC piece-by-piece
+  reason queue (composed from `FoChoiceGroup` grid + `FoProgressBar`), session-expired re-auth
+  (`FoDialog` + `FoTextField` reveal), the guide index and "On this page" rail.
+
 ## 0.6.1
 
 Five layout fixes, all of them the same bug at twice the system text size, and a test that

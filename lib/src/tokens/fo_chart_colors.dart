@@ -17,6 +17,7 @@ class FoChartColors {
     required this.grid,
     required this.axisLabel,
     required this.targetLine,
+    required this.track,
   });
 
   /// The six categorical hues, in order.
@@ -35,6 +36,12 @@ class FoChartColors {
   /// equivalent, so it is marked Flutter-only in the manifest.
   final Color targetLine;
 
+  /// `--chart-track`: the unfilled part of a meter — the rest of a progress
+  /// bar, an empty step. Not a hairline, and not `surfaceSunken` by name,
+  /// because a track and a hole are different jobs that happen to share a
+  /// value in light mode.
+  final Color track;
+
   /// The light theme's chart palette.
   static const FoChartColors light = FoChartColors(
     categorical: FoTokens.chartCategorical,
@@ -42,6 +49,7 @@ class FoChartColors {
     grid: FoTokens.chartGrid,
     axisLabel: FoTokens.chartAxisLabel,
     targetLine: FoTokens.chartTargetLine,
+    track: FoTokens.chartTrack,
   );
 
   /// The dark theme's chart palette.
@@ -51,6 +59,18 @@ class FoChartColors {
     grid: FoTokens.chartGridDark,
     axisLabel: FoTokens.chartAxisLabelDark,
     targetLine: FoTokens.chartTargetLineDark,
+    track: FoTokens.chartTrackDark,
+  );
+
+  /// The Graphite dark palette's chart colours. The track follows the
+  /// sunken step, as the palette's notes ask.
+  static const FoChartColors graphite = FoChartColors(
+    categorical: FoTokens.chartCategoricalGraphite,
+    sequential: FoTokens.primaryGraphite,
+    grid: FoTokens.chartGridGraphite,
+    axisLabel: FoTokens.chartAxisLabelGraphite,
+    targetLine: FoTokens.chartTargetLineGraphite,
+    track: FoTokens.surfaceSunkenGraphite,
   );
 
   /// The series colour at [index], cycling past the palette's length.
@@ -71,5 +91,6 @@ class FoChartColors {
         grid: Color.lerp(a.grid, b.grid, t)!,
         axisLabel: Color.lerp(a.axisLabel, b.axisLabel, t)!,
         targetLine: Color.lerp(a.targetLine, b.targetLine, t)!,
+        track: Color.lerp(a.track, b.track, t)!,
       );
 }
