@@ -132,6 +132,25 @@ void main() {
       );
     }
 
+    // The pair the tertiary button and the primary chip actually paint since
+    // 0.6.2: primary's wash under its hover step, because primary on its own
+    // wash is waived below. Over the page as well as the surface, because a
+    // tertiary button sits on either.
+    for (final MapEntry<String, Color> ground in <MapEntry<String, Color>>[
+      MapEntry<String, Color>('surface', c.surface),
+      MapEntry<String, Color>('bg', c.bg),
+    ]) {
+      check(
+        theme: theme,
+        ink: 'primaryHover',
+        on: 'primarySoft over ${ground.key}',
+        inkColor: c.primaryHover,
+        onColor: Color.alphaBlend(c.primarySoft, ground.value),
+        threshold: aaBody,
+        note: 'tertiary button, primary chip',
+      );
+    }
+
     // Ink that rides on a solid semantic fill — a filled button, a solid chip.
     final List<List<Object>> solids = <List<Object>>[
       <Object>['primaryFg', c.primaryFg, 'primary', c.primary],
@@ -192,9 +211,11 @@ const Map<String, _Waiver> _waivers = <String, _Waiver>{
   ),
   'light/primary on primarySoft over surface': _Waiver(
     floor: 4.0,
-    why: 'primary #15803d on its own 12% wash reaches 4.11:1 — the exact '
-        'composite a chip or a badge produces. Fix in @figuredout/ui-web by '
-        'darkening primary the way --color-success was darkened, then re-port.',
+    why: 'primary #15803d on its own 12% wash reaches 4.11:1. Since 0.6.2 no '
+        'component paints text in this pair: the tertiary button and the '
+        'primary chip use primaryHover on the wash (measured above, and on '
+        'the rendered widgets by fo_ink_contrast_test). The token fix belongs '
+        'in @figuredout/ui-web, which has since moved to teal (0.7.0 here).',
   ),
 };
 

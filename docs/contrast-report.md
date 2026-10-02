@@ -53,6 +53,8 @@ Body text is measured at 4.5:1 and chart series at 3:1. Semantic ink is also mea
 | `warning` | `warningSoft over surface` | 7.78:1 | 4.5:1 | ✅ | body text on its own wash |
 | `danger` | `dangerSoft over surface` | 8.42:1 | 4.5:1 | ✅ | body text on its own wash |
 | `info` | `infoSoft over surface` | 8.86:1 | 4.5:1 | ✅ | body text on its own wash |
+| `primaryHover` | `primarySoft over surface` | 5.83:1 | 4.5:1 | ✅ | tertiary button, primary chip |
+| `primaryHover` | `primarySoft over bg` | 5.50:1 | 4.5:1 | ✅ | tertiary button, primary chip |
 | `primaryFg` | `primary` | 4.79:1 | 4.5:1 | ✅ | ink on a solid fill |
 | `primaryFg` | `primaryHover` | 6.81:1 | 4.5:1 | ✅ | ink on a solid fill |
 | `dangerFg` | `danger` | 9.12:1 | 4.5:1 | ✅ | ink on a solid fill |
@@ -113,6 +115,8 @@ Body text is measured at 4.5:1 and chart series at 3:1. Semantic ink is also mea
 | `warning` | `warningSoft over surface` | 8.01:1 | 4.5:1 | ✅ | body text on its own wash |
 | `danger` | `dangerSoft over surface` | 6.06:1 | 4.5:1 | ✅ | body text on its own wash |
 | `info` | `infoSoft over surface` | 5.95:1 | 4.5:1 | ✅ | body text on its own wash |
+| `primaryHover` | `primarySoft over surface` | 11.01:1 | 4.5:1 | ✅ | tertiary button, primary chip |
+| `primaryHover` | `primarySoft over bg` | 12.04:1 | 4.5:1 | ✅ | tertiary button, primary chip |
 | `primaryFg` | `primary` | 10.62:1 | 4.5:1 | ✅ | ink on a solid fill |
 | `primaryFg` | `primaryHover` | 12.30:1 | 4.5:1 | ✅ | ink on a solid fill |
 | `dangerFg` | `danger` | 5.84:1 | 4.5:1 | ✅ | ink on a solid fill |
@@ -129,5 +133,5 @@ Body text is measured at 4.5:1 and chart series at 3:1. Semantic ink is also mea
 These are below AA, measured, and accepted for now. The colours are ported verbatim from `@figuredout/ui-web`, so the fix belongs in that package first — see the plan, §2.
 
 - **light: `primary` on `surfaceSunken` — 4.16:1** (floor 4.0:1). primary #15803d reaches only 4.16:1 on the sunken step. Primary as body text inside a well is rare; primary as a large mark or an icon there still clears 3:1.
-- **light: `primary` on `primarySoft over surface` — 4.10:1** (floor 4.0:1). primary #15803d on its own 12% wash reaches 4.11:1 — the exact composite a chip or a badge produces. Fix in @figuredout/ui-web by darkening primary the way --color-success was darkened, then re-port.
+- **light: `primary` on `primarySoft over surface` — 4.10:1** (floor 4.0:1). primary #15803d on its own 12% wash reaches 4.11:1. Since 0.6.2 no component paints text in this pair: the tertiary button and the primary chip use primaryHover on the wash (measured above, and on the rendered widgets by fo_ink_contrast_test). The token fix belongs in @figuredout/ui-web, which has since moved to teal (0.7.0 here).
 

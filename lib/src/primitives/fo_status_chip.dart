@@ -9,7 +9,9 @@ import '../tokens/fo_tokens.dart';
 /// token, which is the exact pairing `test/tokens/contrast_test.dart`
 /// measures — ink on its own wash over the surface is where the web package
 /// found `--color-success` failing AA, so it is the pairing worth having
-/// covered.
+/// covered. The primary tone writes in `primaryHover`, because `primary` on
+/// its own wash is under AA; `test/primitives/fo_ink_contrast_test.dart`
+/// measures every tone as rendered.
 ///
 /// The unnamed constructor takes an arbitrary accent and derives a wash from
 /// it at [FoTokens.softWashAlpha]. Same weight, but nothing measures it, so
@@ -75,8 +77,10 @@ class FoStatusChip extends StatelessWidget {
             context.foColors.fgMuted,
             context.foColors.surfaceSunken,
           ),
+        // primaryHover: primary on its own wash is under AA (4.10:1). See
+        // FoButtonVariant.tertiary, the same pair.
         FoStatusTone.primary => (
-            context.foColors.primary,
+            context.foColors.primaryHover,
             context.foColors.primarySoft,
           ),
         FoStatusTone.success => (

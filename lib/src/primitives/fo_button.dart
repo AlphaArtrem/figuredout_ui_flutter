@@ -137,8 +137,13 @@ class FoButton extends StatelessWidget {
           background: c.surface,
           border: BorderSide(color: c.edgeStrong),
         ),
+      // primaryHover, not primary: primary on its own wash is 4.10:1 on a
+      // surface and 3.87:1 on the page — under AA for every "Cancel" this
+      // variant draws. The hover step is the same hue one stop darker (lighter
+      // in dark mode) and clears 4.5:1 on every ground; fo_ink_contrast_test
+      // measures what is painted rather than the token pair.
       FoButtonVariant.tertiary => _Palette(
-          foreground: c.primary,
+          foreground: c.primaryHover,
           background: c.primarySoft,
           border: BorderSide.none,
         ),
