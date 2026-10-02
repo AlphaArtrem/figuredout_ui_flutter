@@ -1,5 +1,6 @@
 import 'package:figuredout_ui/figuredout_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -154,4 +155,136 @@ void main() {
       expect(band, FoWindowClass.medium);
     });
   });
+
+  /// A consuming app's own script coverage (legal_app traps §52). These
+  /// styles carry `package: 'figuredout_ui'`, and `TextStyle` applies the
+  /// package in its `fontFamilyFallback` getter — so a fallback a consumer
+  /// `apply`s afterwards is looked up in *this* package's manifest, is not
+  /// there, and the platform face is used. **Assert the negative**: the
+  /// positive "contains NotoSansDevanagari" passes on the broken version.
+  group('fontFamilyFallback', () {
+    const List<String> devanagari = <String>['NotoSansDevanagari'];
+
+    test('applied afterwards, the package rewrites it — why this exists', () {
+      final TextStyle applied = FoTheme.light()
+          .textTheme
+          .apply(fontFamilyFallback: devanagari)
+          .bodyMedium!;
+      expect(
+        applied.fontFamilyFallback,
+        <String>['packages/${FoTokens.fontPackage}/NotoSansDevanagari'],
+      );
+    });
+
+    for (final bool isDark in <bool>[false, true]) {
+      final String theme = isDark ? 'dark' : 'light';
+
+      test('$theme: every style the theme hands out falls back as written', () {
+        final ThemeData data = isDark
+            ? FoTheme.dark(fontFamilyFallback: devanagari)
+            : FoTheme.light(fontFamilyFallback: devanagari);
+        final Map<String, TextStyle?> styles = _everyStyle(data);
+        expect(styles.length, greaterThan(30));
+
+        for (final MapEntry<String, TextStyle?> entry in styles.entries) {
+          final TextStyle style = entry.value!;
+          expect(
+            style.fontFamilyFallback,
+            devanagari,
+            reason: '${entry.key}: the fallback must resolve against the '
+                "consuming app's manifest, not packages/figuredout_ui/",
+          );
+          expect(
+            style.fontFamily,
+            startsWith('packages/${FoTokens.fontPackage}/'),
+            reason: '${entry.key}: Geist must still come from this package',
+          );
+        }
+      });
+
+      test('$theme: without one, nothing changes', () {
+        final Map<String, TextStyle?> plain =
+            _everyStyle(isDark ? FoTheme.dark() : FoTheme.light());
+        final Map<String, TextStyle?> empty = _everyStyle(
+          isDark
+              ? FoTheme.dark(fontFamilyFallback: const <String>[])
+              : FoTheme.light(fontFamilyFallback: const <String>[]),
+        );
+        for (final String key in plain.keys) {
+          expect(plain[key]!.fontFamilyFallback, isNull, reason: key);
+          expect(empty[key], plain[key], reason: key);
+        }
+      });
+    }
+
+    testWidgets('reaches the glyphs: a body text and a button label', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: FoTheme.light(fontFamilyFallback: devanagari),
+          home: Scaffold(
+            body: Builder(
+              builder: (BuildContext context) => Column(
+                children: <Widget>[
+                  Text('मुक़दमा', style: context.foText.body),
+                  FoButton(
+                    label: 'खोलें',
+                    variant: FoButtonVariant.primary,
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      for (final String text in <String>['मुक़दमा', 'खोलें']) {
+        final TextStyle painted =
+            tester.renderObject<RenderParagraph>(find.text(text)).text.style!;
+        expect(painted.fontFamilyFallback, devanagari, reason: text);
+      }
+    });
+  });
+}
+
+/// Every text style [data] carries, by where it lives.
+Map<String, TextStyle?> _everyStyle(ThemeData data) {
+  final FoThemeExt ext = data.extension<FoThemeExt>()!;
+  const Set<WidgetState> none = <WidgetState>{};
+  const Set<WidgetState> selected = <WidgetState>{WidgetState.selected};
+  return <String, TextStyle?>{
+    for (final MapEntry<String, TextStyle> e in ext.text.toMap().entries)
+      'foText.${e.key}': e.value,
+    'textTheme.displayLarge': data.textTheme.displayLarge,
+    'textTheme.headlineMedium': data.textTheme.headlineMedium,
+    'textTheme.titleLarge': data.textTheme.titleLarge,
+    'textTheme.titleMedium': data.textTheme.titleMedium,
+    'textTheme.titleSmall': data.textTheme.titleSmall,
+    'textTheme.bodyLarge': data.textTheme.bodyLarge,
+    'textTheme.bodyMedium': data.textTheme.bodyMedium,
+    'textTheme.bodySmall': data.textTheme.bodySmall,
+    'textTheme.labelLarge': data.textTheme.labelLarge,
+    'textTheme.labelSmall': data.textTheme.labelSmall,
+    'appBar.title': data.appBarTheme.titleTextStyle,
+    'dialog.title': data.dialogTheme.titleTextStyle,
+    'dialog.content': data.dialogTheme.contentTextStyle,
+    'popupMenu': data.popupMenuTheme.textStyle,
+    'navigationBar.selected':
+        data.navigationBarTheme.labelTextStyle!.resolve(selected),
+    'navigationBar': data.navigationBarTheme.labelTextStyle!.resolve(none),
+    'navigationRail.selected': data.navigationRailTheme.selectedLabelTextStyle,
+    'navigationRail': data.navigationRailTheme.unselectedLabelTextStyle,
+    'input.label': data.inputDecorationTheme.labelStyle,
+    'input.hint': data.inputDecorationTheme.hintStyle,
+    'input.error': data.inputDecorationTheme.errorStyle,
+    'filledButton': data.filledButtonTheme.style!.textStyle!.resolve(none),
+    'elevatedButton': data.elevatedButtonTheme.style!.textStyle!.resolve(none),
+    'outlinedButton': data.outlinedButtonTheme.style!.textStyle!.resolve(none),
+    'textButton': data.textButtonTheme.style!.textStyle!.resolve(none),
+    'chip': data.chipTheme.labelStyle,
+    'tooltip': data.tooltipTheme.textStyle,
+    'snackBar': data.snackBarTheme.contentTextStyle,
+  };
 }

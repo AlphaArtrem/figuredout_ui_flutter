@@ -47,23 +47,27 @@ class FoThemeExt extends ThemeExtension<FoThemeExt> {
   /// The radius scale. Theme-invariant.
   final FoRadii radii;
 
-  /// The light theme's extension.
-  factory FoThemeExt.light() => FoThemeExt(
+  /// The light theme's extension. [fontFamilyFallback] is the app's own
+  /// script coverage — see [FoTextStyles.forColors].
+  factory FoThemeExt.light({List<String>? fontFamilyFallback}) => FoThemeExt(
         colors: FoColors.light,
         text: FoTextStyles.forColors(
           fg: FoColors.light.fg,
           fgMuted: FoColors.light.fgMuted,
+          fontFamilyFallback: fontFamilyFallback,
         ),
         charts: FoChartColors.light,
         shadows: FoShadows.light,
       );
 
-  /// The dark theme's extension.
-  factory FoThemeExt.dark() => FoThemeExt(
+  /// The dark theme's extension. [fontFamilyFallback] is the app's own
+  /// script coverage — see [FoTextStyles.forColors].
+  factory FoThemeExt.dark({List<String>? fontFamilyFallback}) => FoThemeExt(
         colors: FoColors.dark,
         text: FoTextStyles.forColors(
           fg: FoColors.dark.fg,
           fgMuted: FoColors.dark.fgMuted,
+          fontFamilyFallback: fontFamilyFallback,
         ),
         charts: FoChartColors.dark,
         shadows: FoShadows.dark,
