@@ -213,9 +213,30 @@ looked off, and only a live run on a phone caught it.
   ordinary case identical.
 - **`widgetbook/test` pumps every page at 200% text**, at the compact viewport in light theme —
   the combination that runs out of room first, and one pass rather than a third dimension on
-  the 3 × 2 matrix. The `Charts` page is exempt and says why in the test: `FoChartShell` gives
-  its plot a fixed height because `fl_chart` fills its box and asserts on an unbounded one, so
-  a self-sizing chart like `FoStageFunnel` overflows that slot at 200%. Fixing it means an
-  opt-out on the shell, which is an API addition.
+  the 3 × 2 matrix. Since 0.6.2 no page is exempt: `FoChartShell` gives a plot a fixed height
+  because `fl_chart` fills its box and asserts on an unbounded one, and a self-sizing chart like
+  `FoStageFunnel` passes `chartSizesItself: true` so that height is a floor instead.
+- **A column with only its body flexible overflows when its fixed parts do not fit.**
+  `FoFormSurface` (header, scrolling body, pinned footer) and `FoDialog` (mark, title, message,
+  buttons) both did, at 300% text and in a 237-point browser-zoom window — with the primary
+  action below the edge. The surface now measures its header and footer first and scrolls as
+  one when they leave the body less than a third of the height; the dialog scrolls its words
+  and keeps its buttons pinned. Scrolling the buttons with the words was tried first: it put
+  the choice below the fold, and `textContrastGuideline` then measured a hidden button against
+  the text over it. A fixed stack of placeholders is the same bug: `FoSkeletonList` shows only the rows
+  that fit a bounded height.
+- **Test the contrast of what is painted, not only of the tokens.** The token test waived light
+  `primary` on its own wash, and two components painted exactly that pair as text (the tertiary
+  button, the primary chip). `test/primitives/fo_ink_contrast_test.dart` reads ink and fill off
+  the rendered widget.
+- **A label merged with its content is read twice; a label that replaces it can lose more.** A
+  `Semantics(label:)` over children that carry their own text announces both. Excluding the
+  children fixes that and drops everything else they say — and any button among them. So
+  `FoCard.labelReplacesContent` is opt-in, for a label that is the card's complete summary.
+- **A consuming app's font fallback goes through `FoTheme`, never `apply`.** Every style here
+  carries `package: 'figuredout_ui'`, and `TextStyle` rewrites each fallback entry to
+  `packages/figuredout_ui/<family>` in its getter. `FoTheme.light(fontFamilyFallback: [...])`
+  builds the styles with the family pre-resolved and no `package`, so the fallback resolves in
+  the app's manifest.
 - **Semantic text is measured against its soft wash, not the surface.** See
   [`contrast-report.md`](contrast-report.md).
