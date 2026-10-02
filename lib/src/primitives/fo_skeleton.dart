@@ -89,12 +89,21 @@ class _FoSkeletonState extends State<FoSkeleton>
 }
 
 /// A column of card skeletons standing in for a loading list.
+///
+/// **It fits the box it is given.** A skeleton is shown for the frame before
+/// the rows arrive, often in whatever height is left under a header — and at
+/// 200% text, a phone on its side or a zoomed browser window, that is less
+/// than four 88dp cards. A fixed column of them overflowed and asserted there
+/// on every loading screen of a consuming app. In a bounded height it now
+/// shows as many whole rows as fit (at least one, shortened to the height if
+/// even one does not fit); unbounded — inside a scroll view — it shows
+/// [itemCount].
 class FoSkeletonList extends StatelessWidget {
   /// Creates a list of skeletons.
   const FoSkeletonList({this.itemCount = 4, this.itemHeight = 88, super.key});
 
-  /// How many placeholder rows. Enough to fill the fold, not so many that the
-  /// arriving list shrinks.
+  /// How many placeholder rows, at most. Enough to fill the fold, not so many
+  /// that the arriving list shrinks.
   final int itemCount;
 
   /// Each row's height.
@@ -102,13 +111,30 @@ class FoSkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        for (int i = 0; i < itemCount; i++) ...<Widget>[
-          FoSkeleton.card(height: itemHeight),
-          if (i < itemCount - 1) SizedBox(height: context.foSpacing.md),
-        ],
-      ],
+    final double gap = context.foSpacing.md;
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double available = constraints.maxHeight;
+        int rows = itemCount;
+        double height = itemHeight;
+        if (available.isFinite) {
+          // n rows take n * itemHeight + (n - 1) * gap.
+          final int fit = ((available + gap) / (itemHeight + gap)).floor();
+          rows = fit.clamp(1, itemCount < 1 ? 1 : itemCount);
+          if (fit < 1) height = available;
+        }
+        if (itemCount < 1) return const SizedBox.shrink();
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            for (int i = 0; i < rows; i++) ...<Widget>[
+              FoSkeleton.card(height: height),
+              if (i < rows - 1) SizedBox(height: gap),
+            ],
+          ],
+        );
+      },
     );
   }
 }

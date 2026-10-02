@@ -154,6 +154,47 @@ void main() {
       expect(find.byType(FoSkeleton), findsNWidgets(3));
       expect(find.byType(SizedBox), findsNWidgets(2));
     });
+
+    /// Found by a consuming app's browser-zoom sweep: at 200% thirteen
+    /// screens' loading frame overflowed, because four 88dp cards were laid
+    /// out in whatever was left under a header (`fo_skeleton.dart:105`).
+    for (final (double height, int rows) in <(double, int)>[
+      (200, 2),
+      (60, 1),
+      (1000, 4),
+    ]) {
+      testWidgets('in a box $height tall it shows $rows rows and fits', (
+        WidgetTester tester,
+      ) async {
+        await pumpFo(
+          tester,
+          child: SizedBox(height: height, child: const FoSkeletonList()),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(FoSkeleton), findsNWidgets(rows));
+        expect(
+          tester.getSize(find.byType(FoSkeletonList)).height,
+          lessThanOrEqualTo(height),
+        );
+      });
+    }
+
+    testWidgets('inside a scroll view it shows every row', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        child: const SingleChildScrollView(
+          child: FoSkeletonList(itemCount: 12),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(FoSkeleton, skipOffstage: false), findsNWidgets(12));
+    });
   });
 
   group('FoHint', () {
