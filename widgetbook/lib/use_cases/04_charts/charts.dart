@@ -140,6 +140,9 @@ class Charts extends StatelessWidget {
           child: FoChartShell(
             copy: _copy,
             height: 300,
+            // A funnel is a column of labelled bars, not a plot: it measures
+            // itself, and at 200% text it is taller than 300.
+            chartSizesItself: true,
             columnLabels: const <String>['Pieces'],
             tableRows: const <FoChartTableRow>[
               FoChartTableRow(label: 'Cutting', values: <String>['4,000']),

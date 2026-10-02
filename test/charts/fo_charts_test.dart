@@ -108,6 +108,64 @@ void main() {
       await tester.pump();
       expect(find.byType(FoSkeleton), findsOneWidget);
     });
+
+    /// A funnel in the fixed plot slot ran 200 points past the bottom at 200%
+    /// text — the reason the Widgetbook's Charts page was skipped in its 200%
+    /// pass through 0.6.1.
+    for (final double scale in <double>[1, 2, 3]) {
+      testWidgets('a self-sizing chart grows past its floor at ${scale}x text',
+          (WidgetTester tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await pumpFo(
+          tester,
+          surfaceSize: const Size(390, 2400),
+          child: SingleChildScrollView(
+            child: FoChartShell(
+              copy: _copy,
+              height: 160,
+              chartSizesItself: true,
+              columnLabels: const <String>['Pieces'],
+              tableRows: _rows,
+              chart: FoStageFunnel(
+                stages: const <FoFunnelStage>[
+                  FoFunnelStage(label: 'Cutting', qty: 4000),
+                  FoFunnelStage(label: 'Stitching', qty: 3100),
+                  FoFunnelStage(label: 'Finishing', qty: 2450),
+                  FoFunnelStage(label: 'Packing', qty: 2300),
+                ],
+                gapLabel: (int gap, String previous) =>
+                    '$gap waiting after $previous',
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(
+          tester.getSize(find.byType(FoStageFunnel)).height,
+          greaterThanOrEqualTo(160),
+        );
+      });
+    }
+
+    testWidgets('a plot keeps its fixed slot by default', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(900, 800),
+        child: const FoChartShell(
+          copy: _copy,
+          height: 180,
+          columnLabels: <String>['Cut'],
+          tableRows: _rows,
+          chart: SizedBox.expand(key: Key('plot')),
+        ),
+      );
+      expect(tester.getSize(find.byKey(const Key('plot'))).height, 180);
+    });
   });
 
   group('FoChartTheme', () {
