@@ -47,8 +47,14 @@ class FoCard extends StatefulWidget {
   /// ring; without it the card is inert and takes no focus.
   final VoidCallback? onTap;
 
-  /// What tapping the card does, for a screen reader. Only meaningful with
-  /// [onTap].
+  /// The card's whole name for a screen reader. Only meaningful with [onTap].
+  ///
+  /// It **replaces** the card's content in the announcement rather than
+  /// prefixing it, the way `aria-label` replaces a button's text on the web.
+  /// Until 0.6.2 it was merged with the content, so a card labelled with its
+  /// own visible words — or with a summary of them — was read twice: "Roles,
+  /// Roles". Make the label complete (a summary, not only a verb), or leave it
+  /// null and the content is read as it is.
   final String? semanticLabel;
 
   /// Which step of the ladder the card sits on. [FoCardTone.raised] is for a
@@ -70,9 +76,14 @@ class _FoCardState extends State<FoCard> {
     final bool interactive = widget.onTap != null;
     final bool lifted = interactive && _hovered;
 
+    // A labelled tappable card is one control with one name. The content's
+    // own semantics are excluded *inside* the InkWell, so the tap action, the
+    // button role and focus survive while the words are not read a second
+    // time after the label.
+    final bool labelled = interactive && widget.semanticLabel != null;
     final Widget content = Padding(
       padding: widget.padding ?? EdgeInsets.all(context.foSpacing.lg),
-      child: widget.child,
+      child: ExcludeSemantics(excluding: labelled, child: widget.child),
     );
 
     final bool raised = widget.tone == FoCardTone.raised;
