@@ -1,5 +1,6 @@
 import 'package:figuredout_ui/figuredout_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/pump.dart';
@@ -188,6 +189,95 @@ void main() {
     expect(await widthWhen(isLoading: true), await widthWhen(isLoading: false));
   });
 
+  /// Found by a consuming app on a phone at the largest system text size
+  /// (legal_app traps §56): "Open this matter" in Hindi, on a button already
+  /// the width of its card, read "यह मुक़दमा खो" with a fade — no overflow
+  /// stripe, nothing in the console, just a label cut mid-word.
+  group('FoButton label', () {
+    // Latin, because the test font draws every glyph one em wide and has no
+    // Devanagari shaping; the shape of the failure is the same.
+    const String label = 'Open this matter';
+
+    Future<RenderParagraph> pumpLabel(
+      WidgetTester tester, {
+      int? maxLines,
+      IconData? icon,
+    }) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(390, 844),
+        child: SizedBox(
+          width: 300,
+          child: FoButton(
+            label: label,
+            variant: FoButtonVariant.primary,
+            fullWidth: true,
+            icon: icon,
+            maxLines: maxLines,
+            onPressed: () {},
+          ),
+        ),
+      );
+      return tester.renderObject<RenderParagraph>(find.text(label));
+    }
+
+    for (final IconData? icon in <IconData?>[null, Icons.open_in_new]) {
+      testWidgets(
+          'wraps rather than fading what does not fit '
+          '(${icon == null ? 'no icon' : 'with an icon'})', (
+        WidgetTester tester,
+      ) async {
+        final RenderParagraph paragraph = await pumpLabel(tester, icon: icon);
+
+        expect(tester.takeException(), isNull);
+        // Every word is laid out inside the button's width — nothing is
+        // painted past the edge to be faded — on more than one line, and the
+        // button grew to hold them.
+        expect(paragraph.didExceedMaxLines, isFalse);
+        expect(paragraph.size.width, lessThanOrEqualTo(300));
+        expect(_lineCount(paragraph, label), greaterThan(1));
+        expect(
+          tester.getSize(find.byType(FilledButton)).height,
+          greaterThan(paragraph.size.height),
+        );
+      });
+    }
+
+    testWidgets('maxLines: 1 keeps one faded line, as before', (
+      WidgetTester tester,
+    ) async {
+      final RenderParagraph paragraph = await pumpLabel(tester, maxLines: 1);
+
+      expect(_lineCount(paragraph, label), 1);
+      expect(paragraph.overflow, TextOverflow.fade);
+      // The line is wider than the button: what does not fit is faded.
+      expect(
+        paragraph.getMaxIntrinsicWidth(double.infinity),
+        greaterThan(tester.getSize(find.byType(FilledButton)).width),
+      );
+    });
+
+    testWidgets('a label that fits renders on one line at the same height', (
+      WidgetTester tester,
+    ) async {
+      Future<Size> sizeOf({int? maxLines}) async {
+        await pumpFo(
+          tester,
+          child: FoButton(
+            label: 'Save',
+            variant: FoButtonVariant.primary,
+            onPressed: () {},
+          ),
+        );
+        return tester.getSize(find.byType(FilledButton));
+      }
+
+      expect(await sizeOf(), await sizeOf(maxLines: 1));
+    });
+  });
+
   group('FoActionButton / FoLoadingButton', () {
     testWidgets('both are primary, and neither can be styled otherwise', (
       WidgetTester tester,
@@ -212,3 +302,12 @@ void main() {
     });
   });
 }
+
+/// How many lines [paragraph] set [text] on.
+int _lineCount(RenderParagraph paragraph, String text) => paragraph
+    .getBoxesForSelection(
+      TextSelection(baseOffset: 0, extentOffset: text.length),
+    )
+    .map((TextBox box) => box.top)
+    .toSet()
+    .length;

@@ -52,6 +52,7 @@ class FoButton extends StatelessWidget {
     this.tooltip,
     this.fullWidth = false,
     this.isLoading = false,
+    this.maxLines,
     super.key,
   });
 
@@ -76,6 +77,18 @@ class FoButton extends StatelessWidget {
   /// Replaces the label with a spinner and disables the button. The button
   /// keeps its width, so a row of actions does not reflow mid-submit.
   final bool isLoading;
+
+  /// The most lines the label may take. Null — the default — wraps it onto
+  /// as many as it needs, and the button grows taller.
+  ///
+  /// Until 0.6.2 the label was always one line that faded out what did not
+  /// fit. At the largest system text size a two-word label on a button
+  /// already the width of its card was cut mid-word with a gradient, which
+  /// looks deliberate rather than broken and announces itself nowhere — no
+  /// overflow stripe, nothing in the console. A label that fits on one line
+  /// renders exactly as before. Pass 1 only where a taller button would break
+  /// a fixed-height row; the label then fades as it used to.
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +254,7 @@ class FoButton extends StatelessWidget {
   }
 
   Widget _content(BuildContext context) {
-    final Widget labelWidget = _labelText(label);
+    final Widget labelWidget = _labelText(label, maxLines);
     if (icon == null) return labelWidget;
 
     return Row(
@@ -256,11 +269,17 @@ class FoButton extends StatelessWidget {
   }
 }
 
-Widget _labelText(String label) => Text(
+Widget _labelText(String label, int? maxLines) => Text(
       label,
-      maxLines: 1,
-      softWrap: false,
-      overflow: TextOverflow.fade,
+      maxLines: maxLines,
+      softWrap: maxLines != 1,
+      // Never ellipsis with no line limit: the engine then ellipsizes the
+      // first line that overflows and discards the rest — one line again.
+      overflow: switch (maxLines) {
+        1 => TextOverflow.fade,
+        null => TextOverflow.clip,
+        _ => TextOverflow.ellipsis,
+      },
       textAlign: TextAlign.center,
     );
 
