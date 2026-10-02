@@ -189,6 +189,28 @@ abstract final class FoChartTheme {
         ),
       );
 
+  /// Each bar's figure, printed over it and always shown — no touch, no
+  /// tooltip chrome. Pair with `showingTooltipIndicators` on every group.
+  static BarTouchData barValues(BuildContext context) => BarTouchData(
+        enabled: false,
+        handleBuiltInTouches: false,
+        touchTooltipData: BarTouchTooltipData(
+          getTooltipColor: (_) => Colors.transparent,
+          tooltipPadding: EdgeInsets.zero,
+          tooltipMargin: 2,
+          getTooltipItem: (
+            BarChartGroupData group,
+            int groupIndex,
+            BarChartRodData rod,
+            int rodIndex,
+          ) =>
+              BarTooltipItem(
+            exactNumber.format(rod.toY),
+            axisLabel(context).copyWith(color: context.foColors.fgMuted),
+          ),
+        ),
+      );
+
   static TextStyle _tooltipStyle(BuildContext context) =>
       context.foText.numeric.copyWith(color: context.foColors.fg);
 }

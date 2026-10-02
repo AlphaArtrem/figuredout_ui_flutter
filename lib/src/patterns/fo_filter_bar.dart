@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../primitives/fo_button.dart';
+import '../primitives/fo_focus_ring.dart';
 import '../theme/fo_context.dart';
+import '../tokens/fo_layout.dart';
 import '../tokens/fo_tokens.dart';
+import 'fo_info_banner.dart';
+import 'fo_toolbar.dart';
 
 /// The row of filter controls above a list, with a clear-all action.
 ///
@@ -9,6 +14,14 @@ import '../tokens/fo_tokens.dart';
 /// permanently visible "Clear filters" reads as an available action and gives
 /// no signal about whether the list in front of you is the whole list — which
 /// is the one question a filter bar exists to answer.
+///
+/// **Filters apply on change**, by default: a list narrows the moment a value
+/// is picked. A report whose query is expensive sets [onApply] instead — the
+/// filters are staged, an Apply button runs them, and [pendingMessage] says,
+/// while staged changes are not yet applied, that the figures below are still
+/// for the last ones — "You changed the dates. The numbers below are still
+/// for the dates you applied. Press Apply to update them." Never let a page
+/// show figures for one set of filters under another without saying so.
 class FoFilterBar extends StatelessWidget {
   /// Creates a filter bar.
   const FoFilterBar({
@@ -16,8 +29,14 @@ class FoFilterBar extends StatelessWidget {
     required this.hasActiveFilters,
     required this.clearLabel,
     this.onClear,
+    this.onApply,
+    this.applyLabel,
+    this.pendingMessage,
     super.key,
-  });
+  }) : assert(
+          onApply == null || applyLabel != null,
+          'applyLabel is required when onApply is set.',
+        );
 
   /// The filter controls.
   final List<Widget> children;
@@ -31,6 +50,15 @@ class FoFilterBar extends StatelessWidget {
   /// Clears every filter.
   final VoidCallback? onClear;
 
+  /// Runs staged filters — the apply-mode bar. Null applies on change.
+  final VoidCallback? onApply;
+
+  /// The apply button's word — "Apply".
+  final String? applyLabel;
+
+  /// Shown under the bar while staged filters are not yet applied.
+  final String? pendingMessage;
+
   @override
   Widget build(BuildContext context) {
     final Widget? clearAction = hasActiveFilters && onClear != null
@@ -41,13 +69,22 @@ class FoFilterBar extends StatelessWidget {
           )
         : null;
 
-    final Widget controls = Wrap(
-      spacing: context.foSpacing.md,
-      runSpacing: context.foSpacing.sm,
-      children: children,
+    // One row, never wrapped: filters that do not fit scroll sideways.
+    final Widget controls = FoToolbar(
+      filters: <Widget>[
+        ...children,
+        if (onApply != null)
+          FoButton(
+            label: applyLabel!,
+            variant: FoButtonVariant.primary,
+            icon: Icons.refresh,
+            onPressed: onApply,
+          ),
+        if (clearAction != null) clearAction,
+      ],
     );
 
-    return Container(
+    final Widget bar = Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: context.foSpacing.lg,
@@ -57,27 +94,144 @@ class FoFilterBar extends StatelessWidget {
         color: context.foColors.surface,
         border: Border(bottom: BorderSide(color: context.foColors.edge)),
       ),
-      child: context.foWindowClass.isAtLeastMedium
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Expanded(child: controls),
-                if (clearAction != null) ...<Widget>[
-                  SizedBox(width: context.foSpacing.md),
-                  clearAction,
+      child: controls,
+    );
+
+    final String? pending = pendingMessage;
+    if (pending == null) return bar;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        bar,
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.foSpacing.lg,
+            vertical: context.foSpacing.sm,
+          ),
+          child: FoInfoBanner(message: pending),
+        ),
+      ],
+    );
+  }
+}
+
+/// One filter, as a button that says its current value — "Order: All",
+/// "Last 7 days".
+///
+/// A filter **applies on change**: pressing this opens whatever chooses the
+/// value (the app wires [onPressed] to `FoLookupPicker.show`, a menu, a date
+/// range), and the list narrows the moment a value is picked — there is no
+/// separate Apply. Showing the value on the button is what makes a set filter
+/// impossible to forget: "Order: Slim Chino" is in front of somebody wondering
+/// why the list is short.
+///
+/// [isActive] marks a value that is not the default, on the primary wash, so
+/// a row of filters shows at a glance which ones are narrowing the list.
+class FoFilterButton extends StatelessWidget {
+  /// Creates a filter button.
+  const FoFilterButton({
+    required this.value,
+    required this.onPressed,
+    this.label,
+    this.icon,
+    this.isActive = false,
+    super.key,
+  });
+
+  /// What is being filtered — "Order". Null for a filter whose value names
+  /// itself ("Last 7 days").
+  final String? label;
+
+  /// The current value — "All". Caller-supplied.
+  final String value;
+
+  /// Opens the chooser.
+  final VoidCallback? onPressed;
+
+  /// A leading glyph — a calendar for a date range.
+  final IconData? icon;
+
+  /// The value is not the default, so this filter is narrowing the list.
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(context.foRadii.md);
+    final Color ink = isActive ? context.foColors.primary : context.foColors.fg;
+    final String name = label == null ? value : '$label: $value';
+
+    return Semantics(
+      button: true,
+      label: name,
+      onTap: onPressed,
+      excludeSemantics: true,
+      child: FoFocusRing(
+        borderRadius: radius,
+        enabled: onPressed != null,
+        child: Material(
+          color: isActive
+              ? context.foColors.primarySoft
+              : context.foColors.surfaceRaised,
+          borderRadius: radius,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onPressed,
+            child: Container(
+              constraints: const BoxConstraints(
+                minHeight: FoLayout.minTouchTarget,
+              ),
+              padding: EdgeInsets.symmetric(horizontal: context.foSpacing.md),
+              foregroundDecoration: BoxDecoration(
+                borderRadius: radius,
+                border: Border.all(
+                  color: isActive
+                      ? context.foColors.primary.withValues(
+                          alpha: FoLayout.bannerEdgeOpacity,
+                        )
+                      : context.foColors.edgeStrong,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (icon != null) ...<Widget>[
+                    Icon(icon, size: FoTokens.iconSmall, color: ink),
+                    SizedBox(width: context.foSpacing.sm),
+                  ],
+                  Flexible(
+                    child: Text.rich(
+                      TextSpan(
+                        children: <InlineSpan>[
+                          if (label != null)
+                            TextSpan(
+                              text: '$label: ',
+                              style: TextStyle(
+                                color: context.foColors.fgMuted,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          TextSpan(text: value),
+                        ],
+                      ),
+                      style: context.foText.body.copyWith(
+                        color: ink,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: context.foSpacing.xs),
+                  Icon(
+                    Icons.expand_more,
+                    size: FoTokens.iconSmall,
+                    color: context.foColors.fgMuted,
+                  ),
                 ],
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                controls,
-                if (clearAction != null) ...<Widget>[
-                  SizedBox(height: context.foSpacing.sm),
-                  Align(alignment: Alignment.centerLeft, child: clearAction),
-                ],
-              ],
+              ),
             ),
+          ),
+        ),
+      ),
     );
   }
 }

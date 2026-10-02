@@ -32,6 +32,11 @@ class FiguredOutWidgetbook extends StatelessWidget {
           themes: <WidgetbookTheme<ThemeData>>[
             WidgetbookTheme<ThemeData>(name: 'Light', data: FoTheme.light()),
             WidgetbookTheme<ThemeData>(name: 'Dark', data: FoTheme.dark()),
+            // An alternative dark palette an app can opt into — Luxe's.
+            WidgetbookTheme<ThemeData>(
+              name: 'Dark · Graphite',
+              data: FoTheme.dark(palette: FoDarkPalette.graphite),
+            ),
           ],
         ),
         // Named for the three window classes rather than for devices, so a

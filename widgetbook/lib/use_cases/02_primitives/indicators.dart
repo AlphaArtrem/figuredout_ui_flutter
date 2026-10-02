@@ -13,10 +13,83 @@ class StatusChips extends StatelessWidget {
   Widget build(BuildContext context) {
     return DocPage(
       title: 'Status chip',
-      lede: 'The chip holds no status-to-colour mapping — that vocabulary '
-          'belongs to the app, which is the only place that knows what '
-          '"submitted" means here.',
+      lede: 'One word and one colour per state, everywhere. The tones are the '
+          'palette; the typed vocabularies — entry, order, due — fix which '
+          'tone and which glyph each state gets, so Submitted cannot be green '
+          'on one screen and blue on the next. The word is still the app\'s.',
       children: <Widget>[
+        DocSection(
+          title: 'Entries, at every stage',
+          child: Wrap(
+            spacing: context.foSpacing.sm,
+            runSpacing: context.foSpacing.sm,
+            children: <Widget>[
+              FoStatusChip.entry(status: FoEntryStatus.draft, label: 'Draft'),
+              FoStatusChip.entry(
+                status: FoEntryStatus.submitted,
+                label: 'Submitted',
+              ),
+              FoStatusChip.entry(
+                status: FoEntryStatus.changeRequested,
+                label: 'Change requested',
+              ),
+              FoStatusChip.entry(
+                status: FoEntryStatus.needsApproval,
+                label: 'Needs approval',
+              ),
+            ],
+          ),
+        ),
+        DocSection(
+          title: 'Orders',
+          child: Wrap(
+            spacing: context.foSpacing.sm,
+            runSpacing: context.foSpacing.sm,
+            children: <Widget>[
+              FoStatusChip.order(
+                status: FoOrderStatus.notStarted,
+                label: 'New',
+              ),
+              FoStatusChip.order(
+                status: FoOrderStatus.running,
+                label: 'Running',
+              ),
+              FoStatusChip.order(
+                status: FoOrderStatus.onHold,
+                label: 'On hold',
+              ),
+              FoStatusChip.order(
+                status: FoOrderStatus.completed,
+                label: 'Completed',
+              ),
+              FoStatusChip.order(
+                status: FoOrderStatus.cancelled,
+                label: 'Cancelled',
+              ),
+            ],
+          ),
+        ),
+        DocSection(
+          title: 'Delivery',
+          child: Wrap(
+            spacing: context.foSpacing.sm,
+            runSpacing: context.foSpacing.sm,
+            children: <Widget>[
+              FoStatusChip.due(
+                status: FoDueStatus.onTrack,
+                label: 'Due in 16 days',
+              ),
+              FoStatusChip.due(
+                status: FoDueStatus.dueSoon,
+                label: 'Due in 7 days',
+              ),
+              FoStatusChip.due(
+                status: FoDueStatus.overdue,
+                label: '2 days late',
+              ),
+            ],
+          ),
+        ),
         DocSection(
           title: 'Tones — ink and ground both from tokens',
           child: Wrap(

@@ -147,3 +147,37 @@ shim exposes a `LuxeTokens` alias. Everything else asserts behaviour and semanti
 **That means the token swap is nearly test-transparent, which also means the tests will not
 catch a visual regression.** The manual QA pass across light/dark × three window classes is not
 optional.
+
+## 0.7.0: the redesign
+
+0.7.0 is the package half of the Luxe redesign. Bumping changes how every screen looks (teal
+palette, 10/16 radii, pill chips) before a line of Luxe changes; the rest is adoption.
+
+**Wrappers that become redundant**
+
+| Luxe | Replace with |
+| --- | --- |
+| `LuxeWorkflowStatusFilter` (All / Draft / Submitted dropdown) | `FoStatusTabs` with counts |
+| `showLuxeOverrideReasonPrompt` | `FoReasonDialog.show` (`confirmVariant: warning`), or `FoReasonField` inline on step 3 |
+| `LuxeWorkflowDetailLayout` (+ `…Metric`, `…Row`, `…DataSection`) | `FoSidePanel` in a `FoListDetailLayout`, with `FoDescriptionList`, `FoSizeValueStrip`, `FoInfoBanner.locked` and `FoTimeline` |
+| `LuxeHint` | `FoHint.guide` → `FoHelpGuide` |
+| `LuxeEntityPickerField` | `FoEntityPickerField` with `recent`, `onScan`; `FoLookupPicker.show` for filter buttons |
+| The 18 `FoStatusChip(color: …)` call sites under `features/` | `FoStatusChip.entry` / `.order` / `.due` — the tone map moves out of the app |
+| Hand-built record dialogs and per-size count rows | `FoStepFlow.show` + `FoStepFlowScaffold` + `FoSizeCountGrid` |
+| Floating "Record …" buttons on phone lists | `FoActionBar` with `FoButtonSize.large` |
+
+`LuxeScaffold` keeps working, but its controls row now lays search and filters in one row (on a
+phone too) through `FoToolbar`. `LuxeShellScaffold` can pass `railLabels: true` for the tablet
+band. `LuxeDataTable`, `LuxePaginationBar`, `LuxeFormPresenter` and the rest are unaffected.
+
+**Dark theme:** Luxe's owner chose Graphite. Pass
+`darkTheme: FoTheme.dark(palette: FoDarkPalette.graphite)` where Luxe builds its `MaterialApp`; no
+screen changes.
+
+**Things to check after bumping**
+
+- Widget tests that find `AlertDialog` (now `Dialog`, or a bottom sheet on a phone).
+- `FoEntityPickerCopy(discardCopy: …)` is deprecated and ignored — delete the argument.
+- Anything that constructed `FoChartColors` by hand needs `track`; `FoColors` by hand needs
+  `swatchRing` and `warningRing`.
+- `FoResponsiveTileGrid` tiles containing a `LayoutBuilder` need `equalHeight: false`.

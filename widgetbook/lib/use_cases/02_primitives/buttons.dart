@@ -20,6 +20,9 @@ class Buttons extends StatelessWidget {
     FoButtonVariant.tertiary:
         'A third-rank action that still needs to look pressable.',
     FoButtonVariant.clear: 'No chrome at all: cancel, dismiss, a row link.',
+    FoButtonVariant.warning: 'An action an owner has to say yes to — '
+        '"Request a change", "Send for approval". Consequential, not '
+        'destructive: red stays destructive\'s.',
   };
 
   @override
@@ -82,6 +85,64 @@ class Buttons extends StatelessWidget {
             variant: FoButtonVariant.primary,
             fullWidth: true,
             onPressed: () {},
+          ),
+        ),
+        DocSection(
+          title: 'Large — the phone action bar',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              FoButton(
+                label: 'Record pressing',
+                variant: FoButtonVariant.primary,
+                size: FoButtonSize.large,
+                icon: Icons.add,
+                onPressed: () {},
+              ),
+              SizedBox(height: context.foSpacing.md),
+              Text(
+                '56 points: the one main action at the bottom of a phone '
+                'screen, reached by a thumb rather than aimed at. A trailing '
+                'arrow moves somebody forward through a flow.',
+                style: context.foText.body.copyWith(
+                  color: context.foColors.fgSubtle,
+                ),
+              ),
+              SizedBox(height: context.foSpacing.md),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: FoButton(
+                  label: 'Next: check and submit',
+                  variant: FoButtonVariant.primary,
+                  trailingIcon: Icons.arrow_forward,
+                  onPressed: () {},
+                ),
+              ),
+            ],
+          ),
+        ),
+        DocSection(
+          title: 'Icon button',
+          child: Wrap(
+            spacing: context.foSpacing.sm,
+            children: <Widget>[
+              FoIconButton(
+                icon: Icons.close,
+                semanticLabel: 'Close the panel',
+                onPressed: () {},
+              ),
+              FoIconButton(
+                icon: Icons.help_outline,
+                tone: FoIconButtonTone.primary,
+                semanticLabel: 'What is pressing?',
+                onPressed: () {},
+              ),
+              const FoIconButton(
+                icon: Icons.more_vert,
+                semanticLabel: 'More actions',
+                onPressed: null,
+              ),
+            ],
           ),
         ),
       ],

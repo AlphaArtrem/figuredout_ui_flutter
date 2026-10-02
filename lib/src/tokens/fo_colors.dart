@@ -41,6 +41,8 @@ class FoColors {
     required this.infoSoft,
     required this.accent,
     required this.accentFg,
+    required this.swatchRing,
+    required this.warningRing,
   });
 
   /// The page itself.
@@ -119,6 +121,13 @@ class FoColors {
   /// Ink on [accent].
   final Color accentFg;
 
+  /// The ring around a garment colour dot — dark on a light theme, light on
+  /// a dark one, so a swatch of the ground's own colour still has an edge.
+  final Color swatchRing;
+
+  /// The needs-approval (warning) button's hairline.
+  final Color warningRing;
+
   /// The light theme's colours.
   static const FoColors light = FoColors(
     bg: FoTokens.bg,
@@ -146,6 +155,8 @@ class FoColors {
     infoSoft: FoTokens.infoSoft,
     accent: FoTokens.accent,
     accentFg: FoTokens.accentFg,
+    swatchRing: FoTokens.swatchRing,
+    warningRing: FoTokens.warningRing,
   );
 
   /// The dark theme's colours.
@@ -175,6 +186,41 @@ class FoColors {
     infoSoft: FoTokens.infoSoftDark,
     accent: FoTokens.accentDark,
     accentFg: FoTokens.accentFgDark,
+    swatchRing: FoTokens.swatchRingDark,
+    warningRing: FoTokens.warningRingDark,
+  );
+
+  /// Graphite — an alternative dark palette an app opts into with
+  /// `FoTheme.dark(palette: FoDarkPalette.graphite)`. [dark] stays the web
+  /// package's ink/sky, because parity with it is this package's rule.
+  static const FoColors graphite = FoColors(
+    bg: FoTokens.bgGraphite,
+    surface: FoTokens.surfaceGraphite,
+    surfaceRaised: FoTokens.surfaceRaisedGraphite,
+    surfaceSunken: FoTokens.surfaceSunkenGraphite,
+    fg: FoTokens.fgGraphite,
+    fgMuted: FoTokens.fgMutedGraphite,
+    fgSubtle: FoTokens.fgSubtleGraphite,
+    edge: FoTokens.edgeGraphite,
+    edgeStrong: FoTokens.edgeStrongGraphite,
+    primary: FoTokens.primaryGraphite,
+    primaryHover: FoTokens.primaryHoverGraphite,
+    primaryFg: FoTokens.primaryFgGraphite,
+    primarySoft: FoTokens.primarySoftGraphite,
+    focusRing: FoTokens.focusRingGraphite,
+    success: FoTokens.successGraphite,
+    successSoft: FoTokens.successSoftGraphite,
+    warning: FoTokens.warningGraphite,
+    warningSoft: FoTokens.warningSoftGraphite,
+    danger: FoTokens.dangerGraphite,
+    dangerFg: FoTokens.dangerFgGraphite,
+    dangerSoft: FoTokens.dangerSoftGraphite,
+    info: FoTokens.infoGraphite,
+    infoSoft: FoTokens.infoSoftGraphite,
+    accent: FoTokens.accentGraphite,
+    accentFg: FoTokens.accentFgGraphite,
+    swatchRing: FoTokens.swatchRingDark,
+    warningRing: FoTokens.warningRingGraphite,
   );
 
   /// Every field, by name — the basis of the light/dark tables in the
@@ -209,6 +255,8 @@ class FoColors {
         'infoSoft': infoSoft,
         'accent': accent,
         'accentFg': accentFg,
+        'swatchRing': swatchRing,
+        'warningRing': warningRing,
       };
 
   /// Interpolates every field. **Keep this exhaustive** — see the class doc.
@@ -238,5 +286,7 @@ class FoColors {
         infoSoft: Color.lerp(a.infoSoft, b.infoSoft, t)!,
         accent: Color.lerp(a.accent, b.accent, t)!,
         accentFg: Color.lerp(a.accentFg, b.accentFg, t)!,
+        swatchRing: Color.lerp(a.swatchRing, b.swatchRing, t)!,
+        warningRing: Color.lerp(a.warningRing, b.warningRing, t)!,
       );
 }

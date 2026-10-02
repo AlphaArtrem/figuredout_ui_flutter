@@ -16,6 +16,7 @@ class FoPageHeader extends StatelessWidget {
     this.lede,
     this.actions,
     this.showRule = true,
+    this.titleAccessory,
     super.key,
   });
 
@@ -35,6 +36,11 @@ class FoPageHeader extends StatelessWidget {
   /// The rule under the header, separating it from the page's content.
   final bool showRule;
 
+  /// Something that belongs to the title itself, beside it — the `?` that
+  /// opens the page's guide (`FoHint.guide`). Help sits next to the word it
+  /// explains, never in a corner of the app.
+  final Widget? titleAccessory;
+
   @override
   Widget build(BuildContext context) {
     final bool wide = context.foWindowClass.isAtLeastMedium;
@@ -48,10 +54,26 @@ class FoPageHeader extends StatelessWidget {
           Text(eyebrow!.toUpperCase(), style: context.foText.caption),
           SizedBox(height: context.foSpacing.xs),
         ],
-        Semantics(
-          header: true,
-          child: Text(title, style: context.foText.display),
-        ),
+        if (titleAccessory == null)
+          Semantics(
+            header: true,
+            child: Text(title, style: context.foText.display),
+          )
+        else
+          Row(
+            children: <Widget>[
+              // Flexible, so a long title wraps beside the accessory rather
+              // than pushing it off the right at 200% text.
+              Flexible(
+                child: Semantics(
+                  header: true,
+                  child: Text(title, style: context.foText.display),
+                ),
+              ),
+              SizedBox(width: context.foSpacing.xs),
+              titleAccessory!,
+            ],
+          ),
         if (lede != null) ...<Widget>[
           SizedBox(height: context.foSpacing.sm),
           ConstrainedBox(

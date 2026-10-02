@@ -148,7 +148,10 @@ class _PickersAndPromptsState extends State<PickersAndPrompts> {
     errorText: 'Could not load parts.',
     clearTooltip: 'Clear',
     requiredMessage: 'Pick a part.',
-    discardCopy: _discardCopy,
+    closeLabel: 'Close',
+    recentLabel: 'Recent',
+    resultsLabel: 'All parts',
+    retryLabel: 'Try again',
   );
 
   @override
@@ -170,9 +173,9 @@ class _PickersAndPromptsState extends State<PickersAndPrompts> {
     return DocPage(
       title: 'Picker and prompt',
       lede: 'A dropdown stops working somewhere around thirty options; the '
-          'picker is what replaces it. Both go through FoFormPresenter, so '
-          'they honour the same dialog-versus-sheet breakpoint as every other '
-          'modal instead of always being a sheet.',
+          'picker is what replaces it. It is a dialog on a wide window and a '
+          'full screen on a phone, searches as you type, and puts recent '
+          'choices first. The text prompt goes through FoFormPresenter.',
       children: <Widget>[
         DocSection(
           title: 'Entity picker',
@@ -188,6 +191,14 @@ class _PickersAndPromptsState extends State<PickersAndPrompts> {
                   isRequired: true,
                   copy: _copy,
                   search: _search,
+                  recent: const <FoEntityPickerOption>[
+                    FoEntityPickerOption(
+                      id: '2',
+                      label: 'Collar band',
+                      supportingText: 'SKU 4088 · Line A',
+                      meta: 'Picked yesterday',
+                    ),
+                  ],
                   onSelected: (FoEntityPickerOption? o) =>
                       setState(() => _pickedId = o?.id),
                 ),

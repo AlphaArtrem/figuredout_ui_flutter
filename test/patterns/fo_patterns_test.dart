@@ -582,12 +582,6 @@ void main() {
             errorText: 'Could not load',
             clearTooltip: 'Clear',
             requiredMessage: 'This field is required',
-            discardCopy: FoDiscardCopy(
-              title: 'Discard changes?',
-              message: 'Your edits have not been saved yet.',
-              confirmLabel: 'Discard',
-              cancelLabel: 'Keep editing',
-            ),
           ),
         ),
       );

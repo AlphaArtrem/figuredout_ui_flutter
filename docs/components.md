@@ -40,19 +40,29 @@ free to mean *lifted*.
 
 ## Canonical
 
-- **Primitives**: `FoButton`, `FoActionButton`, `FoLoadingButton`, `FoCard`, `FoTextField`,
-  `FoDropdownField`, `FoDateField`, `FoStatusChip`, `FoSwitchTile`, `FoSegmentedControl`,
-  `FoBadge`,
-  `FoSkeleton`, `FoSpinner`,
-  `FoBooleanCell`, `FoHint`, `FoSectionHeader`, `FoSectionSurface`, `FoFocusRing`,
-  `FoThemeToggle`, `foOverlaySurface`
+- **Primitives**: `FoButton`, `FoActionButton`, `FoLoadingButton`, `FoIconButton`, `FoCard`,
+  `FoTextField`, `FoDropdownField`, `FoDateField`, `FoNumberField`, `FoChoiceGroup`, `FoPinPad`,
+  `FoStatusChip`, `FoSwitchTile`, `FoSegmentedControl`, `FoBadge`, `FoProgressBar`,
+  `FoProportionBar`, `FoSizeValueStrip`, `FoDisclosure`, `FoAvatar`, `FoColourSwatch`, `FoDisc`,
+  `FoKeyHint`, `FoSkeleton`, `FoSpinner`, `FoBooleanCell`, `FoHint`, `FoSectionHeader`,
+  `FoSectionSurface`, `FoFocusRing`, `FoThemeToggle`, `foOverlaySurface`
 - **Shell**: `FoShellScaffold`, `FoShellAppBar`, `FoAccountMenuButton`
 - **Layout**: `FoScaffold`, `FoAppBar`, `FoPageHeader`, `FoResponsiveTileGrid`, `FoSeamGrid`
 - **Data**: `FoDataTable`, `FoMatrixTable`, `FoPaginationBar`, `FoFilterBar`, `FoListSearchField`,
   `FoStatCard`, `FoDescriptionList`, `FoDetailTable`
 - **Forms and overlays**: `FoFormPresenter`, `FoFormSurface`, `FoFormActions`, `FoFormSection`,
   `FoFormInlineRow`, `FoFormValidation`, `FoFormScope`, `FoDialog`
-- **Feedback**: `FoToast`, `FoInfoBanner`, `FoEmptyState`
+- **Feedback**: `FoToast`, `FoInfoBanner`, `FoEmptyState`, `FoPageState`, `FoDoneState`,
+  `FoOutboxItem`
+- **Production floor (0.7.0)**: record work — `FoStepFlow`, `FoStepFlowScaffold`, `FoStepper`,
+  `FoSizeCountGrid`, `FoSizeCountRow`; lists — `FoStatusTabs`, `FoToolbar`, `FoFilterButton`,
+  `FoListDetailLayout`, `FoSidePanel`, `FoListCard`, `FoActionBar`; finding — `FoLookupPicker`,
+  `FoSearchPalette`, `FoDateRangePicker`, `FoScanViewfinder`, `FoScanField`; deciding —
+  `FoReasonField`, `FoReasonDialog`, `FoConsequenceList`, `FoChangeDiff`; overviews —
+  `FoStageRail`, `FoStageTile`, `FoAttentionList`, `FoMetricCard`, `FoChecklist`,
+  `FoShortfallCard`, `FoCapacityGrid`, `FoTimeline`, `FoListGroup`, `FoListRow`,
+  `FoEqualHeightRow`; entry — `FoQuantityMatrix`, `FoEntryListEditor`, `FoAttachmentGrid`,
+  `FoPrintPreview`; help — `FoHelpGuide`, `FoGuideStep`, `FoMarkedScreenshot`, `FoHelpfulVote`
 - **Charts**: `FoChartShell`, `FoTrendChart`, `FoBarChart`, `FoParetoChart`, `FoStageFunnel`,
   `FoSparkline`, `FoChartTheme`, `FoChartLegend`
 
@@ -82,6 +92,21 @@ free to mean *lifted*.
 | waiting for a control | `FoSpinner` |
 | waiting for content | `FoSkeleton` — it holds the layout still |
 | plotting anything | the chart, inside a `FoChartShell` |
+| recording work at any stage | `FoStepFlow.show` with a `FoStepFlowScaffold` — three steps, dialog or full screen |
+| counting by size | `FoSizeCountGrid` — Ready, Fill all ready, over-limit is a warning |
+| a whole number with − and + | `FoNumberField` — the value is always typeable as well |
+| picking one or several of a short list | `FoChoiceGroup` — chips, grid, cards or list |
+| picking one of many records | `FoLookupPicker` (or `FoEntityPickerField`) — never a long dropdown |
+| a status word | `FoStatusChip.entry` / `.order` / `.due` — one word and one colour per state |
+| status tabs over a list | `FoStatusTabs` — counts, one row, scrolls sideways |
+| search and filters over a list | `FoToolbar` — one row; `FoFilterBar(onApply:)` for an expensive report |
+| a record beside its list | `FoListDetailLayout` + `FoSidePanel`, the list in a `FoListCard` |
+| the one main action on a phone | `FoActionBar` with a large `FoButton` — below the content, never over it |
+| asking why | `FoReasonDialog` / `FoReasonField` — quick reasons, required, the confirm named |
+| saying what a decision will do | `FoConsequenceList`; before/after figures in `FoChangeDiff` |
+| cards side by side | `FoEqualHeightRow`, or `FoResponsiveTileGrid` — equal heights |
+| a round mark | `FoDisc` — it never squashes into an oval |
+| the `?` beside a word | `FoHint.guide` → `FoHelpGuide` |
 
 Two pairs look alike and are not:
 
@@ -125,6 +150,31 @@ switch's on and off colours. The distinction is not stylistic: a *disabled* Mate
 that is **on** paints a grey track with the thumb to the right, which reads as **off** at a
 glance. A consuming app shipped five permissions labelled "always on" beside a control that
 looked off, and only a live run on a phone caught it.
+
+## Dark palettes
+
+`FoTheme.dark()` is the web package's ink/sky, and stays so — parity with `@figuredout/ui-web` is
+the package's rule. An app that needs a more readable dark opts into **Graphite** with
+`FoTheme.dark(palette: FoDarkPalette.graphite)`: neutral greys, the light theme's teal, opaque
+washes, visible hairlines and input rings. Every component reads `context.foColors`, so nothing
+else changes. Garment colour dots carry `FoColors.swatchRing`, light on every dark palette.
+
+## Layout rules from the owner's review (0.7.0)
+
+Six rules the components now enforce, so a screen gets them by composing rather than by care:
+
+1. **Every stepper value can be typed.** `FoNumberField` always has an editable numeric box between
+   − and +; there is no read-only-number variant.
+2. **Tabs and chip rows never wrap** — `FoStatusTabs`, `FoChoiceGroup` chips, date presets and
+   recent searches are one row that scrolls sideways.
+3. **Search and filters share one row** — `FoToolbar` gives the search what the filters leave,
+   down to a minimum, then scrolls; `FoScaffold` and `FoFilterBar` use it.
+4. **A list beside a side panel fills the height** — `FoListDetailLayout` stretches both when its
+   height is bounded, and `FoListCard` pins the pagination to the bottom of the list card.
+5. **Cards in a row are equal height** — `FoEqualHeightRow`, `FoResponsiveTileGrid`,
+   `FoStageRail` and `FoChoiceGroup`'s grid and cards stretch every item to the tallest.
+6. **Circles stay circles** — `FoDisc`, and every round mark in the package is guarded the same
+   way against tight constraints.
 
 ## Rules
 

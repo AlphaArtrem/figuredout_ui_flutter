@@ -8,126 +8,179 @@ Body text is measured at 4.5:1 and chart series at 3:1. Semantic ink is also mea
 
 | Ink | On | Ratio | Target | | Kind |
 | --- | --- | ---: | ---: | --- | --- |
-| `fg` | `bg` | 16.90:1 | 4.5:1 | ✅ | body text |
-| `fg` | `surface` | 18.00:1 | 4.5:1 | ✅ | body text |
-| `fg` | `surfaceRaised` | 18.73:1 | 4.5:1 | ✅ | body text |
-| `fg` | `surfaceSunken` | 15.53:1 | 4.5:1 | ✅ | body text |
+| `fg` | `bg` | 17.71:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surface` | 19.00:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surfaceRaised` | 19.93:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surfaceSunken` | 16.25:1 | 4.5:1 | ✅ | body text |
 | `fgMuted` | `bg` | 10.30:1 | 4.5:1 | ✅ | body text |
-| `fgMuted` | `surface` | 10.98:1 | 4.5:1 | ✅ | body text |
-| `fgMuted` | `surfaceRaised` | 11.42:1 | 4.5:1 | ✅ | body text |
-| `fgMuted` | `surfaceSunken` | 9.47:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `bg` | 6.76:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `surface` | 7.21:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `surfaceRaised` | 7.50:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `surfaceSunken` | 6.22:1 | 4.5:1 | ✅ | body text |
-| `primary` | `bg` | 4.52:1 | 4.5:1 | ✅ | body text |
-| `primary` | `surface` | 4.82:1 | 4.5:1 | ✅ | body text |
-| `primary` | `surfaceRaised` | 5.02:1 | 4.5:1 | ✅ | body text |
-| `primary` | `surfaceSunken` | 4.16:1 | 4.5:1 | ⚠︎ waived | body text |
-| `primaryHover` | `bg` | 6.43:1 | 4.5:1 | ✅ | body text |
-| `primaryHover` | `surface` | 6.85:1 | 4.5:1 | ✅ | body text |
-| `primaryHover` | `surfaceRaised` | 7.13:1 | 4.5:1 | ✅ | body text |
-| `primaryHover` | `surfaceSunken` | 5.91:1 | 4.5:1 | ✅ | body text |
-| `success` | `bg` | 5.31:1 | 4.5:1 | ✅ | body text |
-| `success` | `surface` | 5.66:1 | 4.5:1 | ✅ | body text |
-| `success` | `surfaceRaised` | 5.89:1 | 4.5:1 | ✅ | body text |
-| `success` | `surfaceSunken` | 4.88:1 | 4.5:1 | ✅ | body text |
-| `warning` | `bg` | 7.82:1 | 4.5:1 | ✅ | body text |
-| `warning` | `surface` | 8.33:1 | 4.5:1 | ✅ | body text |
-| `warning` | `surfaceRaised` | 8.67:1 | 4.5:1 | ✅ | body text |
-| `warning` | `surfaceSunken` | 7.19:1 | 4.5:1 | ✅ | body text |
-| `danger` | `bg` | 9.04:1 | 4.5:1 | ✅ | body text |
-| `danger` | `surface` | 9.63:1 | 4.5:1 | ✅ | body text |
-| `danger` | `surfaceRaised` | 10.02:1 | 4.5:1 | ✅ | body text |
-| `danger` | `surfaceSunken` | 8.31:1 | 4.5:1 | ✅ | body text |
-| `info` | `bg` | 9.34:1 | 4.5:1 | ✅ | body text |
-| `info` | `surface` | 9.95:1 | 4.5:1 | ✅ | body text |
-| `info` | `surfaceRaised` | 10.36:1 | 4.5:1 | ✅ | body text |
-| `info` | `surfaceSunken` | 8.59:1 | 4.5:1 | ✅ | body text |
-| `accent` | `bg` | 8.45:1 | 4.5:1 | ✅ | body text |
-| `accent` | `surface` | 9.01:1 | 4.5:1 | ✅ | body text |
-| `accent` | `surfaceRaised` | 9.37:1 | 4.5:1 | ✅ | body text |
-| `accent` | `surfaceSunken` | 7.77:1 | 4.5:1 | ✅ | body text |
-| `primary` | `primarySoft over surface` | 4.10:1 | 4.5:1 | ⚠︎ waived | body text on its own wash |
-| `success` | `successSoft over surface` | 4.96:1 | 4.5:1 | ✅ | body text on its own wash |
-| `warning` | `warningSoft over surface` | 7.78:1 | 4.5:1 | ✅ | body text on its own wash |
-| `danger` | `dangerSoft over surface` | 8.42:1 | 4.5:1 | ✅ | body text on its own wash |
-| `info` | `infoSoft over surface` | 8.86:1 | 4.5:1 | ✅ | body text on its own wash |
-| `primaryFg` | `primary` | 4.79:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `primaryFg` | `primaryHover` | 6.81:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `dangerFg` | `danger` | 9.12:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `accentFg` | `accent` | 8.83:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `chartCat1` | `surface` | 4.82:1 | 3.0:1 | ✅ | chart series |
-| `chartCat2` | `surface` | 9.95:1 | 3.0:1 | ✅ | chart series |
-| `chartCat3` | `surface` | 9.01:1 | 3.0:1 | ✅ | chart series |
-| `chartCat4` | `surface` | 9.63:1 | 3.0:1 | ✅ | chart series |
-| `chartCat5` | `surface` | 8.33:1 | 3.0:1 | ✅ | chart series |
-| `chartCat6` | `surface` | 8.22:1 | 3.0:1 | ✅ | chart series |
+| `fgMuted` | `surface` | 11.05:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surfaceRaised` | 11.59:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surfaceSunken` | 9.45:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `bg` | 6.67:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surface` | 7.16:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surfaceRaised` | 7.51:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surfaceSunken` | 6.12:1 | 4.5:1 | ✅ | body text |
+| `primary` | `bg` | 7.07:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surface` | 7.58:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surfaceRaised` | 7.95:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surfaceSunken` | 6.49:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `bg` | 9.58:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surface` | 10.29:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surfaceRaised` | 10.79:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surfaceSunken` | 8.80:1 | 4.5:1 | ✅ | body text |
+| `success` | `bg` | 6.41:1 | 4.5:1 | ✅ | body text |
+| `success` | `surface` | 6.88:1 | 4.5:1 | ✅ | body text |
+| `success` | `surfaceRaised` | 7.22:1 | 4.5:1 | ✅ | body text |
+| `success` | `surfaceSunken` | 5.89:1 | 4.5:1 | ✅ | body text |
+| `warning` | `bg` | 7.65:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surface` | 8.22:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surfaceRaised` | 8.62:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surfaceSunken` | 7.03:1 | 4.5:1 | ✅ | body text |
+| `danger` | `bg` | 7.22:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surface` | 7.75:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surfaceRaised` | 8.13:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surfaceSunken` | 6.63:1 | 4.5:1 | ✅ | body text |
+| `info` | `bg` | 7.88:1 | 4.5:1 | ✅ | body text |
+| `info` | `surface` | 8.46:1 | 4.5:1 | ✅ | body text |
+| `info` | `surfaceRaised` | 8.87:1 | 4.5:1 | ✅ | body text |
+| `info` | `surfaceSunken` | 7.23:1 | 4.5:1 | ✅ | body text |
+| `accent` | `bg` | 7.62:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surface` | 8.18:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surfaceRaised` | 8.58:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surfaceSunken` | 7.00:1 | 4.5:1 | ✅ | body text |
+| `primary` | `primarySoft over surface` | 6.47:1 | 4.5:1 | ✅ | body text on its own wash |
+| `success` | `successSoft over surface` | 5.94:1 | 4.5:1 | ✅ | body text on its own wash |
+| `warning` | `warningSoft over surface` | 7.25:1 | 4.5:1 | ✅ | body text on its own wash |
+| `danger` | `dangerSoft over surface` | 6.47:1 | 4.5:1 | ✅ | body text on its own wash |
+| `info` | `infoSoft over surface` | 7.24:1 | 4.5:1 | ✅ | body text on its own wash |
+| `primaryFg` | `primary` | 6.84:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `primaryFg` | `primaryHover` | 9.28:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `dangerFg` | `danger` | 7.46:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `accentFg` | `accent` | 7.87:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `chartCat1` | `surface` | 7.58:1 | 3.0:1 | ✅ | chart series |
+| `chartCat2` | `surface` | 8.46:1 | 3.0:1 | ✅ | chart series |
+| `chartCat3` | `surface` | 8.18:1 | 3.0:1 | ✅ | chart series |
+| `chartCat4` | `surface` | 7.75:1 | 3.0:1 | ✅ | chart series |
+| `chartCat5` | `surface` | 8.22:1 | 3.0:1 | ✅ | chart series |
+| `chartCat6` | `surface` | 7.16:1 | 3.0:1 | ✅ | chart series |
 
 ## Dark
 
 | Ink | On | Ratio | Target | | Kind |
 | --- | --- | ---: | ---: | --- | --- |
-| `fg` | `bg` | 18.07:1 | 4.5:1 | ✅ | body text |
-| `fg` | `surface` | 16.85:1 | 4.5:1 | ✅ | body text |
-| `fg` | `surfaceRaised` | 15.24:1 | 4.5:1 | ✅ | body text |
-| `fg` | `surfaceSunken` | 17.33:1 | 4.5:1 | ✅ | body text |
-| `fgMuted` | `bg` | 7.36:1 | 4.5:1 | ✅ | body text |
-| `fgMuted` | `surface` | 6.86:1 | 4.5:1 | ✅ | body text |
-| `fgMuted` | `surfaceRaised` | 6.21:1 | 4.5:1 | ✅ | body text |
-| `fgMuted` | `surfaceSunken` | 7.06:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `bg` | 5.49:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `surface` | 5.12:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `surfaceRaised` | 4.63:1 | 4.5:1 | ✅ | body text |
-| `fgSubtle` | `surfaceSunken` | 5.27:1 | 4.5:1 | ✅ | body text |
-| `primary` | `bg` | 13.43:1 | 4.5:1 | ✅ | body text |
-| `primary` | `surface` | 12.53:1 | 4.5:1 | ✅ | body text |
-| `primary` | `surfaceRaised` | 11.33:1 | 4.5:1 | ✅ | body text |
-| `primary` | `surfaceSunken` | 12.89:1 | 4.5:1 | ✅ | body text |
-| `primaryHover` | `bg` | 15.56:1 | 4.5:1 | ✅ | body text |
-| `primaryHover` | `surface` | 14.52:1 | 4.5:1 | ✅ | body text |
-| `primaryHover` | `surfaceRaised` | 13.13:1 | 4.5:1 | ✅ | body text |
-| `primaryHover` | `surfaceSunken` | 14.93:1 | 4.5:1 | ✅ | body text |
-| `success` | `bg` | 10.99:1 | 4.5:1 | ✅ | body text |
-| `success` | `surface` | 10.25:1 | 4.5:1 | ✅ | body text |
-| `success` | `surfaceRaised` | 9.27:1 | 4.5:1 | ✅ | body text |
-| `success` | `surfaceSunken` | 10.54:1 | 4.5:1 | ✅ | body text |
-| `warning` | `bg` | 9.83:1 | 4.5:1 | ✅ | body text |
-| `warning` | `surface` | 9.17:1 | 4.5:1 | ✅ | body text |
-| `warning` | `surfaceRaised` | 8.29:1 | 4.5:1 | ✅ | body text |
-| `warning` | `surfaceSunken` | 9.43:1 | 4.5:1 | ✅ | body text |
-| `danger` | `bg` | 6.82:1 | 4.5:1 | ✅ | body text |
-| `danger` | `surface` | 6.36:1 | 4.5:1 | ✅ | body text |
-| `danger` | `surfaceRaised` | 5.75:1 | 4.5:1 | ✅ | body text |
-| `danger` | `surfaceSunken` | 6.54:1 | 4.5:1 | ✅ | body text |
-| `info` | `bg` | 7.42:1 | 4.5:1 | ✅ | body text |
-| `info` | `surface` | 6.92:1 | 4.5:1 | ✅ | body text |
-| `info` | `surfaceRaised` | 6.26:1 | 4.5:1 | ✅ | body text |
-| `info` | `surfaceSunken` | 7.12:1 | 4.5:1 | ✅ | body text |
-| `accent` | `bg` | 8.33:1 | 4.5:1 | ✅ | body text |
-| `accent` | `surface` | 7.77:1 | 4.5:1 | ✅ | body text |
-| `accent` | `surfaceRaised` | 7.03:1 | 4.5:1 | ✅ | body text |
-| `accent` | `surfaceSunken` | 7.99:1 | 4.5:1 | ✅ | body text |
-| `primary` | `primarySoft over surface` | 9.50:1 | 4.5:1 | ✅ | body text on its own wash |
-| `success` | `successSoft over surface` | 7.26:1 | 4.5:1 | ✅ | body text on its own wash |
-| `warning` | `warningSoft over surface` | 8.01:1 | 4.5:1 | ✅ | body text on its own wash |
-| `danger` | `dangerSoft over surface` | 6.06:1 | 4.5:1 | ✅ | body text on its own wash |
-| `info` | `infoSoft over surface` | 5.95:1 | 4.5:1 | ✅ | body text on its own wash |
-| `primaryFg` | `primary` | 10.62:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `primaryFg` | `primaryHover` | 12.30:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `dangerFg` | `danger` | 5.84:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `accentFg` | `accent` | 6.92:1 | 4.5:1 | ✅ | ink on a solid fill |
-| `chartCat1` | `surface` | 12.53:1 | 3.0:1 | ✅ | chart series |
-| `chartCat2` | `surface` | 6.92:1 | 3.0:1 | ✅ | chart series |
-| `chartCat3` | `surface` | 7.77:1 | 3.0:1 | ✅ | chart series |
-| `chartCat4` | `surface` | 6.36:1 | 3.0:1 | ✅ | chart series |
-| `chartCat5` | `surface` | 9.17:1 | 3.0:1 | ✅ | chart series |
-| `chartCat6` | `surface` | 6.86:1 | 3.0:1 | ✅ | chart series |
+| `fg` | `bg` | 17.15:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surface` | 15.70:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surfaceRaised` | 13.62:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surfaceSunken` | 17.60:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `bg` | 9.27:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surface` | 8.49:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surfaceRaised` | 7.37:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surfaceSunken` | 9.52:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `bg` | 6.10:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surface` | 5.59:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surfaceRaised` | 4.85:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surfaceSunken` | 6.26:1 | 4.5:1 | ✅ | body text |
+| `primary` | `bg` | 10.49:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surface` | 9.61:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surfaceRaised` | 8.34:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surfaceSunken` | 10.77:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `bg` | 15.09:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surface` | 13.82:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surfaceRaised` | 11.99:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surfaceSunken` | 15.49:1 | 4.5:1 | ✅ | body text |
+| `success` | `bg` | 8.48:1 | 4.5:1 | ✅ | body text |
+| `success` | `surface` | 7.77:1 | 4.5:1 | ✅ | body text |
+| `success` | `surfaceRaised` | 6.74:1 | 4.5:1 | ✅ | body text |
+| `success` | `surfaceSunken` | 8.71:1 | 4.5:1 | ✅ | body text |
+| `warning` | `bg` | 9.24:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surface` | 8.46:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surfaceRaised` | 7.34:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surfaceSunken` | 9.49:1 | 4.5:1 | ✅ | body text |
+| `danger` | `bg` | 7.32:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surface` | 6.70:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surfaceRaised` | 5.81:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surfaceSunken` | 7.51:1 | 4.5:1 | ✅ | body text |
+| `info` | `bg` | 9.55:1 | 4.5:1 | ✅ | body text |
+| `info` | `surface` | 8.75:1 | 4.5:1 | ✅ | body text |
+| `info` | `surfaceRaised` | 7.59:1 | 4.5:1 | ✅ | body text |
+| `info` | `surfaceSunken` | 9.81:1 | 4.5:1 | ✅ | body text |
+| `accent` | `bg` | 15.09:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surface` | 13.82:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surfaceRaised` | 11.99:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surfaceSunken` | 15.49:1 | 4.5:1 | ✅ | body text |
+| `primary` | `primarySoft over surface` | 6.96:1 | 4.5:1 | ✅ | body text on its own wash |
+| `success` | `successSoft over surface` | 6.12:1 | 4.5:1 | ✅ | body text on its own wash |
+| `warning` | `warningSoft over surface` | 6.43:1 | 4.5:1 | ✅ | body text on its own wash |
+| `danger` | `dangerSoft over surface` | 5.49:1 | 4.5:1 | ✅ | body text on its own wash |
+| `info` | `infoSoft over surface` | 6.17:1 | 4.5:1 | ✅ | body text on its own wash |
+| `primaryFg` | `primary` | 10.49:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `primaryFg` | `primaryHover` | 15.09:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `dangerFg` | `danger` | 6.76:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `accentFg` | `accent` | 15.09:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `chartCat1` | `surface` | 9.61:1 | 3.0:1 | ✅ | chart series |
+| `chartCat2` | `surface` | 7.77:1 | 3.0:1 | ✅ | chart series |
+| `chartCat3` | `surface` | 8.46:1 | 3.0:1 | ✅ | chart series |
+| `chartCat4` | `surface` | 6.70:1 | 3.0:1 | ✅ | chart series |
+| `chartCat5` | `surface` | 8.75:1 | 3.0:1 | ✅ | chart series |
+| `chartCat6` | `surface` | 8.49:1 | 3.0:1 | ✅ | chart series |
 
-## Waived
+## Graphite
 
-These are below AA, measured, and accepted for now. The colours are ported verbatim from `@figuredout/ui-web`, so the fix belongs in that package first — see the plan, §2.
-
-- **light: `primary` on `surfaceSunken` — 4.16:1** (floor 4.0:1). primary #15803d reaches only 4.16:1 on the sunken step. Primary as body text inside a well is rare; primary as a large mark or an icon there still clears 3:1.
-- **light: `primary` on `primarySoft over surface` — 4.10:1** (floor 4.0:1). primary #15803d on its own 12% wash reaches 4.11:1 — the exact composite a chip or a badge produces. Fix in @figuredout/ui-web by darkening primary the way --color-success was darkened, then re-port.
+| Ink | On | Ratio | Target | | Kind |
+| --- | --- | ---: | ---: | --- | --- |
+| `fg` | `bg` | 16.74:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surface` | 15.05:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surfaceRaised` | 12.99:1 | 4.5:1 | ✅ | body text |
+| `fg` | `surfaceSunken` | 17.60:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `bg` | 11.48:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surface` | 10.32:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surfaceRaised` | 8.91:1 | 4.5:1 | ✅ | body text |
+| `fgMuted` | `surfaceSunken` | 12.07:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `bg` | 7.90:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surface` | 7.10:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surfaceRaised` | 6.13:1 | 4.5:1 | ✅ | body text |
+| `fgSubtle` | `surfaceSunken` | 8.30:1 | 4.5:1 | ✅ | body text |
+| `primary` | `bg` | 8.81:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surface` | 7.92:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surfaceRaised` | 6.83:1 | 4.5:1 | ✅ | body text |
+| `primary` | `surfaceSunken` | 9.26:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `bg` | 11.81:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surface` | 10.62:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surfaceRaised` | 9.17:1 | 4.5:1 | ✅ | body text |
+| `primaryHover` | `surfaceSunken` | 12.42:1 | 4.5:1 | ✅ | body text |
+| `success` | `bg` | 9.96:1 | 4.5:1 | ✅ | body text |
+| `success` | `surface` | 8.95:1 | 4.5:1 | ✅ | body text |
+| `success` | `surfaceRaised` | 7.73:1 | 4.5:1 | ✅ | body text |
+| `success` | `surfaceSunken` | 10.47:1 | 4.5:1 | ✅ | body text |
+| `warning` | `bg` | 10.30:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surface` | 9.26:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surfaceRaised` | 7.99:1 | 4.5:1 | ✅ | body text |
+| `warning` | `surfaceSunken` | 10.83:1 | 4.5:1 | ✅ | body text |
+| `danger` | `bg` | 8.14:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surface` | 7.32:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surfaceRaised` | 6.32:1 | 4.5:1 | ✅ | body text |
+| `danger` | `surfaceSunken` | 8.56:1 | 4.5:1 | ✅ | body text |
+| `info` | `bg` | 9.14:1 | 4.5:1 | ✅ | body text |
+| `info` | `surface` | 8.21:1 | 4.5:1 | ✅ | body text |
+| `info` | `surfaceRaised` | 7.09:1 | 4.5:1 | ✅ | body text |
+| `info` | `surfaceSunken` | 9.61:1 | 4.5:1 | ✅ | body text |
+| `accent` | `bg` | 11.81:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surface` | 10.62:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surfaceRaised` | 9.17:1 | 4.5:1 | ✅ | body text |
+| `accent` | `surfaceSunken` | 12.42:1 | 4.5:1 | ✅ | body text |
+| `primary` | `primarySoft over surface` | 5.81:1 | 4.5:1 | ✅ | body text on its own wash |
+| `success` | `successSoft over surface` | 7.13:1 | 4.5:1 | ✅ | body text on its own wash |
+| `warning` | `warningSoft over surface` | 7.49:1 | 4.5:1 | ✅ | body text on its own wash |
+| `danger` | `dangerSoft over surface` | 6.40:1 | 4.5:1 | ✅ | body text on its own wash |
+| `info` | `infoSoft over surface` | 7.04:1 | 4.5:1 | ✅ | body text on its own wash |
+| `primaryFg` | `primary` | 7.92:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `primaryFg` | `primaryHover` | 10.62:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `dangerFg` | `danger` | 6.32:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `accentFg` | `accent` | 11.81:1 | 4.5:1 | ✅ | ink on a solid fill |
+| `chartCat1` | `surface` | 7.92:1 | 3.0:1 | ✅ | chart series |
+| `chartCat2` | `surface` | 8.95:1 | 3.0:1 | ✅ | chart series |
+| `chartCat3` | `surface` | 9.26:1 | 3.0:1 | ✅ | chart series |
+| `chartCat4` | `surface` | 7.32:1 | 3.0:1 | ✅ | chart series |
+| `chartCat5` | `surface` | 8.21:1 | 3.0:1 | ✅ | chart series |
+| `chartCat6` | `surface` | 10.32:1 | 3.0:1 | ✅ | chart series |
 

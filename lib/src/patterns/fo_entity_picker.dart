@@ -2,10 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../primitives/fo_button.dart';
+import '../primitives/fo_card.dart';
+import '../primitives/fo_icon_button.dart';
+import '../primitives/fo_overlay_surface.dart';
 import '../primitives/fo_spinner.dart';
 import '../theme/fo_context.dart';
 import '../tokens/fo_layout.dart';
 import '../tokens/fo_motion.dart';
+import '../tokens/fo_tokens.dart';
 import 'fo_form_presenter.dart';
 import 'fo_form_scope.dart';
 import 'fo_info_banner.dart';
@@ -18,6 +23,8 @@ class FoEntityPickerOption {
     required this.id,
     required this.label,
     this.supportingText,
+    this.meta,
+    this.leading,
   });
 
   /// The value that gets stored.
@@ -29,6 +36,14 @@ class FoEntityPickerOption {
   /// A second line — a code, a location, whatever disambiguates two options
   /// with the same name.
   final String? supportingText;
+
+  /// A short fact at the end of the row that helps somebody choose — "212
+  /// ready", "Due in 7 days". Not a second label.
+  final String? meta;
+
+  /// Something before the label that is faster to recognise than a word — a
+  /// colour swatch for a garment colour.
+  final Widget? leading;
 }
 
 /// The copy a [FoEntityPickerField] needs.
@@ -41,7 +56,16 @@ class FoEntityPickerCopy {
     required this.errorText,
     required this.clearTooltip,
     required this.requiredMessage,
-    required this.discardCopy,
+    this.closeLabel,
+    @Deprecated(
+      'The picker no longer goes through FoFormPresenter, and a search has '
+      'nothing to discard. Remove the argument; it is ignored.',
+    )
+    this.discardCopy,
+    this.recentLabel,
+    this.resultsLabel,
+    this.scanLabel,
+    this.retryLabel,
   });
 
   /// The search box's placeholder.
@@ -59,8 +83,29 @@ class FoEntityPickerCopy {
   /// The validation message when nothing is selected.
   final String requiredMessage;
 
-  /// The dismiss guard's copy, since the picker is a presented surface.
-  final FoDiscardCopy discardCopy;
+  /// Ignored since 0.7.0 — see the constructor's deprecation.
+  final FoDiscardCopy? discardCopy;
+
+  /// The picker's close button — "Close". On a phone the picker is a full
+  /// screen and this is its only way out, so it is never unnamed: null falls
+  /// back to the framework's own localized "Close"
+  /// (`MaterialLocalizations.closeButtonTooltip`).
+  final String? closeLabel;
+
+  /// The heading over [FoEntityPickerField.recent] — "Recent".
+  final String? recentLabel;
+
+  /// The heading over what the empty query returns — "Orders with pieces
+  /// ready to press". Says *why* these come first.
+  final String? resultsLabel;
+
+  /// The scan button's name — "Scan the job card". Required when
+  /// [FoEntityPickerField.onScan] is set.
+  final String? scanLabel;
+
+  /// The retry button under a failed search — "Try again". Without it the
+  /// failure has no button and the user retries by retyping.
+  final String? retryLabel;
 }
 
 /// A field that picks one record out of many, by searching.
@@ -68,10 +113,15 @@ class FoEntityPickerCopy {
 /// A dropdown stops working somewhere around thirty options; this is what
 /// replaces it. It looks like a field and opens a searchable list.
 ///
-/// The list goes through `FoFormPresenter` rather than `showModalBottomSheet`,
-/// so it honours the same dialog-versus-sheet breakpoint as every other modal
-/// instead of always being a sheet — a searchable list is worse as a sheet on
-/// a desktop window than a dialog is on a phone.
+/// **One picker for every lookup** — order, article, colour, line, buyer,
+/// person. It opens [FoLookupPicker]: a dialog on a wide window and a full
+/// screen on a phone (a half-height sheet leaves a keyboard and a list
+/// fighting over the same 400 points). It searches the server as the user
+/// types, shows [recent] choices first, and offers [onScan] where the thing
+/// has a printed code — typing a job number off a card is the slowest way to
+/// pick it.
+///
+/// Name the thing, never its key: the label is "Order", not "Order ID".
 class FoEntityPickerField extends StatelessWidget {
   /// Creates a picker field.
   const FoEntityPickerField({
@@ -83,6 +133,8 @@ class FoEntityPickerField extends StatelessWidget {
     required this.copy,
     this.enabled = true,
     this.isRequired = false,
+    this.recent = const <FoEntityPickerOption>[],
+    this.onScan,
     super.key,
   });
 
@@ -111,8 +163,13 @@ class FoEntityPickerField extends StatelessWidget {
   /// Appends the app-wide `*` marker and validates that something is picked.
   final bool isRequired;
 
-  /// The height the option list asks for when the surface has room.
-  static const double _listHeight = 420;
+  /// What this user picked last, shown first while the search box is empty.
+  /// The app keeps the list; the picker only shows it.
+  final List<FoEntityPickerOption> recent;
+
+  /// Reads a printed code — opens the app's scanner and resolves with the
+  /// option it found, or null. Null hides the scan button.
+  final Future<FoEntityPickerOption?> Function()? onScan;
 
   @override
   Widget build(BuildContext context) {
@@ -154,23 +211,13 @@ class FoEntityPickerField extends StatelessWidget {
         onTap: !enabled
             ? null
             : () async {
-                final FoEntityPickerOption? option =
-                    await FoFormPresenter.show<FoEntityPickerOption>(
+                final FoEntityPickerOption? option = await FoLookupPicker.show(
                   context,
                   title: label,
-                  maxWidth: 560,
-                  maxHeight: _listHeight + 160,
-                  discardCopy: copy.discardCopy,
-                  // The list sizes itself against the surface's bounded
-                  // height, so it cannot live inside the surface's own
-                  // scroll view — it would get infinite height.
-                  scrollable: false,
-                  child: _PickerList(
-                    label: label,
-                    search: search,
-                    copy: copy,
-                    maxHeight: _listHeight,
-                  ),
+                  search: search,
+                  copy: copy,
+                  recent: recent,
+                  onScan: onScan,
                 );
                 if (option == null) return;
                 controller.text = option.label;
@@ -182,31 +229,112 @@ class FoEntityPickerField extends StatelessWidget {
   }
 }
 
-class _PickerList extends StatefulWidget {
-  const _PickerList({
-    required this.label,
-    required this.search,
-    required this.copy,
-    required this.maxHeight,
-  });
+/// The lookup picker itself: a search box, recent choices, server results as
+/// the user types, and an optional scan button.
+///
+/// [show] presents it the right way for the width — a dialog on a wide window,
+/// a full-screen route on a phone — on the root navigator, and resolves with
+/// the picked option or null. `FoEntityPickerField` is the usual way in; call
+/// [show] directly where the trigger is not a field — a filter button, a step
+/// of a flow that is nothing but a choice.
+///
+/// The search is debounced by `FoMotion.searchDebounce`, and a failed search
+/// says so and stays usable: the user can retype and it runs again. An empty
+/// result is never shown as a failure, nor a failure as an empty result.
+abstract final class FoLookupPicker {
+  /// The dialog's size on a wide window.
+  static const Size dialogSize = Size(560, 600);
 
-  final String label;
-  final Future<List<FoEntityPickerOption>> Function(String query) search;
-  final FoEntityPickerCopy copy;
-  final double maxHeight;
+  /// Presents the picker. Resolves with the option picked, or null.
+  static Future<FoEntityPickerOption?> show(
+    BuildContext context, {
+    required String title,
+    required Future<List<FoEntityPickerOption>> Function(String query) search,
+    required FoEntityPickerCopy copy,
+    List<FoEntityPickerOption> recent = const <FoEntityPickerOption>[],
+    Future<FoEntityPickerOption?> Function()? onScan,
+  }) {
+    assert(
+      onScan == null || copy.scanLabel != null,
+      'copy.scanLabel is required when onScan is set.',
+    );
+    Widget body(BuildContext ctx) => _PickerBody(
+          title: title,
+          search: search,
+          copy: copy,
+          recent: recent,
+          onScan: onScan,
+        );
 
-  @override
-  State<_PickerList> createState() => _PickerListState();
+    if (context.foWindowClass.isAtLeastMedium) {
+      return showDialog<FoEntityPickerOption>(
+        context: context,
+        builder: (BuildContext ctx) => Dialog(
+          insetPadding: EdgeInsets.all(ctx.foSpacing.xl),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: dialogSize.width,
+              maxHeight: dialogSize.height,
+            ),
+            child: DecoratedBox(
+              decoration: foOverlaySurface(ctx, radius: ctx.foRadii.lg),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(ctx.foRadii.lg),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: body(ctx),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<FoEntityPickerOption>(
+        fullscreenDialog: true,
+        builder: (BuildContext ctx) => Material(
+          color: ctx.foColors.bg,
+          child: SafeArea(child: body(ctx)),
+        ),
+      ),
+    );
+  }
 }
 
-class _PickerListState extends State<_PickerList> {
+class _PickerBody extends StatefulWidget {
+  const _PickerBody({
+    required this.title,
+    required this.search,
+    required this.copy,
+    required this.recent,
+    required this.onScan,
+  });
+
+  final String title;
+  final Future<List<FoEntityPickerOption>> Function(String query) search;
+  final FoEntityPickerCopy copy;
+  final List<FoEntityPickerOption> recent;
+  final Future<FoEntityPickerOption?> Function()? onScan;
+
+  @override
+  State<_PickerBody> createState() => _PickerBodyState();
+}
+
+class _PickerBodyState extends State<_PickerBody> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
   List<FoEntityPickerOption> _options = const <FoEntityPickerOption>[];
   bool _loading = true;
-  String? _error;
+  bool _failed = false;
+  String _query = '';
 
-  static const Duration _debounceDelay = FoMotion.searchDebounce;
+  /// Each search is numbered, and only the newest one's answer is shown — a
+  /// slow reply to "PO" must not overwrite a fast reply to "POLO".
+  int _generation = 0;
 
   @override
   void initState() {
@@ -222,13 +350,15 @@ class _PickerListState extends State<_PickerList> {
   }
 
   Future<void> _load([String query = '']) async {
+    final int generation = ++_generation;
     setState(() {
       _loading = true;
-      _error = null;
+      _failed = false;
+      _query = query;
     });
     try {
       final List<FoEntityPickerOption> options = await widget.search(query);
-      if (!mounted) return;
+      if (!mounted || generation != _generation) return;
       setState(() {
         _options = options;
         _loading = false;
@@ -236,9 +366,9 @@ class _PickerListState extends State<_PickerList> {
     } on Object catch (_) {
       // The failure itself is the app's to log; the picker's job is to say so
       // and stay usable, so the user can retype and try again.
-      if (!mounted) return;
+      if (!mounted || generation != _generation) return;
       setState(() {
-        _error = widget.copy.errorText;
+        _failed = true;
         _loading = false;
       });
     }
@@ -246,61 +376,133 @@ class _PickerListState extends State<_PickerList> {
 
   void _onQueryChanged(String value) {
     _debounce?.cancel();
-    _debounce = Timer(_debounceDelay, () => _load(value));
+    _debounce = Timer(FoMotion.searchDebounce, () => _load(value.trim()));
+  }
+
+  Future<void> _scan() async {
+    final FoEntityPickerOption? option = await widget.onScan!();
+    if (option == null || !mounted) return;
+    Navigator.of(context).pop(option);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Bounded rather than fixed: the presenting surface may have less room
-    // than this on a short screen, and the list still needs a bound to scroll
-    // inside.
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: widget.maxHeight),
-      child: SizedBox(
-        width: double.infinity,
-        child: Column(
-          children: <Widget>[
-            Padding(
+    final bool showRecent = _query.isEmpty && widget.recent.isNotEmpty;
+
+    return Semantics(
+      scopesRoute: true,
+      namesRoute: true,
+      label: widget.title,
+      explicitChildNodes: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.foSpacing.xs,
+              context.foSpacing.xs,
+              context.foSpacing.lg,
+              0,
+            ),
+            child: Row(
+              children: <Widget>[
+                FoIconButton(
+                  icon: Icons.close,
+                  semanticLabel: widget.copy.closeLabel ??
+                      MaterialLocalizations.of(context).closeButtonTooltip,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                SizedBox(width: context.foSpacing.xs),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(widget.title, style: context.foText.title),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.foSpacing.lg,
+              context.foSpacing.sm,
+              context.foSpacing.lg,
+              context.foSpacing.sm,
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    style: context.foText.body,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: widget.copy.searchHint,
+                      prefixIcon: const Icon(Icons.search),
+                      isDense: true,
+                    ),
+                    onChanged: _onQueryChanged,
+                  ),
+                ),
+                if (widget.onScan != null) ...<Widget>[
+                  SizedBox(width: context.foSpacing.sm),
+                  FoButton(
+                    label: widget.copy.scanLabel!,
+                    variant: FoButtonVariant.secondary,
+                    icon: Icons.qr_code_scanner,
+                    onPressed: _scan,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
               padding: EdgeInsets.fromLTRB(
                 context.foSpacing.lg,
-                context.foSpacing.md,
-                context.foSpacing.lg,
                 context.foSpacing.sm,
+                context.foSpacing.lg,
+                context.foSpacing.xl,
               ),
-              child: TextField(
-                controller: _searchController,
-                autofocus: true,
-                style: context.foText.body,
-                decoration: InputDecoration(
-                  labelText: widget.label,
-                  hintText: widget.copy.searchHint,
-                  prefixIcon: const Icon(Icons.search),
-                  isDense: true,
-                ),
-                onChanged: _onQueryChanged,
-              ),
+              children: <Widget>[
+                if (showRecent) ...<Widget>[
+                  if (widget.copy.recentLabel != null)
+                    _SectionCaption(widget.copy.recentLabel!),
+                  for (final FoEntityPickerOption option in widget.recent)
+                    _OptionRow(option: option),
+                  SizedBox(height: context.foSpacing.lg),
+                ],
+                ..._results(context),
+              ],
             ),
-            if (_error != null)
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.foSpacing.lg,
-                ),
-                child: FoInfoBanner.error(message: _error),
-              ),
-            Expanded(child: _body(context)),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _body(BuildContext context) {
+  List<Widget> _results(BuildContext context) {
     if (_loading) {
-      return const Center(child: FoSpinner(size: FoSpinnerSize.medium));
+      return <Widget>[
+        Padding(
+          padding: EdgeInsets.all(context.foSpacing.xl),
+          child: const Center(child: FoSpinner(size: FoSpinnerSize.medium)),
+        ),
+      ];
+    }
+    if (_failed) {
+      return <Widget>[
+        FoInfoBanner.error(
+          message: widget.copy.errorText,
+          onRetry: widget.copy.retryLabel == null ? null : () => _load(_query),
+          retryLabel: widget.copy.retryLabel,
+        ),
+      ];
     }
     if (_options.isEmpty) {
-      return Center(
-        child: Padding(
+      return <Widget>[
+        Padding(
           padding: EdgeInsets.all(context.foSpacing.xl),
           child: Text(
             widget.copy.emptyText,
@@ -310,35 +512,96 @@ class _PickerListState extends State<_PickerList> {
             ),
           ),
         ),
-      );
+      ];
     }
+    return <Widget>[
+      if (_query.isEmpty && widget.copy.resultsLabel != null)
+        _SectionCaption(widget.copy.resultsLabel!),
+      for (final FoEntityPickerOption option in _options)
+        _OptionRow(option: option),
+    ];
+  }
+}
 
-    return ListView.separated(
-      itemCount: _options.length,
-      separatorBuilder: (BuildContext context, int index) => Divider(
-        height: FoLayout.hairlineWidth,
-        thickness: FoLayout.hairlineWidth,
-        color: context.foColors.edge,
-      ),
-      itemBuilder: (BuildContext context, int index) {
-        final FoEntityPickerOption option = _options[index];
-        // A ListTile paints its ink on the nearest Material ancestor, and the
-        // surface above it is a DecoratedBox — so without a Material of its
-        // own the row's splash lands underneath the surface's fill and is
-        // invisible. Flutter asserts about it rather than just looking wrong.
-        return Material(
-          type: MaterialType.transparency,
-          child: ListTile(
-            // A 48dp row, so a gloved finger can hit one option, not two.
-            minTileHeight: FoLayout.minTouchTarget,
-            title: Text(option.label, style: context.foText.body),
-            subtitle: option.supportingText == null
-                ? null
-                : Text(option.supportingText!, style: context.foText.caption),
-            onTap: () => Navigator.of(context).pop(option),
+class _SectionCaption extends StatelessWidget {
+  const _SectionCaption(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: EdgeInsets.only(
+          top: context.foSpacing.sm,
+          bottom: context.foSpacing.sm,
+        ),
+        child: Semantics(
+          header: true,
+          child: Text(text.toUpperCase(), style: context.foText.caption),
+        ),
+      );
+}
+
+/// One choice: a lifted card the whole of which is the target.
+class _OptionRow extends StatelessWidget {
+  const _OptionRow({required this.option});
+
+  final FoEntityPickerOption option;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.foSpacing.sm),
+      child: FoCard(
+        onTap: () => Navigator.of(context).pop(option),
+        semanticLabel: <String>[
+          option.label,
+          if (option.supportingText != null) option.supportingText!,
+          if (option.meta != null) option.meta!,
+        ].join(', '),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.foSpacing.lg,
+          vertical: context.foSpacing.md,
+        ),
+        child: ExcludeSemantics(
+          child: Row(
+            children: <Widget>[
+              if (option.leading != null) ...<Widget>[
+                option.leading!,
+                SizedBox(width: context.foSpacing.md),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(option.label, style: context.foText.subtitle),
+                    if (option.supportingText != null)
+                      Text(
+                        option.supportingText!,
+                        style: context.foText.numeric.copyWith(
+                          fontSize: FoTokens.fontCaption,
+                          color: context.foColors.fgSubtle,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (option.meta != null) ...<Widget>[
+                SizedBox(width: context.foSpacing.md),
+                Flexible(
+                  child: Text(
+                    option.meta!,
+                    textAlign: TextAlign.end,
+                    style: context.foText.body.copyWith(
+                      color: context.foColors.fgMuted,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

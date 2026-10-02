@@ -18,6 +18,10 @@ import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/matrix.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/03_patterns/shell.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/04_charts/charts.dart';
 import 'package:figuredout_ui_widgetbook/use_cases/05_dashboard/dashboard.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/06_production/floor.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/06_production/lists.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/06_production/overview.dart';
+import 'package:figuredout_ui_widgetbook/use_cases/06_production/recording.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -68,6 +72,14 @@ void main() {
     'DashboardParts': const DashboardParts(),
     'DetailParts': const DetailParts(),
     'ThemeToggles': const ThemeToggles(),
+    'SizeCounts': const SizeCounts(),
+    'StepFlows': const StepFlows(),
+    'ListPatterns': const ListPatterns(),
+    'PageStates': const PageStates(),
+    'OverviewParts': const OverviewParts(),
+    'FloorInputs': const FloorInputs(),
+    'FloorReadouts': const FloorReadouts(),
+    'FloorChrome': const FloorChrome(),
   };
 
   // The three ViewportAddon entries in main.dart.
@@ -104,6 +116,26 @@ void main() {
         });
       }
     }
+
+    /// **And once in the Graphite dark palette**, at the compact width: an
+    /// opt-in palette is still one somebody ships, and a page that only
+    /// renders in the default dark would be found by the first app to opt in.
+    testWidgets('${page.key} renders in Graphite at compact 480', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(480, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: FoTheme.dark(palette: FoDarkPalette.graphite),
+          home: page.value,
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.takeException(), isNull);
+    });
 
     /// **And once at twice the system text size**, at the narrowest viewport
     /// and in one theme.

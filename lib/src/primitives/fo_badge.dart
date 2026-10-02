@@ -46,12 +46,12 @@ class FoBadge extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(minWidth: _dotSize * 2.5),
         padding: EdgeInsets.symmetric(
-          horizontal: context.foSpacing.xs,
+          horizontal: context.foSpacing.sm,
           vertical: 1,
         ),
         decoration: BoxDecoration(
           color: ground,
-          borderRadius: BorderRadius.circular(context.foRadii.sm),
+          borderRadius: BorderRadius.circular(context.foRadii.pill),
         ),
         child: Text(
           label,

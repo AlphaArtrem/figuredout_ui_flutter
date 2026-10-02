@@ -50,17 +50,20 @@ class FoRadii {
   /// Creates the radius scale.
   const FoRadii();
 
-  /// 4dp — a chip, a table cell's selected state.
+  /// 4dp — a table cell's selected state, a skeleton line.
   double get sm => FoTokens.radiusSmall;
 
-  /// 8dp — a button, a field.
+  /// 10dp — a button, a field.
   double get md => FoTokens.radiusDefault;
 
-  /// 12dp — a card, a dialog.
+  /// 16dp — a card, a panel.
   double get card => FoTokens.radiusCard;
 
-  /// 16dp — a bottom sheet.
+  /// 16dp — a dialog, a bottom sheet.
   double get lg => FoTokens.radiusLarge;
+
+  /// A pill: a status chip, a badge.
+  double get pill => FoTokens.radiusPill;
 
   /// Every step, by name.
   Map<String, double> toMap() => <String, double>{
@@ -68,6 +71,7 @@ class FoRadii {
         'md': md,
         'card': card,
         'lg': lg,
+        'pill': pill,
       };
 }
 
