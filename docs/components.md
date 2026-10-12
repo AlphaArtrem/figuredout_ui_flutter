@@ -198,7 +198,11 @@ Six rules the components now enforce, so a screen gets them by composing rather 
   mark becomes a `FoDisc` with the number — filled primary when current, ringed otherwise — on
   the sidebar, the labelled rail and in a nav sheet; the icon is still required for the bottom
   bar and the icon-only rail. A `badgeCount` is a warning pill at the end of a sidebar row
-  ("Approvals 3") and a count on the icon on the rail.
+  ("Approvals 3") and a count on the icon on the rail. Since 0.7.4 each destination is a named
+  button with `selected` on the current one, in a navigation container named by
+  `navigationSemanticLabel` (pass it localized; the package has no copy). The rail's name is a
+  label, not only a tooltip; a count keeps its own announcement. Any new nav tile must go through
+  the same wrapper, or a screen reader hears text instead of a button.
 - `FoLookupPicker.show` (and `FoEntityPickerField`) take the whole PickerWeb / PickerPhone board:
   `subtitle` (what the choice is for), `recent` then `likely` (under `copy.likelyLabel`) then the
   search's own answer without the ones already shown, `scopes` (`FoLookupScope` chips in one row

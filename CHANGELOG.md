@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.7.4
+
+One defect the consuming app Luxe found with its production tests (P4-3 / P4b-2). No visual
+change. One optional parameter is new; nothing to change in an app that takes it.
+
+### Fixed
+
+- **`FoShellScaffold`'s destinations are announced as buttons, and the current one as selected.**
+  On the expanded sidebar a screen reader got plain text: the rows carried a tap action and a
+  label but no button role and no selected state, so "Orders" was heard as text and the current
+  page was not marked. On the icon-only rail the name existed only as a tooltip. Every sidebar
+  row, rail item (labelled or not) and the footer is now a named button with
+  `selected: true` on the current one; the rail's name is a label, with the tooltip kept as the
+  pointer hint. A count badge keeps its own announcement ("3 open alerts") and a numbered
+  disc's digit is no longer read into the name ("Orders", not "2 Orders"). The bottom bar
+  already exposed selected tab buttons (Material's `NavigationBar`) and is unchanged.
+- **The sidebar, rail and bottom bar are each one navigation container**, with their
+  destinations as separate nodes inside it, instead of loose siblings of the page.
+- **`FoAccountMenuButton` is named for the person.** It was announced by the single letter drawn
+  on the avatar ("Y"); it is now "Yash". The tooltip is unchanged.
+
+### Added
+
+- **`FoShellScaffold.navigationSemanticLabel`** (`String?`, default null): the name a screen
+  reader gives the navigation container ("Main navigation"). Caller-supplied, like every string
+  here. Null leaves the container unnamed, which is the 0.7.3 behaviour for an app that does not
+  pass it. Pass it to hear the region named.
+
+### Tests
+
+New: `test/patterns/fo_shell_semantics_test.dart` asserts, with `tester.getSemantics`, that each
+sidebar, collapsed-rail, labelled-rail and footer destination is a named, focusable button with a
+tap action and the right selected state, that the container is named with
+`explicitChildNodes`, that the bottom bar's slots are selected tab buttons in a named container,
+and that the account menu is named for the person. The sidebar and rail cases fail on 0.7.3.
+
 ## 0.7.3
 
 Two defects the consuming app Luxe found on its Android test run. No API change; nothing to

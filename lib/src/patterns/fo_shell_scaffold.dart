@@ -188,6 +188,7 @@ class FoShellScaffold extends StatelessWidget {
     this.selectedDestinationIndex = 0,
     this.footer,
     this.railLabels = false,
+    this.navigationSemanticLabel,
     super.key,
   }) : assert(
           destinations.length != 1,
@@ -222,6 +223,13 @@ class FoShellScaffold extends StatelessWidget {
   /// icon-only rail existing apps have.
   final bool railLabels;
 
+  /// What a screen reader calls the navigation region — "Main navigation".
+  /// Caller-supplied, so it can be localized. The sidebar, the rail and the
+  /// bottom bar are each exposed as one navigation container with this name,
+  /// whose destinations are separate buttons inside it. Null leaves the
+  /// container unnamed.
+  final String? navigationSemanticLabel;
+
   /// The labelled rail's width.
   static const double labelledRailWidth = 88;
 
@@ -244,6 +252,7 @@ class FoShellScaffold extends StatelessWidget {
         body: body,
         destinations: destinations,
         selectedIndex: selectedDestinationIndex,
+        navigationSemanticLabel: navigationSemanticLabel,
       );
     }
 
@@ -254,8 +263,26 @@ class FoShellScaffold extends StatelessWidget {
       footer: footer,
       collapsed: windowClass == FoWindowClass.medium,
       railLabels: railLabels,
+      navigationSemanticLabel: navigationSemanticLabel,
     );
   }
+}
+
+/// One navigation region for a screen reader: its destinations stay separate
+/// nodes inside it rather than merging into a single run of text.
+class _NavRegion extends StatelessWidget {
+  const _NavRegion({required this.label, required this.child});
+
+  final String? label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: label,
+        child: child,
+      );
 }
 
 class _ExpandedShell extends StatelessWidget {
@@ -266,6 +293,7 @@ class _ExpandedShell extends StatelessWidget {
     required this.footer,
     required this.collapsed,
     required this.railLabels,
+    required this.navigationSemanticLabel,
   });
 
   final Widget body;
@@ -274,6 +302,7 @@ class _ExpandedShell extends StatelessWidget {
   final FoNavAction? footer;
   final bool collapsed;
   final bool railLabels;
+  final String? navigationSemanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -286,77 +315,82 @@ class _ExpandedShell extends StatelessWidget {
                     ? FoShellScaffold.labelledRailWidth
                     : FoShellScaffold.railWidth)
                 : FoShellScaffold.sidebarWidth,
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: context.foColors.surface),
-              // Rule §3.1: a selected tile paints its own ground to the full
-              // width of the column, so a trailing border in the same
-              // decoration as the fill would be covered wherever a tile is
-              // selected — a divider that disappears one row at a time.
+            child: _NavRegion(
+              label: navigationSemanticLabel,
               child: DecoratedBox(
-                position: DecorationPosition.foreground,
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(color: context.foColors.edge),
-                  ),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      // Thirteen destinations do not fit an 800pt-tall
-                      // window; the list has always scrolled, but with
-                      // nothing to say so.
-                      child: Scrollbar(
-                        child: ListView(
-                          primary: true,
-                          padding: EdgeInsets.symmetric(
-                            vertical: context.foSpacing.sm,
-                          ),
-                          children: <Widget>[
-                            for (final FoNavGroup group in groups) ...<Widget>[
-                              if (!collapsed &&
-                                  group.label != null &&
-                                  group.items.isNotEmpty)
-                                _SidebarGroupLabel(label: group.label!),
-                              for (final FoNavItem item in group.items)
-                                _SidebarTile(
-                                  label: item.label,
-                                  icon: _NavIcon(
-                                    item: item,
-                                    isSelected: item.id == selectedItemId,
-                                    // The sidebar has room for the count as a
-                                    // pill at the end of the row; the rail
-                                    // keeps it on the mark.
-                                    badgeOnMark: collapsed,
-                                  ),
-                                  trailing:
-                                      collapsed ? null : _NavCount.maybe(item),
-                                  isSelected: item.id == selectedItemId,
-                                  onTap: item.onSelected,
-                                  collapsed: collapsed,
-                                  labelled: railLabels,
-                                ),
-                            ],
-                          ],
-                        ),
-                      ),
+                decoration: BoxDecoration(color: context.foColors.surface),
+                // Rule §3.1: a selected tile paints its own ground to the full
+                // width of the column, so a trailing border in the same
+                // decoration as the fill would be covered wherever a tile is
+                // selected — a divider that disappears one row at a time.
+                child: DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(color: context.foColors.edge),
                     ),
-                    if (footer != null) ...<Widget>[
-                      const Divider(),
-                      _SidebarTile(
-                        label: footer!.label,
-                        icon: _NavMark(
-                          icon: footer!.icon,
-                          number: footer!.number,
-                          isSelected: false,
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Expanded(
+                        // Thirteen destinations do not fit an 800pt-tall
+                        // window; the list has always scrolled, but with
+                        // nothing to say so.
+                        child: Scrollbar(
+                          child: ListView(
+                            primary: true,
+                            padding: EdgeInsets.symmetric(
+                              vertical: context.foSpacing.sm,
+                            ),
+                            children: <Widget>[
+                              for (final FoNavGroup group
+                                  in groups) ...<Widget>[
+                                if (!collapsed &&
+                                    group.label != null &&
+                                    group.items.isNotEmpty)
+                                  _SidebarGroupLabel(label: group.label!),
+                                for (final FoNavItem item in group.items)
+                                  _SidebarTile(
+                                    label: item.label,
+                                    icon: _NavIcon(
+                                      item: item,
+                                      isSelected: item.id == selectedItemId,
+                                      // The sidebar has room for the count as a
+                                      // pill at the end of the row; the rail
+                                      // keeps it on the mark.
+                                      badgeOnMark: collapsed,
+                                    ),
+                                    trailing: collapsed
+                                        ? null
+                                        : _NavCount.maybe(item),
+                                    isSelected: item.id == selectedItemId,
+                                    onTap: item.onSelected,
+                                    collapsed: collapsed,
+                                    labelled: railLabels,
+                                  ),
+                              ],
+                            ],
+                          ),
                         ),
-                        isSelected: false,
-                        onTap: footer!.onTap,
-                        collapsed: collapsed,
-                        labelled: railLabels,
                       ),
-                      SizedBox(height: context.foSpacing.sm),
+                      if (footer != null) ...<Widget>[
+                        const Divider(),
+                        _SidebarTile(
+                          label: footer!.label,
+                          icon: _NavMark(
+                            icon: footer!.icon,
+                            number: footer!.number,
+                            isSelected: false,
+                          ),
+                          isSelected: false,
+                          onTap: footer!.onTap,
+                          collapsed: collapsed,
+                          labelled: railLabels,
+                        ),
+                        SizedBox(height: context.foSpacing.sm),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -442,15 +476,19 @@ class _SidebarTile extends StatelessWidget {
                       icon,
                       SizedBox(width: context.foSpacing.md),
                       Expanded(
-                        child: Text(
-                          label,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.foText.body.copyWith(
-                            color: isSelected
-                                ? context.foColors.primary
-                                : context.foColors.fg,
-                            fontWeight:
-                                isSelected ? FontWeight.w600 : FontWeight.w400,
+                        // Named once, by the Semantics around the row.
+                        child: ExcludeSemantics(
+                          child: Text(
+                            label,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.foText.body.copyWith(
+                              color: isSelected
+                                  ? context.foColors.primary
+                                  : context.foColors.fg,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
                           ),
                         ),
                       ),
@@ -472,12 +510,29 @@ class _SidebarTile extends StatelessWidget {
         vertical: context.foSpacing.xs,
       ),
       // The label is gone from the rail, so it has to be reachable somehow.
-      child: collapsed ? Tooltip(message: label, child: tile) : tile,
+      child: _destinationSemantics(
+        collapsed ? Tooltip(message: label, child: tile) : tile,
+      ),
     );
   }
 }
 
 extension on _SidebarTile {
+  /// Exposes a row as a named button that says whether it is the current
+  /// one. Without it the row is a tappable node with a label and nothing
+  /// else: a screen reader hears text, not "Orders, button, selected". The
+  /// name is explicit so the rail, which draws no text, still has one.
+  ///
+  /// The row's own text and mark are excluded by their owners so the name is
+  /// not read twice; a count badge keeps its node and its own label.
+  Widget _destinationSemantics(Widget child) => Semantics(
+        container: true,
+        button: true,
+        selected: isSelected,
+        label: label,
+        child: child,
+      );
+
   /// The labelled rail: the icon in a pill, the name under it — selected is
   /// the pill on the primary wash and the name in primary, semibold.
   Widget _labelledRailTile(BuildContext context, BorderRadius radius) {
@@ -486,13 +541,8 @@ extension on _SidebarTile {
         horizontal: context.foSpacing.xs,
         vertical: context.foSpacing.xs / 2,
       ),
-      child: Semantics(
-        button: true,
-        selected: isSelected,
-        label: label,
-        onTap: onTap,
-        excludeSemantics: true,
-        child: Material(
+      child: _destinationSemantics(
+        Material(
           type: MaterialType.transparency,
           child: FoFocusRing(
             borderRadius: radius,
@@ -522,18 +572,20 @@ extension on _SidebarTile {
                         child: icon,
                       ),
                       SizedBox(height: context.foSpacing.xs),
-                      Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.foText.body.copyWith(
-                          fontSize: FoTokens.fontCaption,
-                          color: isSelected
-                              ? context.foColors.primary
-                              : context.foColors.fgMuted,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                      ExcludeSemantics(
+                        child: Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.foText.body.copyWith(
+                            fontSize: FoTokens.fontCaption,
+                            color: isSelected
+                                ? context.foColors.primary
+                                : context.foColors.fgMuted,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
@@ -640,19 +692,22 @@ class _NavMark extends StatelessWidget {
       borderColor: isSelected ? null : context.foColors.edgeStrong,
       // At 200% text the digits would outgrow the disc; they shrink to fit
       // instead, and the disc stays a circle of its own size.
-      child: Padding(
-        padding: const EdgeInsets.all(2),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            '$n',
-            style: context.foText.numeric.copyWith(
-              fontSize: FoTokens.fontCaption,
-              fontWeight: FontWeight.w600,
-              height: 1,
-              color: isSelected
-                  ? context.foColors.primaryFg
-                  : context.foColors.fgMuted,
+      // The digit is a position, not a name; the row's label is what is read.
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: const EdgeInsets.all(2),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '$n',
+              style: context.foText.numeric.copyWith(
+                fontSize: FoTokens.fontCaption,
+                fontWeight: FontWeight.w600,
+                height: 1,
+                color: isSelected
+                    ? context.foColors.primaryFg
+                    : context.foColors.fgMuted,
+              ),
             ),
           ),
         ),
@@ -666,11 +721,13 @@ class _CompactShell extends StatelessWidget {
     required this.body,
     required this.destinations,
     required this.selectedIndex,
+    required this.navigationSemanticLabel,
   });
 
   final Widget body;
   final List<FoNavDestination> destinations;
   final int selectedIndex;
+  final String? navigationSemanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -678,17 +735,22 @@ class _CompactShell extends StatelessWidget {
 
     return Scaffold(
       body: body,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex.clamp(0, destinations.length - 1),
-        onDestinationSelected: (int index) => _select(context, index),
-        destinations: <Widget>[
-          for (final FoNavDestination destination in destinations)
-            NavigationDestination(
-              icon: Icon(destination.icon),
-              selectedIcon: Icon(destination.selectedIcon),
-              label: destination.label,
-            ),
-        ],
+      // Material's bar already exposes each slot as a selected button inside
+      // a tab bar; the region only gives that bar its name.
+      bottomNavigationBar: _NavRegion(
+        label: navigationSemanticLabel,
+        child: NavigationBar(
+          selectedIndex: selectedIndex.clamp(0, destinations.length - 1),
+          onDestinationSelected: (int index) => _select(context, index),
+          destinations: <Widget>[
+            for (final FoNavDestination destination in destinations)
+              NavigationDestination(
+                icon: Icon(destination.icon),
+                selectedIcon: Icon(destination.selectedIcon),
+                label: destination.label,
+              ),
+          ],
+        ),
       ),
     );
   }

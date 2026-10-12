@@ -59,13 +59,19 @@ class FoAccountMenuButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(context.foRadii.card),
       child: PopupMenuButton<FoAccountMenuItem>(
         tooltip: name,
-        icon: CircleAvatar(
-          radius: _avatarRadius,
-          backgroundColor: context.foColors.primarySoft,
-          child: Text(
-            name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-            style: context.foText.label.copyWith(
-              color: context.foColors.primary,
+        // The button is named for the person, not for the one letter drawn on
+        // it: a screen reader should hear "Yash", not "Y".
+        icon: Semantics(
+          label: name,
+          excludeSemantics: true,
+          child: CircleAvatar(
+            radius: _avatarRadius,
+            backgroundColor: context.foColors.primarySoft,
+            child: Text(
+              name.isEmpty ? '?' : name.characters.first.toUpperCase(),
+              style: context.foText.label.copyWith(
+                color: context.foColors.primary,
+              ),
             ),
           ),
         ),

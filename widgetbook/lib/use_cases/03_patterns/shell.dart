@@ -150,6 +150,7 @@ class _ShellsState extends State<Shells> {
   @override
   Widget build(BuildContext context) {
     return FoShellScaffold(
+      navigationSemanticLabel: 'Main navigation',
       groups: _groups,
       selectedItemId: _selectedId,
       destinations: _destinations,
