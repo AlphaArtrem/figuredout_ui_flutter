@@ -129,7 +129,8 @@ is required and an out-of-range one clamps, because a control showing neither op
 is one whose user cannot tell where they are — a screen that genuinely has a "neither" wants a
 filter. And **two or three segments, asserted**: four is a tab bar, and four labels do not fit a
 phone in a script that runs longer than English. The track is `surfaceSunken` and the current
-segment rests on `surface`, which is rule 6 read literally — this table had reserved the token
+segment rests on `surface` (in dark, on `surfaceRaised` with a 1dp `edgeStrong` hairline, because
+`surface` on the track is 1.1:1 there), which is rule 6 read literally — this table had reserved the token
 for "segmented-control tracks" for two releases before the component existed.
 
 `FoDateField` has two rules of its own. **Its value is the controller's text, and that text is

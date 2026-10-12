@@ -18,6 +18,8 @@ import 'fo_focus_ring.dart';
 /// Three things here are decisions rather than details.
 ///
 /// **The track is `surfaceSunken` and the selected segment is `surface`.**
+/// In dark, where those are 1.1:1 apart, it is `surfaceRaised` with a 1dp
+/// `edgeStrong` hairline instead.
 /// That is rule 6 read literally: the track is a hole and the current segment
 /// rests in it. `docs/components.md` has reserved
 /// `surfaceSunken` for "segmented-control tracks" since before this existed —
@@ -143,6 +145,7 @@ class _Segment extends StatelessWidget {
   Widget build(BuildContext context) {
     final BorderRadius radius = BorderRadius.circular(context.foRadii.sm);
     final Color fg = selected ? context.foColors.fg : context.foColors.fgMuted;
+    final bool dark = Theme.of(context).brightness == Brightness.dark;
 
     return Semantics(
       button: true,
@@ -184,9 +187,29 @@ class _Segment extends StatelessWidget {
                 // lighter surface for emphasis — this one is emphatic because
                 // it is on a different step of the ladder, not because it is
                 // brighter.
-                color: selected ? context.foColors.surface : Colors.transparent,
+                //
+                // In dark, `surface` on `surfaceSunken` is 1.1:1 and the
+                // choice is carried by the bold label alone, so the segment
+                // steps up to `surfaceRaised` and gets the hairline below.
+                color: !selected
+                    ? Colors.transparent
+                    : dark
+                        ? context.foColors.surfaceRaised
+                        : context.foColors.surface,
                 borderRadius: radius,
               ),
+              // Dark only, and a foreground decoration (rule 1) so it takes
+              // no layout space and light is exactly what it was.
+              foregroundDecoration: dark
+                  ? BoxDecoration(
+                      borderRadius: radius,
+                      border: Border.all(
+                        color: selected
+                            ? context.foColors.edgeStrong
+                            : Colors.transparent,
+                      ),
+                    )
+                  : null,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,

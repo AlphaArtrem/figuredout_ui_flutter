@@ -21,6 +21,30 @@ Color? _fillOf(WidgetTester tester, String label) {
   return (widget.decoration! as BoxDecoration).color;
 }
 
+/// The hairline drawn over one segment, or null when it has none. Read off the
+/// widget for the same reason as [_fillOf]: the claim is about which token.
+Color? _hairlineOf(WidgetTester tester, String label) {
+  final AnimatedContainer widget = tester.widget<AnimatedContainer>(
+    find
+        .ancestor(
+          of: find.text(label),
+          matching: find.byType(AnimatedContainer),
+        )
+        .first,
+  );
+  final BoxDecoration? d = widget.foregroundDecoration as BoxDecoration?;
+  return (d?.border as Border?)?.top.color;
+}
+
+/// WCAG contrast ratio, the same formula `test/tokens/contrast_test.dart` uses.
+double _contrast(Color a, Color b) {
+  final double la = a.computeLuminance();
+  final double lb = b.computeLuminance();
+  final double hi = la > lb ? la : lb;
+  final double lo = la > lb ? lb : la;
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 void main() {
   const List<FoSegment> two = <FoSegment>[
     FoSegment(label: 'Active'),
@@ -276,6 +300,64 @@ void main() {
           reason: '$label is too small to hit',
         );
       }
+    });
+  });
+
+  group('FoSegmentedControl in dark', () {
+    // `surface` on `surfaceSunken` is 1.1:1 in Ink Sky, so the choice was
+    // carried by the label weight alone (Luxe, Android QA #14).
+    for (final FoDarkPalette palette in FoDarkPalette.values) {
+      testWidgets('the selected segment is plainly marked in ${palette.name}', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: FoTheme.dark(palette: palette),
+            home: Scaffold(
+              body: Center(
+                child: FoSegmentedControl(
+                  segments: two,
+                  selectedIndex: 0,
+                  onSelected: (_) {},
+                ),
+              ),
+            ),
+          ),
+        );
+        final FoColors colors =
+            tester.element(find.byType(FoSegmentedControl)).foColors;
+
+        expect(_fillOf(tester, 'Active'), colors.surfaceRaised);
+        expect(_fillOf(tester, 'Disposed'), Colors.transparent);
+
+        final Color? edge = _hairlineOf(tester, 'Active');
+        expect(edge, colors.edgeStrong);
+        // WCAG 1.4.11: the boundary that shows the state is a non-text
+        // indicator and needs 3:1 against what it sits on, the track.
+        expect(
+          _contrast(edge!, colors.surfaceSunken),
+          greaterThanOrEqualTo(3.0),
+        );
+        // The unselected segment draws no visible edge.
+        expect(_hairlineOf(tester, 'Disposed'), Colors.transparent);
+      });
+    }
+
+    testWidgets('light is unchanged: surface fill, no hairline', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        child: FoSegmentedControl(
+          segments: two,
+          selectedIndex: 0,
+          onSelected: (_) {},
+        ),
+      );
+      final FoColors colors =
+          tester.element(find.byType(FoSegmentedControl)).foColors;
+      expect(_fillOf(tester, 'Active'), colors.surface);
+      expect(_hairlineOf(tester, 'Active'), isNull);
     });
   });
 }

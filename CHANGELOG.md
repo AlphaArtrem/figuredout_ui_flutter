@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.7.3
+
+Two defects the consuming app Luxe found on its Android test run. No API change; nothing to
+change in an app that takes it.
+
+### Fixed
+
+- **`FoMarkedScreenshot`'s ring no longer covers the control it marks.** The ring was a border
+  plus a `BoxShadow(spreadRadius: 2)` with no blur, and Flutter paints a shadow's whole shape,
+  interior included, so the marked box was filled opaque (Luxe read white inside the box over a
+  red picture). The ring is now painted as a band around the box (3dp primary, 2dp
+  `surfaceRaised` halo outside it) and the inside is left transparent. The look outside the box
+  and every parameter are unchanged. Reported by Luxe (F-4).
+- **`FoSegmentedControl`'s selected segment is clearly visible in dark.** `surface` on
+  `surfaceSunken` is 1.1:1 in Ink Sky and nearly the same grey in Graphite, so only the bold
+  label told the choice. In dark the selected segment is now filled `surfaceRaised` with a 1dp
+  `edgeStrong` hairline (a foreground decoration, taking no layout space), which is at least
+  3:1 against the track in both dark palettes. Light is unchanged. Reported by Luxe (#14).
+
+### Tests
+
+New: a pixel test in `test/patterns/fo_floor_patterns_test.dart` (red picture: red inside the
+marker box, ring and halo outside); dark selected/unselected cases in both palettes, with the 3:1
+contrast of the hairline on the track, and a light-unchanged case in
+`test/primitives/fo_segmented_control_test.dart`. Each fails on 0.7.2.
+
 ## 0.7.2
 
 The nine defects a consuming app (legal_app) found with its accessibility tour, its 300% text pass

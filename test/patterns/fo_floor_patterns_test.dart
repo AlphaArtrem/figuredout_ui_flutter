@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:figuredout_ui/figuredout_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -1007,6 +1009,61 @@ void main() {
       final Rect frame = tester.getRect(find.byType(FoMarkedScreenshot));
       expect(ring.left - frame.left, closeTo(614.5, 0.5));
       expect(ring.width, closeTo(93.5, 0.5));
+    });
+
+    testWidgets('a marker ring leaves the marked control visible', (
+      WidgetTester tester,
+    ) async {
+      // Luxe F-4: the ring was a BoxShadow, which Flutter paints across its
+      // whole shape, so the inside of the box was opaque. Read real pixels
+      // over a solid red picture: red inside the box, ring and halo outside.
+      final GlobalKey boundary = GlobalKey();
+      await pumpFo(
+        tester,
+        child: RepaintBoundary(
+          key: boundary,
+          child: const SizedBox(
+            width: 500,
+            child: FoMarkedScreenshot(
+              image: ColoredBox(color: Color(0xFFFF0000)),
+              sourceSize: Size(1000, 500),
+              semanticLabel: 'A red page with one marker.',
+              markers: <FoScreenMarker>[
+                // Scale 0.5, ring gap 4: the ring's box is 96,96 108 x 58.
+                FoScreenMarker(
+                  number: 1,
+                  rect: Rect.fromLTWH(200, 200, 200, 100),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      final FoColors colors =
+          tester.element(find.byType(FoMarkedScreenshot)).foColors;
+
+      final ByteData? bytes = await tester.runAsync(() async {
+        final RenderRepaintBoundary object = boundary.currentContext!
+            .findRenderObject()! as RenderRepaintBoundary;
+        final ui.Image image = await object.toImage();
+        return (await image.toByteData())!;
+      });
+      final int width = tester.getSize(find.byKey(boundary)).width.toInt();
+      Color pixel(int x, int y) {
+        final int o = (y * width + x) * 4;
+        return Color.fromARGB(
+          bytes!.getUint8(o + 3),
+          bytes.getUint8(o),
+          bytes.getUint8(o + 1),
+          bytes.getUint8(o + 2),
+        );
+      }
+
+      expect(pixel(150, 125), const Color(0xFFFF0000), reason: 'inside');
+      expect(pixel(120, 110), const Color(0xFFFF0000), reason: 'inside, near');
+      expect(pixel(98, 125), colors.primary, reason: 'the ring');
+      expect(pixel(94, 125), colors.surfaceRaised, reason: 'the halo');
+      expect(pixel(80, 125), const Color(0xFFFF0000), reason: 'outside');
     });
 
     testWidgets('the guide has an eyebrow and a footer that stays', (

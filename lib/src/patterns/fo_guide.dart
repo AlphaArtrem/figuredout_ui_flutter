@@ -63,6 +63,8 @@ class FoMarkedScreenshot extends StatelessWidget {
 
   static const double _badge = 26;
   static const double _ringGap = 4;
+  static const double _ringWidth = 3;
+  static const double _haloWidth = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -156,13 +158,16 @@ class FoMarkedScreenshot extends StatelessWidget {
     return <Widget>[
       Positioned.fromRect(
         rect: box,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(context.foRadii.md),
-            border: Border.all(color: context.foColors.primary, width: 3),
-            boxShadow: <BoxShadow>[
-              BoxShadow(color: context.foColors.surfaceRaised, spreadRadius: 2),
-            ],
+        // Painted, not a DecoratedBox: a BoxShadow fills its whole shape, the
+        // inside of the box included, so the ring used to cover the very
+        // control it marks. The painter draws only the band around the box.
+        child: CustomPaint(
+          painter: _MarkerRingPainter(
+            ring: context.foColors.primary,
+            halo: context.foColors.surfaceRaised,
+            radius: context.foRadii.md,
+            width: _ringWidth,
+            haloWidth: _haloWidth,
           ),
         ),
       ),
@@ -522,4 +527,52 @@ class _FoHelpfulVoteState extends State<FoHelpfulVote> {
       _VoteStage.sent => _status(context, copy.sentMessage ?? copy.thanksYes),
     };
   }
+}
+
+/// The marker's ring: a [width] band of [ring] inside the box's edge and a
+/// [haloWidth] band of [halo] just outside it, with the inside left
+/// transparent so the control the box marks shows through.
+class _MarkerRingPainter extends CustomPainter {
+  const _MarkerRingPainter({
+    required this.ring,
+    required this.halo,
+    required this.radius,
+    required this.width,
+    required this.haloWidth,
+  });
+
+  final Color ring;
+  final Color halo;
+  final double radius;
+  final double width;
+  final double haloWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect box = Offset.zero & size;
+    RRect rounded(Rect r, double inset) => RRect.fromRectAndRadius(
+          r,
+          Radius.circular((radius + inset).clamp(0, double.infinity)),
+        );
+
+    canvas
+      ..drawDRRect(
+        rounded(box.inflate(haloWidth), haloWidth),
+        rounded(box, 0),
+        Paint()..color = halo,
+      )
+      ..drawDRRect(
+        rounded(box, 0),
+        rounded(box.deflate(width), -width),
+        Paint()..color = ring,
+      );
+  }
+
+  @override
+  bool shouldRepaint(_MarkerRingPainter old) =>
+      old.ring != ring ||
+      old.halo != halo ||
+      old.radius != radius ||
+      old.width != width ||
+      old.haloWidth != haloWidth;
 }

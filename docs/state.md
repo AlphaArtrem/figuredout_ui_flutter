@@ -1,14 +1,15 @@
 # State
 
 Edit in place. No dated or per-session sections. Last derived on 2026-10-02 from `main` at
-the 0.7.2 release (branch `fix/consumer-defects` from `0d8e1e4`, v0.7.1).
+the 0.7.3 release (on `main`, from v0.7.2).
 
 ## What exists
 
-- **Package `figuredout_ui` 0.7.2 on `main`** (tags v0.7.0, v0.7.1, v0.7.2). Not published
+- **Package `figuredout_ui` 0.7.3 on `main`** (tags v0.7.0 to v0.7.3). Not published
   (`publish_to: 'none'`); consumed by git tag. 0.7.0 ports the FiguredoutAI palette from
   `@figuredout/ui-web` and adds the production-floor components; 0.7.2 carries the nine fixes
-  legal_app filed (`CHANGELOG.md` 0.7.2).
+  legal_app filed (`CHANGELOG.md` 0.7.2); 0.7.3 fixes two Luxe finds (marked-screenshot ring,
+  dark segmented control). 0.7.3 is not on `release/0.6.x`: no 0.6 consumer has asked.
 - **A 0.6 maintenance line**, branch `release/0.6.x` from v0.6.1, tag v0.6.2: the same fixes
   without 0.7.0's palette, for an app (legal_app) that has not taken the visual change. Fix on
   `main` first; backport to `release/0.6.x` only for a consumer still on 0.6.
@@ -60,8 +61,8 @@ the 0.7.2 release (branch `fix/consumer-defects` from `0d8e1e4`, v0.7.1).
 
 ## Next action
 
-Point Luxe at v0.7.2 and migrate its screens (`docs/migrating-from-luxe.md`, "0.7.0") — 0.7.2's
-behaviour changes are listed in its CHANGELOG entry. `legal_app` pins `v0.6.2` and will change
+Point Luxe at v0.7.3 and migrate its screens (`docs/migrating-from-luxe.md`, "0.7.0") — 0.7.2's
+behaviour changes are listed in its CHANGELOG entry (0.7.3 has none). `legal_app` pins `v0.6.2` and will change
 colour when it moves to 0.7.x — its owner decides when.
 
 ## Predicted hazards
