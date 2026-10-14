@@ -336,41 +336,33 @@ class _ExpandedShell extends StatelessWidget {
                         // Thirteen destinations do not fit an 800pt-tall
                         // window; the list has always scrolled, but with
                         // nothing to say so.
-                        child: Scrollbar(
-                          child: ListView(
-                            primary: true,
-                            padding: EdgeInsets.symmetric(
-                              vertical: context.foSpacing.sm,
-                            ),
-                            children: <Widget>[
-                              for (final FoNavGroup group
-                                  in groups) ...<Widget>[
-                                if (!collapsed &&
-                                    group.label != null &&
-                                    group.items.isNotEmpty)
-                                  _SidebarGroupLabel(label: group.label!),
-                                for (final FoNavItem item in group.items)
-                                  _SidebarTile(
-                                    label: item.label,
-                                    icon: _NavIcon(
-                                      item: item,
-                                      isSelected: item.id == selectedItemId,
-                                      // The sidebar has room for the count as a
-                                      // pill at the end of the row; the rail
-                                      // keeps it on the mark.
-                                      badgeOnMark: collapsed,
-                                    ),
-                                    trailing: collapsed
-                                        ? null
-                                        : _NavCount.maybe(item),
+                        child: _SidebarScroll(
+                          children: <Widget>[
+                            for (final FoNavGroup group in groups) ...<Widget>[
+                              if (!collapsed &&
+                                  group.label != null &&
+                                  group.items.isNotEmpty)
+                                _SidebarGroupLabel(label: group.label!),
+                              for (final FoNavItem item in group.items)
+                                _SidebarTile(
+                                  label: item.label,
+                                  icon: _NavIcon(
+                                    item: item,
                                     isSelected: item.id == selectedItemId,
-                                    onTap: item.onSelected,
-                                    collapsed: collapsed,
-                                    labelled: railLabels,
+                                    // The sidebar has room for the count as a
+                                    // pill at the end of the row; the rail
+                                    // keeps it on the mark.
+                                    badgeOnMark: collapsed,
                                   ),
-                              ],
+                                  trailing:
+                                      collapsed ? null : _NavCount.maybe(item),
+                                  isSelected: item.id == selectedItemId,
+                                  onTap: item.onSelected,
+                                  collapsed: collapsed,
+                                  labelled: railLabels,
+                                ),
                             ],
-                          ),
+                          ],
                         ),
                       ),
                       if (footer != null) ...<Widget>[
@@ -396,6 +388,89 @@ class _ExpandedShell extends StatelessWidget {
             ),
           ),
           Expanded(child: body),
+        ],
+      ),
+    );
+  }
+}
+
+/// The sidebar's (and the rail's) list of destinations, with a cue that there
+/// is more below.
+///
+/// A desktop browser's scrollbar is hidden until the pointer is over it, so a
+/// list taller than its window just ended mid-row and nothing said that more
+/// followed (Luxe F51). While the list overflows, its scrollbar thumb is
+/// always visible, and a fade in the sidebar's own `surface` covers the bottom
+/// edge until the end is reached. Neither appears when everything fits.
+class _SidebarScroll extends StatefulWidget {
+  const _SidebarScroll({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  State<_SidebarScroll> createState() => _SidebarScrollState();
+}
+
+class _SidebarScrollState extends State<_SidebarScroll> {
+  bool _overflows = false;
+  bool _atEnd = true;
+
+  /// The fade's depth: about one row.
+  static const double _fadeHeight = FoLayout.minTouchTarget;
+
+  bool _onNotification(Notification notification) {
+    final ScrollMetrics? metrics = switch (notification) {
+      ScrollMetricsNotification(:final ScrollMetrics metrics) => metrics,
+      ScrollNotification(:final ScrollMetrics metrics) => metrics,
+      _ => null,
+    };
+    if (metrics == null || metrics.axis != Axis.vertical) return false;
+    final bool overflows = metrics.maxScrollExtent > 0;
+    final bool atEnd = metrics.extentAfter <= 1;
+    if (overflows != _overflows || atEnd != _atEnd) {
+      setState(() {
+        _overflows = overflows;
+        _atEnd = atEnd;
+      });
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Color surface = context.foColors.surface;
+    return NotificationListener<Notification>(
+      onNotification: _onNotification,
+      child: Stack(
+        children: <Widget>[
+          Positioned.fill(
+            child: Scrollbar(
+              thumbVisibility: _overflows,
+              child: ListView(
+                primary: true,
+                padding: EdgeInsets.symmetric(vertical: context.foSpacing.sm),
+                children: widget.children,
+              ),
+            ),
+          ),
+          if (_overflows && !_atEnd)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: _fadeHeight,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[surface.withValues(alpha: 0), surface],
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

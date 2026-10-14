@@ -248,6 +248,123 @@ void main() {
     });
   });
 
+  // F51 in Luxe: thirteen-plus destinations do not fit a short window, the
+  // list scrolled, and nothing said so — the scrollbar of a desktop browser is
+  // hidden until the pointer is over it, and the last rows were just cut off.
+  group('FoShellScaffold sidebar overflow', () {
+    Future<List<String>> pumpWith(
+      WidgetTester tester,
+      int count,
+      Size size,
+    ) async {
+      final List<String> selected = <String>[];
+      await pumpFo(
+        tester,
+        surfaceSize: size,
+        child: FoShellScaffold(
+          groups: <FoNavGroup>[
+            FoNavGroup(
+              items: <FoNavItem>[
+                for (int i = 0; i < count; i++)
+                  FoNavItem(
+                    id: 'item-$i',
+                    label: 'Destination $i',
+                    icon: Icons.circle_outlined,
+                    selectedIcon: Icons.circle,
+                    onSelected: () => selected.add('item-$i'),
+                  ),
+              ],
+            ),
+          ],
+          selectedItemId: 'item-0',
+          destinations: <FoNavDestination>[
+            FoNavDestination(
+              label: 'Home',
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home,
+              onSelected: () {},
+            ),
+            FoNavDestination(
+              label: 'More',
+              icon: Icons.more_horiz,
+              selectedIcon: Icons.more_horiz,
+              onSelected: () {},
+            ),
+          ],
+          body: const SizedBox(),
+        ),
+      );
+      await tester.pump();
+      return selected;
+    }
+
+    Finder fade() => find.byWidgetPredicate(
+          (Widget w) =>
+              w is DecoratedBox &&
+              w.decoration is BoxDecoration &&
+              (w.decoration as BoxDecoration).gradient != null,
+        );
+
+    testWidgets(
+      'with more destinations than fit, the scrollbar stays visible and the '
+      'bottom edge fades until the end is reached',
+      (WidgetTester tester) async {
+        final List<String> selected =
+            await pumpWith(tester, 20, const Size(1440, 720));
+
+        expect(tester.widget<Scrollbar>(find.byType(Scrollbar)).thumbVisibility,
+            isTrue,
+            reason: 'a hidden-until-hover scrollbar says nothing is below');
+        expect(fade(), findsOneWidget);
+
+        // The last destination is reachable by scrolling and can be chosen.
+        await tester.scrollUntilVisible(
+          find.text('Destination 19'),
+          100,
+          scrollable: find.descendant(
+            of: find.byType(Scrollbar),
+            matching: find.byType(Scrollable),
+          ),
+        );
+        await tester.pump();
+        await tester.tap(find.text('Destination 19'));
+        expect(selected, <String>['item-19']);
+
+        // At the end there is nothing more below, so no fade.
+        expect(fade(), findsNothing);
+      },
+    );
+
+    testWidgets('with few destinations there is no scrollbar and no fade', (
+      WidgetTester tester,
+    ) async {
+      await pumpWith(tester, 5, const Size(1440, 720));
+
+      expect(
+        tester.widget<Scrollbar>(find.byType(Scrollbar)).thumbVisibility,
+        isNot(isTrue),
+      );
+      expect(fade(), findsNothing);
+    });
+
+    testWidgets('the icon rail has the same cue; the bottom bar has no list', (
+      WidgetTester tester,
+    ) async {
+      await pumpWith(tester, 20, const Size(760, 720));
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.widget<Scrollbar>(find.byType(Scrollbar)).thumbVisibility,
+        isTrue,
+      );
+      expect(fade(), findsOneWidget);
+
+      await pumpWith(tester, 20, const Size(400, 800));
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Scrollbar), findsNothing);
+      expect(fade(), findsNothing);
+    });
+  });
+
   group('FoAccountMenuButton', () {
     testWidgets('renders nothing until somebody is signed in', (
       WidgetTester tester,
