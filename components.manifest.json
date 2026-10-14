@@ -108,6 +108,7 @@
         "FoDataTable",
         "FoTableColumn",
         "FoColumnSize",
+        "FoTableSizing",
         "FoPaginationBar",
         "FoFilterBar",
         "FoListSearchField",

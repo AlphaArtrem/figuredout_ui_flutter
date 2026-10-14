@@ -145,6 +145,76 @@ class DataTables extends StatelessWidget {
   }
 }
 
+/// A table that grows with its rows, inside a list card, in a page that scrolls.
+class DataTableContent extends StatefulWidget {
+  /// Creates the page.
+  const DataTableContent({super.key});
+
+  @override
+  State<DataTableContent> createState() => _DataTableContentState();
+}
+
+class _DataTableContentState extends State<DataTableContent> {
+  static const List<Entry> _rows = <Entry>[
+    Entry('Sleeve panel', 'Line A', 1240, true),
+    Entry('Collar band', 'Line A', 880, true),
+    Entry('Front placket', 'Line B', 412, false),
+    Entry('Cuff', 'Line C', 96, false),
+    Entry('Back yoke', 'Line B', 640, true),
+    Entry('Pocket bag', 'Line C', 1520, true),
+    Entry('Hem facing', 'Line A', 210, false),
+  ];
+
+  String? _open = 'Front placket';
+
+  @override
+  Widget build(BuildContext context) {
+    return DocPage(
+      title: 'Data table, grows with its rows',
+      lede: '`sizing: FoTableSizing.content` is a table as tall as its rows: '
+          'nothing in it scrolls vertically, so the page does. Put it in a '
+          '`FoListCard` with `framed: false` (the card is the frame). Rows are '
+          'at least 48 tall and the whole row opens the record; the open one '
+          'is on the primary wash. Under the table\'s `minWidth` it scrolls '
+          'sideways, and on a phone it is a column of cards.',
+      children: <Widget>[
+        DocSection(
+          title: 'In a list card',
+          child: FoListCard(
+            header: Text(
+              'Entries',
+              style: context.foText.subtitle,
+            ),
+            body: FoDataTable<Entry>(
+              sizing: FoTableSizing.content,
+              framed: false,
+              columns: _columns(context),
+              rows: _rows,
+              loading: false,
+              errorTitle: 'Could not load entries',
+              retryLabel: 'Retry',
+              isSelected: (Entry e) => e.part == _open,
+              rowKey: (Entry e) => ValueKey<String>(e.part),
+              sectionOf: (Entry e) => e.line,
+              onRowTap: (Entry e) => setState(() => _open = e.part),
+            ),
+            footer: FoPaginationBar(
+              page: 1,
+              totalPages: 3,
+              totalLabel: '21 entries',
+              pageLabel: 'Page 1 of 3',
+              previousTooltip: 'Previous page',
+              nextTooltip: 'Next page',
+              pageSemanticLabel: (int page) => 'Page $page',
+              onPageChanged: (_) {},
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// The pagination bar, the filter bar and the tile grid.
 class ListChrome extends StatefulWidget {
   /// Creates the list-chrome page.
@@ -246,6 +316,14 @@ class _ListChromeState extends State<ListChrome> {
 /// The table in all four states. Switch to Compact 480 for the card layout.
 @widgetbook.UseCase(name: 'Data table', type: FoDataTable, path: '03 Patterns')
 Widget buildDataTables(BuildContext context) => const DataTables();
+
+/// A table that grows with its rows, in a list card on a scrolling page.
+@widgetbook.UseCase(
+  name: 'Data table / grows with its rows',
+  type: FoDataTable,
+  path: '03 Patterns',
+)
+Widget buildDataTableContent(BuildContext context) => const DataTableContent();
 
 /// Filter bar, pagination bar and tile grid.
 @widgetbook.UseCase(name: 'Filter bar', type: FoFilterBar, path: '03 Patterns')

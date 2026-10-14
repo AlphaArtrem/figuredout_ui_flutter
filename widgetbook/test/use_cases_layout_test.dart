@@ -60,6 +60,7 @@ void main() {
     'Feedback': const FeedbackPatterns(),
     'Dialogs': const Dialogs(),
     'DataTables': const DataTables(),
+    'DataTableContent': const DataTableContent(),
     'ListChrome': const ListChrome(),
     'Forms': const Forms(),
     'GroupedMatrix': const GroupedMatrix(),

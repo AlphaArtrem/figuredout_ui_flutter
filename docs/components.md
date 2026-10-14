@@ -73,6 +73,7 @@ free to mean *lifted*.
 | showing a row of related figures | `FoSeamGrid` + `FoStatCardContent` |
 | showing one figure | `FoStatCard` |
 | showing records | `FoDataTable` — it is a table on a wide window and cards on a narrow one |
+| showing records in a page that scrolls | `FoDataTable(sizing: FoTableSizing.content, framed: false)` inside a `FoListCard` — the card grows with its rows and the page scrolls, not the table |
 | showing a grid where the cell's position is its meaning | `FoMatrixTable` — a size breakdown, a permission grid |
 | showing one record's fields | `FoDescriptionList` |
 | framing a page region with a title | `FoSectionSurface` |
@@ -226,6 +227,15 @@ Six rules the components now enforce, so a screen gets them by composing rather 
   dimensions *is* its meaning, so it keeps its shape at every width and scrolls sideways instead.
   Set `pinLeadingColumn` once the columns outrun the window, or scrolling right takes the row
   labels with it and the user ends up typing into unlabelled rows.
+- `FoDataTable` has two sizes. `fill` (the default) is DataTable2 in a box: it needs a bounded
+  height, scrolls its rows inside it and frames itself. `content` (0.8.0) is as tall as its rows,
+  never scrolls vertically and scrolls sideways under `minWidth`; its heading band is 36 tall,
+  its rows at least 48 with a hairline above each, the open row (`isSelected`) on `primarySoft`
+  and the whole row the target. Use `content` with `framed: false` as the body of a `FoListCard`
+  on a page that scrolls, so there is one scroll per page and the card is the only frame.
+  `FoTableColumn.width` fixes a column in both; `sectionOf` adds day-style heading rows in
+  `content` only. A table in a bounded box that scrolls inside a page that also scrolls is the
+  nested-scroll trap this exists to avoid.
 - `FoDataTable` owns its own loading, error and empty states. Pass `error` and `onRetry` and let
   it render them in the rows' place — a screen that early-returns an error above the table
   destroys the search box and the filters with it, so the user cannot change what they asked for.
