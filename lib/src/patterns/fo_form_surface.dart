@@ -28,6 +28,15 @@ import 'fo_form_scope.dart';
 /// measured first: while they leave the body a third of the height (or all it
 /// needs), nothing changes — pinned header, scrolling body, pinned footer.
 /// Otherwise header, body and footer scroll as one, so every part is reachable.
+///
+/// **A scrolling body is measured bounded, not at its natural height.** Laying
+/// a scroll view out with room for all its content leaves it nothing to scroll,
+/// and it corrects its offset to 0 — so the body used to jump to the top every
+/// time the surface relaid out, which any text changing size in the body or the
+/// footer causes (typing the first digit into a quantity grid). The body is now
+/// laid out in the room left first; only if that room is under a third of the
+/// height *and* the body fills it does the surface take the natural-height
+/// fallback, where there is nothing to keep scrolled.
 class FoFormSurface extends StatefulWidget {
   /// Creates a form surface.
   const FoFormSurface({
@@ -235,9 +244,11 @@ class _Footer extends StatelessWidget {
 /// natural heights first. While they leave the body enough room
 /// ([_SurfaceLayout.minBodyFraction] of the height, or the body's whole
 /// natural height if that is less), the body is laid out in what remains and
-/// scrolls itself — the ordinary form. Otherwise every part takes its natural
-/// height (a body that owns its own scrolling gets one full viewport) and the
-/// enclosing scroll view scrolls the lot.
+/// scrolls itself — the ordinary form. The body is always offered that bounded
+/// room first, never measured at its natural height beforehand (a scroll view
+/// measured that way forgets its offset). Otherwise every part takes its
+/// natural height (a body that owns its own scrolling gets one full viewport)
+/// and the enclosing scroll view scrolls the lot.
 class _SurfaceLayout extends MultiChildRenderObjectWidget {
   const _SurfaceLayout({
     required this.availableHeight,
@@ -330,19 +341,28 @@ class _RenderSurfaceLayout extends RenderBox
 
     final double left = available - header - footer;
     final double floor = available * _SurfaceLayout.minBodyFraction;
-    // Only a body this surface scrolls can be asked for its natural height;
-    // a list that owns its scrolling would take whatever it is offered.
-    final double needed =
-        _bodyScrolls ? math.min(size(_body, natural).height, floor) : floor;
+    final BoxConstraints rest = BoxConstraints(
+      minWidth: width,
+      maxWidth: width,
+      maxHeight: left,
+    );
 
-    if (left >= needed) {
+    // The body is laid out bounded first, never at its natural height unless
+    // the fallback is really taken. A scroll view laid out with room for all
+    // of its content has nothing to scroll and corrects its offset to 0, so
+    // measuring a scrolled body that way, on every relayout of the surface,
+    // sent it to the top whenever anything in the body or the footer changed
+    // size (Luxe D-1: the first digit typed into a quantity grid).
+    if (left >= floor) {
       // The ordinary form: pinned header and footer, the body in between.
-      final BoxConstraints rest = BoxConstraints(
-        minWidth: width,
-        maxWidth: width,
-        maxHeight: left,
-      );
       return (header, size(_body, rest).height, footer);
+    }
+
+    if (_bodyScrolls && left > 0) {
+      // Less than the floor is left. A body shorter than that fits, and is
+      // still the ordinary form; only one that fills it takes the fallback.
+      final double fitted = size(_body, rest).height;
+      if (fitted < left) return (header, fitted, footer);
     }
 
     // The fallback: every part at its natural height, scrolled as one. A body

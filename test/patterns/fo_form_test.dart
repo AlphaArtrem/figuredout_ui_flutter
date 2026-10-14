@@ -419,6 +419,142 @@ void main() {
     });
   });
 
+  // Found in Luxe (D-1): typing the first digit into the New order quantity
+  // grid slid the whole form. Anything in the body or the footer that changed
+  // size relaid the surface out, the surface measured the scrolling body at
+  // its natural (unbounded) height first, and a scroll view laid out with
+  // nothing to scroll corrects its offset to 0. The second, bounded layout
+  // restored the extent but not the offset.
+  group('FoFormSurface keeps a scrolled body where it is', () {
+    Widget surface({
+      required ValueNotifier<int> lines,
+      required bool inFooter,
+    }) {
+      Widget growing() => ValueListenableBuilder<int>(
+            valueListenable: lines,
+            builder: (BuildContext context, int n, _) =>
+                Text(List<String>.filled(n, 'A changing line').join('\n')),
+          );
+      return SizedBox(
+        width: 600,
+        height: 500,
+        child: FoFormSurface(
+          title: 'New order',
+          footer: inFooter ? growing() : null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              for (int i = 0; i < 40; i++)
+                SizedBox(height: 40, child: Text('Row $i')),
+              if (!inFooter) growing(),
+            ],
+          ),
+        ),
+      );
+    }
+
+    ScrollPosition bodyPosition(WidgetTester tester) => tester
+        .state<ScrollableState>(
+          find.descendant(
+            of: find.byType(SingleChildScrollView),
+            matching: find.byType(Scrollable),
+          ),
+        )
+        .position;
+
+    for (final bool inFooter in <bool>[false, true]) {
+      testWidgets(
+          'a tall scrolled body keeps its offset when text in the '
+          '${inFooter ? 'footer' : 'body'} changes size',
+          (WidgetTester tester) async {
+        final ValueNotifier<int> lines = ValueNotifier<int>(1);
+        addTearDown(lines.dispose);
+        await pumpFo(
+          tester,
+          surfaceSize: const Size(800, 700),
+          child: surface(lines: lines, inFooter: inFooter),
+        );
+        final ScrollPosition position = bodyPosition(tester);
+        expect(position.maxScrollExtent, greaterThan(500));
+        position.jumpTo(position.maxScrollExtent);
+        await tester.pump();
+        final double before = position.pixels;
+        expect(before, greaterThan(500));
+
+        lines.value = 3;
+        await tester.pump();
+        expect(
+          bodyPosition(tester).pixels,
+          closeTo(before, 0.5),
+          reason: 'one frame after the change, where the reset used to show',
+        );
+        await tester.pumpAndSettle();
+        expect(bodyPosition(tester).pixels, closeTo(before, 0.5));
+
+        lines.value = 1;
+        await tester.pumpAndSettle();
+        expect(
+          bodyPosition(tester).pixels,
+          closeTo(before, 0.5),
+          reason: 'shrinking back is not a reset either',
+        );
+      });
+    }
+
+    testWidgets('a body that fits is still laid out at its natural height', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(800, 700),
+        child: const SizedBox(
+          width: 600,
+          height: 500,
+          child: FoFormSurface(
+            title: 'Short',
+            child: SizedBox(height: 100, child: Text('Short body')),
+          ),
+        ),
+      );
+      // Body (100 + 2 x 24 padding) is shorter than the room: the surface
+      // takes the natural height instead of stretching its body to fill.
+      expect(
+        tester.getSize(find.byType(SingleChildScrollView)).height,
+        148,
+      );
+    });
+
+    testWidgets(
+        'a short surface whose body does not fit scrolls as one, and a body '
+        'that does fit stays a pinned form', (WidgetTester tester) async {
+      // 120 tall: header alone is over a third, the body (40 rows) fills the
+      // rest, so the fallback applies and the outer view scrolls.
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(800, 700),
+        child: SizedBox(
+          width: 600,
+          height: 120,
+          child: FoFormSurface(
+            title: 'Cramped form',
+            subtitle: 'A subtitle that takes another line of the header.',
+            child: Column(
+              children: <Widget>[
+                for (int i = 0; i < 40; i++)
+                  SizedBox(height: 40, child: Text('Row $i')),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final double body =
+          tester.getSize(find.byType(SingleChildScrollView)).height;
+      expect(body, greaterThan(1600),
+          reason: 'the whole body at natural height');
+    });
+  });
+
   group('FoFormValidation', () {
     testWidgets('a valid form submits and says nothing', (
       WidgetTester tester,

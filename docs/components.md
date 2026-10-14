@@ -293,6 +293,11 @@ Six rules the components now enforce, so a screen gets them by composing rather 
   `FoFormSurface` (header, scrolling body, pinned footer) did, at 300% text and in a 237-point
   browser-zoom window — with a sheet's primary action below the edge. It now measures its header
   and footer first and scrolls as one when they leave the body less than a third of the height.
+  The body is always laid out in the room left, bounded, before anything else: a scroll view
+  measured at its natural height (unbounded) has nothing to scroll and resets its offset to 0, so
+  0.7.4 and earlier sent a scrolled body to the top whenever text in it or in the footer changed
+  size (0.8.0 fixes it; before that a form with live totals had to use `scrollable: false` and
+  its own scroll view).
   A fixed stack of placeholders is the same bug: `FoSkeletonList` shows only the rows that fit a
   bounded height.
 - **Test the contrast of what is painted, not only of the tokens.** On the 0.6 line the token
