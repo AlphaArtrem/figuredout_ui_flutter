@@ -100,6 +100,15 @@ cd widgetbook && dart run build_runner build -d && flutter test && flutter build
 - **`fl_chart` animates by default,** and that animation ignores reduced-motion, leaves a line
   invisible in a background tab and in print, and races screenshot tooling. Every chart passes
   `FoChartTheme.animation`, which is `Duration.zero`.
+- **A scroll view laid out with room for all its content forgets its offset.** With nothing to
+  scroll it corrects its position to 0, so measuring a scrolling body at its natural (unbounded)
+  height, then laying it out again bounded, sent it to the top. `FoFormSurface` did this on every
+  relayout, so a live total in a form slid the body (Luxe D-1, fixed in 0.8.0). Lay a scrolling
+  child out bounded first; never measure it with unbounded height as a side effect.
+- **A click focuses a text field without selecting its text.** `EditableText` skips select-all on
+  an internal (tap) focus, and the tap has already placed the caret, so typing into a count box
+  showing 0 made "04" (Luxe W4-5, fixed in 0.8.0 in `FoNumberField`). `selectAllOnFocus` would
+  do it but needs Flutter 3.35; the floor is 3.27.
 - **A `Column` at its default `MainAxisSize.max` fills whatever it is given.** `FoDescriptionList`
   did, so it never visibly stacked and pushed everything below it off screen.
 

@@ -1,11 +1,16 @@
 # State
 
-Edit in place. No dated or per-session sections. Last derived on 2026-10-02 from `main` at
-the 0.7.4 release (on `main`, from v0.7.3).
+Edit in place. No dated or per-session sections. Last derived on 2026-10-14 from branch
+`release/0.8.0` (from `main` at v0.7.4); `main` and the tag `v0.8.0` are pushed by the owner.
 
 ## What exists
 
-- **Package `figuredout_ui` 0.7.4 on `main`** (tags v0.7.0 to v0.7.4). Not published
+- **Package `figuredout_ui` 0.8.0, prepared on `release/0.8.0`** (not yet on `main`; tags
+  v0.7.0 to v0.7.4 exist, v0.8.0 does not until the owner pushes it). 0.8.0 fixes three Luxe finds
+  (a click in a number box selects the number, a scrolled `FoFormSurface` keeps its offset, the
+  sidebar shows there is more below) and adds `FoDataTable(sizing: FoTableSizing.content)` with
+  `framed`, `isSelected`, `rowKey`, `sectionOf` and `FoTableColumn.width`, and a rows-per-page
+  menu on `FoPaginationBar`. Everything new is opt-in. Not published
   (`publish_to: 'none'`); consumed by git tag. 0.7.0 ports the FiguredoutAI palette from
   `@figuredout/ui-web` and adds the production-floor components; 0.7.2 carries the nine fixes
   legal_app filed (`CHANGELOG.md` 0.7.2); 0.7.3 fixes two Luxe finds (marked-screenshot ring,
@@ -62,8 +67,11 @@ the 0.7.4 release (on `main`, from v0.7.3).
 
 ## Next action
 
-Point Luxe at v0.7.4 (and pass `navigationSemanticLabel`) and migrate its screens (`docs/migrating-from-luxe.md`, "0.7.0") — 0.7.2's
-behaviour changes are listed in its CHANGELOG entry (0.7.3 and 0.7.4 have none). `legal_app` pins `v0.6.2` and will change
+Owner: push `release/0.8.0` to `main` (fast-forward) and tag `v0.8.0`, then Luxe moves to it
+(`LuxeDataTable` becomes a pass-through to `FoDataTable(sizing: content)`, rows per page on
+`LuxePaginationBar`, the order dialogs drop their own scroll view). Luxe migrates its screens
+(`docs/migrating-from-luxe.md`, "0.7.0") — 0.7.2's behaviour changes are listed in its CHANGELOG
+entry (0.7.3 to 0.8.0 have none that an app must act on; 0.8.0's three fixes only remove bugs). `legal_app` pins `v0.6.2` and will change
 colour when it moves to 0.7.x — its owner decides when.
 
 ## Predicted hazards

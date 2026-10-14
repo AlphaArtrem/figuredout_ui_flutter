@@ -1,5 +1,72 @@
 # Changelog
 
+## 0.8.0
+
+Three fixes Luxe's web audit found and two additions it needs to put every list on one page
+scroll. Additive: **nothing changes for an app that does not opt in**, except that the three
+fixes below stop the behaviour they fix. Minor version because `FoDataTable` and
+`FoPaginationBar` gain API. The package floor stays `flutter >=3.27.0` (the number box does not
+use `TextField.selectAllOnFocus`, which arrived later).
+
+### Fixed
+
+- **A click in a `FoNumberField` selects its number, so typing replaces it.** A click focuses
+  the box through `EditableText`'s internal-focus path, which skips select-all, and the tap has
+  already put the caret where it landed, so typing "4" into a box showing 0 made "04" (and 120
+  became 1420). Gaining focus now selects the whole number, by click, tap or Tab; a second click
+  in a box that already has focus still places the caret. Covers `FoQuantityMatrix` and
+  `FoSizeCountGrid` / `FoSizeCountRow`, which use the box. `FoMatrixNumericCell` (a stateless
+  `TextFormField`) is unchanged. Reported by Luxe (W4-5).
+- **A scrolled `FoFormSurface` stays where it is when something in it changes size.** The
+  surface measured a scrolling body at its natural, unbounded height before laying it out in the
+  room left; a scroll view laid out with nothing to scroll corrects its offset to 0, and the
+  second, bounded layout restored the extent but not the offset. Anything in the body or the
+  footer that changed size (a live total, a counter) therefore sent the body to the top. The
+  body is now laid out in the room left first; only a body that fills a room under a third of the
+  height takes the natural-height fallback. A form with live totals no longer needs
+  `scrollable: false` and its own scroll view. Reported by Luxe (D-1: the first digit typed into
+  the New order quantity grid).
+- **`FoShellScaffold`'s sidebar and rail show there is more below.** A list taller than the
+  window scrolled with its scrollbar hidden until the pointer was over it, so the last
+  destinations looked absent. While the list overflows its scrollbar thumb is always visible,
+  and the bottom edge fades into the sidebar's surface until the end is reached. Neither shows
+  when everything fits. Reported by Luxe (F51).
+
+### Added
+
+- **`FoDataTable(sizing: FoTableSizing.content)`**: a table as tall as its rows, for the body of
+  a `FoListCard` on a page that scrolls. `FoTableSizing { fill, content }` is new and exported;
+  `fill` (the default) is the table as it was. In `content` nothing scrolls vertically (sideways
+  under `minWidth`); the heading band is 36 tall in mono upper-case captions, rows are at least
+  48 with a hairline above each, the whole row is the target, hover is `surfaceRaised`, the open
+  row is `primarySoft` and announced selected, numeric columns right-align with a gap, the
+  skeleton is a `Column`, and below the medium window class it is a column of the same cards.
+  New `FoDataTable` parameters: `sizing`, `framed` (default true; false draws no surface,
+  border or clip, for a body inside a card that is the frame; honoured by both sizes),
+  `isSelected`, `rowKey`, `sectionOf` (a full-width heading row when the value changes, such as
+  a day), the last three used by `content`. New `FoTableColumn.width`: a fixed width in logical
+  pixels, honoured by both sizes.
+- **`FoPaginationBar` rows per page**: optional `pageSize`, `pageSizeOptions`,
+  `onPageSizeChanged`, `pageSizeLabel` (`String Function(int)`, "20 per page") and
+  `pageSizeSemanticLabel`, which go together and are all worded by the caller. A compact menu
+  sits left of the track; it is left out below 480 and wherever the track would be left under
+  three tiles. Without them the bar is exactly what it was. Changing the size should send the
+  list back to page 1; the caller does that.
+
+### Tests
+
+New: `test/patterns/fo_data_table_test.dart` (an unbounded parent grows and holds no vertical
+`Scrollable`, row and heading sizes, upper-case captions, selection semantics, `sectionOf`,
+`framed`, fixed widths, sideways scroll, sort, `rowKey`, skeleton, phone cards, `fill`
+unchanged). Added to `fo_redesign_primitives_test.dart` and `fo_floor_patterns_test.dart`
+(click, tap and Tab select the number, Windows and Android, and a `FoQuantityMatrix` cell), to
+`fo_form_test.dart` (a scrolled body keeps its offset after one frame and after settling, with
+the changing text in the body and in the footer), to `fo_patterns_test.dart` (rows per page:
+picking 50, hidden under 480, no copy in the package) and to `fo_shell_test.dart` (the sidebar
+cue at 1440x720). The number-field, form-surface and shell cases fail on 0.7.4; the data-table
+and pagination cases use API that 0.7.4 does not have. Widgetbook: "Data table / grows with its
+rows", and a rows-per-page section on the list-chrome page.
+
 ## 0.7.4
 
 One defect the consuming app Luxe found with its production tests (P4-3 / P4b-2). No visual

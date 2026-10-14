@@ -16,6 +16,7 @@ Phased build order. Acceptance is a demonstration, not a passing suite. Status i
 | Post-port | Additions requested by consumers (`FoSwitchTile`, `FoSegmentedControl`, `FoDateField`, controlled dropdown, 200% text) | Released with use case, test and changelog entry | Done through v0.6.1 |
 | 9 | FiguredoutAI palette parity with `@figuredout/ui-web`; the production-floor components of the Luxe redesign; the owner's six layout rules | Widgetbook `06 Production` pages pumped at three widths, both themes and 200% text; contrast report with no waivers | Built on `feat/luxe-redesign-components`, uncommitted, 0.7.0 — not released |
 | Consumer fixes | The nine defects legal_app filed (FoCard announcement, dropdown target, form surface and dialog overflow, button wrap, skeleton, chart shell opt-out, font fallback, contrast) | Each has a test that fails on 0.6.1; Widgetbook 200% pass with no skip | Done, v0.7.2 (`main`) and v0.6.2 (`release/0.6.x`) |
+| Luxe web audit | One scroll per page: a data table that grows with its rows, rows per page, a number box that selects on click, a form that keeps its scroll, a sidebar that shows overflow | Each fix has a test that fails on 0.7.4; the table and the menu have Widgetbook use cases and layout-test lines | Prepared on `release/0.8.0` (0.8.0); owner pushes `main` and tag `v0.8.0` |
 
 ## Not started (candidates found in the repo, not committed work)
 
