@@ -236,6 +236,11 @@ Six rules the components now enforce, so a screen gets them by composing rather 
   `FoTableColumn.width` fixes a column in both; `sectionOf` adds day-style heading rows in
   `content` only. A table in a bounded box that scrolls inside a page that also scrolls is the
   nested-scroll trap this exists to avoid.
+- `FoPaginationBar` can carry a rows-per-page menu (0.8.0): pass `pageSize`, `pageSizeOptions`,
+  `onPageSizeChanged`, `pageSizeLabel` and `pageSizeSemanticLabel` together, all worded by the
+  caller. It sits left of the track, is left out under 480 and wherever the track would be left
+  with fewer than three tiles, and the bar is unchanged without them. Changing the size should
+  send the list back to page 1; the bar does not do that for you.
 - `FoDataTable` owns its own loading, error and empty states. Pass `error` and `onRetry` and let
   it render them in the rows' place — a screen that early-returns an error above the table
   destroys the search box and the filters with it, so the user cannot change what they asked for.

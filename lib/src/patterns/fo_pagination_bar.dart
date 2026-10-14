@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../primitives/fo_focus_ring.dart';
 import '../theme/fo_context.dart';
 import '../tokens/fo_layout.dart';
+import '../tokens/fo_tokens.dart';
 
 /// The footer of a paged list or table.
 ///
@@ -24,6 +25,14 @@ import '../tokens/fo_layout.dart';
 /// its inflexible siblings' widths before handing a flex child its
 /// constraints, so there is no ResizeObserver-style measurement to hand-roll.
 ///
+/// **Rows per page (0.8.0, optional).** Pass [pageSize], [pageSizeOptions],
+/// [onPageSizeChanged], [pageSizeLabel] and [pageSizeSemanticLabel] together
+/// and a compact menu — "20 per page" — is drawn left of the numbered track.
+/// The package holds no words for it: every string is the caller's. It is left
+/// out below the compact width, and wherever the room left of the arrows
+/// could not hold it and still leave the track three tiles. Pass none of them
+/// and the bar is exactly what it was.
+///
 /// The arrows stay icon-only at every width — Luxe's original never grew a
 /// visible "Previous" / "Next" label, and adding one now would mean new
 /// required copy this design does not otherwise need.
@@ -38,8 +47,24 @@ class FoPaginationBar extends StatelessWidget {
     required this.nextTooltip,
     required this.pageSemanticLabel,
     required this.onPageChanged,
+    this.pageSize,
+    this.pageSizeOptions = const <int>[],
+    this.onPageSizeChanged,
+    this.pageSizeLabel,
+    this.pageSizeSemanticLabel,
     super.key,
-  });
+  })  : assert(
+          (pageSize == null) == (onPageSizeChanged == null) &&
+              (pageSize == null) == (pageSizeLabel == null) &&
+              (pageSize == null) == (pageSizeSemanticLabel == null),
+          'pageSize, onPageSizeChanged, pageSizeLabel and '
+          'pageSizeSemanticLabel go together: a rows-per-page menu needs a '
+          'value, a callback and the caller\'s words.',
+        ),
+        assert(
+          pageSize == null || pageSizeOptions.length > 0,
+          'pageSizeOptions must list the choices.',
+        );
 
   /// The current page, 1-based.
   final int page;
@@ -70,6 +95,31 @@ class FoPaginationBar extends StatelessWidget {
 
   /// Called with the new page number.
   final ValueChanged<int> onPageChanged;
+
+  /// Rows per page now. Null (the default) draws no rows-per-page menu.
+  final int? pageSize;
+
+  /// The sizes the menu offers — `[20, 50, 100]`. The current [pageSize] is
+  /// ticked when it is one of them.
+  final List<int> pageSizeOptions;
+
+  /// Called with the size picked. The caller decides whether that returns to
+  /// page 1 (it almost always should).
+  final ValueChanged<int>? onPageSizeChanged;
+
+  /// A size worded — `(n) => '$n per page'`. Caller-supplied, so it can be
+  /// localized; it names the menu's button and each of its choices.
+  final String Function(int size)? pageSizeLabel;
+
+  /// The menu button's accessible name and tooltip — "Rows per page".
+  final String? pageSizeSemanticLabel;
+
+  /// The widest the rows-per-page button gets before its label ellipsises.
+  static const double _sizeMenuMaxWidth = 148;
+
+  /// The fewest page tiles the track keeps when the menu takes room: below
+  /// this the menu is left out rather than the track squeezed to one tile.
+  static const int _minSlotsWithMenu = 3;
 
   /// Below this width the labels drop and only the arrows and the numbered
   /// track remain. Mirrors the web package's `COMPACT_WIDTH`.
@@ -153,10 +203,26 @@ class FoPaginationBar extends StatelessWidget {
               Expanded(
                 child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints trackBox) {
-                    final int slots = _slotsFor(trackBox.maxWidth);
+                    final int? size = pageSize;
+                    // The menu is measured against the room left of the
+                    // arrows, not the window: it stays only if the track
+                    // still holds [_minSlotsWithMenu] tiles beside it.
+                    final bool sizeMenu = !compact &&
+                        size != null &&
+                        _slotsFor(
+                              trackBox.maxWidth -
+                                  _sizeMenuMaxWidth -
+                                  spacing.md,
+                            ) >=
+                            _minSlotsWithMenu;
+                    final int slots = _slotsFor(
+                      sizeMenu
+                          ? trackBox.maxWidth - _sizeMenuMaxWidth - spacing.md
+                          : trackBox.maxWidth,
+                    );
                     final List<int> visible =
                         _visiblePages(current, pages, slots);
-                    return Align(
+                    final Widget track = Align(
                       alignment: compact
                           ? Alignment.center
                           : AlignmentDirectional.centerEnd,
@@ -166,6 +232,25 @@ class FoPaginationBar extends StatelessWidget {
                         pageSemanticLabel: pageSemanticLabel,
                         onSelect: onPageChanged,
                       ),
+                    );
+                    if (!sizeMenu) return track;
+                    return Row(
+                      children: <Widget>[
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: _sizeMenuMaxWidth,
+                          ),
+                          child: _PageSizeMenu(
+                            value: size,
+                            options: pageSizeOptions,
+                            label: pageSizeLabel!,
+                            semanticLabel: pageSizeSemanticLabel!,
+                            onChanged: onPageSizeChanged!,
+                          ),
+                        ),
+                        SizedBox(width: spacing.md),
+                        Expanded(child: track),
+                      ],
                     );
                   },
                 ),
@@ -218,6 +303,79 @@ class FoPaginationBar extends StatelessWidget {
     }
 
     return pages.toList()..sort();
+  }
+}
+
+/// The rows-per-page menu: a sunken button naming the size, a menu of sizes.
+class _PageSizeMenu extends StatelessWidget {
+  const _PageSizeMenu({
+    required this.value,
+    required this.options,
+    required this.label,
+    required this.semanticLabel,
+    required this.onChanged,
+  });
+
+  final int value;
+  final List<int> options;
+  final String Function(int size) label;
+  final String semanticLabel;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(context.foRadii.md);
+    return FoFocusRing(
+      borderRadius: radius,
+      child: PopupMenuButton<int>(
+        tooltip: semanticLabel,
+        initialValue: value,
+        onSelected: onChanged,
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+          for (final int option in options)
+            CheckedPopupMenuItem<int>(
+              value: option,
+              checked: option == value,
+              child: Text(label(option)),
+            ),
+        ],
+        child: Semantics(
+          button: true,
+          label: semanticLabel,
+          value: label(value),
+          excludeSemantics: true,
+          child: Container(
+            constraints: const BoxConstraints(
+              minHeight: FoPaginationBar._pageTile,
+            ),
+            padding: EdgeInsets.only(left: context.foSpacing.md),
+            decoration: BoxDecoration(
+              color: context.foColors.surfaceSunken,
+              borderRadius: radius,
+              border: Border.all(color: context.foColors.edge),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Text(
+                    label(value),
+                    style: context.foText.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: FoTokens.iconMedium,
+                  color: context.foColors.fgMuted,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

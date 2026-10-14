@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:figuredout_ui/figuredout_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -438,6 +440,165 @@ void main() {
 
       await tester.tap(find.bySemanticsLabel('page-3'));
       expect(tapped, 3);
+    });
+  });
+
+  group('FoPaginationBar rows per page', () {
+    Widget bar({
+      int pageSize = 20,
+      ValueChanged<int>? onSize,
+      int totalPages = 12,
+      String Function(int)? label,
+      bool withMenu = true,
+    }) =>
+        FoPaginationBar(
+          page: 3,
+          totalPages: totalPages,
+          totalLabel: '418 entries',
+          pageLabel: 'Page 3 of $totalPages',
+          previousTooltip: 'Previous',
+          nextTooltip: 'Next',
+          pageSemanticLabel: (int p) => 'page-$p',
+          onPageChanged: (_) {},
+          pageSize: withMenu ? pageSize : null,
+          pageSizeOptions: const <int>[20, 50, 100],
+          onPageSizeChanged: withMenu ? (onSize ?? (_) {}) : null,
+          pageSizeLabel: withMenu ? (label ?? (int n) => '$n per page') : null,
+          pageSizeSemanticLabel: withMenu ? 'Rows per page' : null,
+        );
+
+    testWidgets('picking 50 calls back with 50', (WidgetTester tester) async {
+      final List<int> picked = <int>[];
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(1400, 400),
+        child: bar(onSize: picked.add),
+      );
+
+      expect(find.text('20 per page'), findsOneWidget);
+      await tester.tap(find.text('20 per page'));
+      await tester.pumpAndSettle();
+      // The menu lists every option, the current one ticked.
+      expect(find.text('50 per page'), findsOneWidget);
+      expect(find.text('100 per page'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(CheckedPopupMenuItem<int>),
+          matching: find.byIcon(Icons.done),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('50 per page'));
+      await tester.pumpAndSettle();
+      expect(picked, <int>[50]);
+    });
+
+    testWidgets('the menu button is named by the caller', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(1400, 400),
+        child: bar(),
+      );
+      expect(find.bySemanticsLabel('Rows per page'), findsOneWidget);
+      expect(find.byTooltip('Rows per page'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('it is hidden under 480', (WidgetTester tester) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(400, 400),
+        child: bar(totalPages: 5),
+      );
+      expect(find.byType(PopupMenuButton<int>), findsNothing);
+      expect(find.text('20 per page'), findsNothing);
+      // The bar itself is as it was.
+      expect(find.byType(IconButton), findsNWidgets(2));
+    });
+
+    testWidgets('it is left out where the track would be left under 3 tiles', (
+      WidgetTester tester,
+    ) async {
+      // Above 480, but the labels and arrows leave too little for the menu
+      // and three tiles: the track wins.
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(560, 400),
+        child: bar(totalPages: 40),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byType(PopupMenuButton<int>), findsNothing);
+      expect(find.bySemanticsLabel('page-3'), findsOneWidget);
+
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(900, 400),
+        child: bar(totalPages: 40),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byType(PopupMenuButton<int>), findsOneWidget);
+    });
+
+    testWidgets('all of its words are the caller\'s', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(1400, 400),
+        child: bar(pageSize: 50, label: (int n) => '$n por página'),
+      );
+      expect(find.text('50 por página'), findsOneWidget);
+      expect(find.text('50 per page'), findsNothing);
+
+      await tester.tap(find.text('50 por página'));
+      await tester.pumpAndSettle();
+      expect(find.text('20 por página'), findsOneWidget);
+      expect(find.text('100 por página'), findsOneWidget);
+    });
+
+    test('the package holds no copy of its own for it', () {
+      final String source =
+          File('lib/src/patterns/fo_pagination_bar.dart').readAsStringSync();
+      // Code, not comments: strip the doc and line comments first.
+      final String code = source
+          .split('\n')
+          .where((String l) => !l.trimLeft().startsWith('//'))
+          .join('\n');
+      expect(code.toLowerCase(), isNot(contains('per page')));
+    });
+
+    testWidgets('without the parameters the bar has no menu at all', (
+      WidgetTester tester,
+    ) async {
+      await pumpFo(
+        tester,
+        surfaceSize: const Size(1400, 400),
+        child: bar(withMenu: false),
+      );
+      expect(find.byType(PopupMenuButton<int>), findsNothing);
+      expect(find.text('418 entries'), findsOneWidget);
+    });
+
+    test('the parameters go together', () {
+      expect(
+        () => FoPaginationBar(
+          page: 1,
+          totalPages: 2,
+          totalLabel: 't',
+          pageLabel: 'p',
+          previousTooltip: 'a',
+          nextTooltip: 'b',
+          pageSemanticLabel: (int p) => '$p',
+          onPageChanged: (_) {},
+          pageSize: 20,
+          pageSizeOptions: const <int>[20],
+        ),
+        throwsAssertionError,
+      );
     });
   });
 

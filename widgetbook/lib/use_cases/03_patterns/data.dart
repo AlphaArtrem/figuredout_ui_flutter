@@ -227,6 +227,7 @@ class ListChrome extends StatefulWidget {
 class _ListChromeState extends State<ListChrome> {
   final TextEditingController _search = TextEditingController();
   int _page = 2;
+  int _pageSize = 20;
   bool _filtered = true;
 
   @override
@@ -297,6 +298,27 @@ class _ListChromeState extends State<ListChrome> {
             nextTooltip: 'Next page',
             pageSemanticLabel: (int page) => 'Page $page',
             onPageChanged: (int page) => setState(() => _page = page),
+          ),
+        ),
+        DocSection(
+          title: 'Pagination bar with rows per page',
+          child: FoPaginationBar(
+            page: _page,
+            totalPages: (340 / _pageSize).ceil(),
+            totalLabel: '340 entries',
+            pageLabel: 'Page $_page of ${(340 / _pageSize).ceil()}',
+            previousTooltip: 'Previous page',
+            nextTooltip: 'Next page',
+            pageSemanticLabel: (int page) => 'Page $page',
+            onPageChanged: (int page) => setState(() => _page = page),
+            pageSize: _pageSize,
+            pageSizeOptions: const <int>[20, 50, 100],
+            pageSizeLabel: (int size) => '$size per page',
+            pageSizeSemanticLabel: 'Rows per page',
+            onPageSizeChanged: (int size) => setState(() {
+              _pageSize = size;
+              _page = 1;
+            }),
           ),
         ),
         DocSection(
