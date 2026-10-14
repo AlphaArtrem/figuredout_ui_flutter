@@ -715,6 +715,63 @@ void main() {
     });
   });
 
+  group('FoQuantityMatrix select on click', () {
+    testWidgets(
+      'a click on a cell selects its number, so typing replaces it',
+      (WidgetTester tester) async {
+        List<int> sage = <int>[0, 12, 0];
+        await _app(
+          tester,
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) =>
+                FoQuantityMatrix(
+              columns: const <String>['S', 'M', 'L'],
+              ratio: const <int>[1, 2, 1],
+              rows: <FoQuantityRow>[FoQuantityRow(label: 'Sage', values: sage)],
+              onRowChanged: (int r, List<int> v) => setState(() => sage = v),
+              copy: FoQuantityMatrixCopy(
+                rowHeader: 'Colour',
+                totalLabel: 'Colour total',
+                allRowsLabel: 'All colours',
+                ratioLabel: 'Size ratio',
+                cellLabel: (String r, String c) => '$r, size $c',
+                rowTotalLabel: (String r) => '$r total',
+                floorCaption: (int f) => 'cut $f',
+                belowFloorMessage: (String r, String c, int f) =>
+                    '$r $c can\'t go below $f.',
+              ),
+            ),
+          ),
+        );
+        final Finder cell = find.descendant(
+          of: find.bySemanticsLabel('Sage, size S'),
+          matching: find.byType(TextField),
+        );
+        await tester.tap(cell);
+        await tester.pump();
+        final EditableText editable = tester.widget<EditableText>(
+          find.descendant(of: cell, matching: find.byType(EditableText)),
+        );
+        expect(
+          editable.controller.selection,
+          const TextSelection(baseOffset: 0, extentOffset: 1),
+        );
+
+        tester.testTextInput.updateEditingValue(
+          const TextEditingValue(
+            text: '4',
+            selection: TextSelection.collapsed(offset: 1),
+          ),
+        );
+        await tester.pump();
+        expect(sage, <int>[4, 12, 0]);
+      },
+      variant: const TargetPlatformVariant(
+        <TargetPlatform>{TargetPlatform.windows, TargetPlatform.android},
+      ),
+    );
+  });
+
   group('FoEntryListEditor', () {
     testWidgets('adds, repeats and removes lines', (WidgetTester tester) async {
       final List<double> rolls = <double>[28.4];

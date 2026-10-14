@@ -142,8 +142,24 @@ class _FoNumberFieldState extends State<FoNumberField> {
   }
 
   void _onFocusChanged() {
+    if (_focusNode.hasFocus) {
+      // Focus gained — by a click, a tap or Tab — selects the whole number,
+      // so typing replaces it. A click focuses through EditableText's
+      // internal-focus path, which skips its own select-all, and the tap has
+      // already put the caret where it landed: without this, typing "4" into
+      // a box showing 0 made "04". This listener runs after that caret
+      // placement, so the selection stands. A second click in a box that
+      // already has focus changes no focus and still places the caret.
+      // (TextField.selectAllOnFocus would do it but needs Flutter 3.35; the
+      // package floor is 3.27.)
+      _controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _controller.text.length,
+      );
+      return;
+    }
     // A draft left empty goes back to the value it was standing in for.
-    if (!_focusNode.hasFocus && int.tryParse(_controller.text) == null) {
+    if (int.tryParse(_controller.text) == null) {
       _setText('${widget.value}');
     }
   }

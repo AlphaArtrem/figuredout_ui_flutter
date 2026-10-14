@@ -1,6 +1,7 @@
 import 'package:figuredout_ui/figuredout_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/pump.dart';
@@ -278,6 +279,94 @@ void main() {
       expect(border.top.color, FoColors.light.warning);
       expect(border.top.width, 2);
     });
+
+    // A click focuses through EditableText's internal-focus path, which skips
+    // select-all, and the tap puts the caret where it landed — so typing "4"
+    // into a box showing 0 made "04". The box now selects its number on focus.
+    TextSelection selectionOf(WidgetTester tester) => tester
+        .widget<EditableText>(find.byType(EditableText))
+        .controller
+        .selection;
+
+    const TargetPlatformVariant clickPlatforms = TargetPlatformVariant(
+      <TargetPlatform>{TargetPlatform.windows, TargetPlatform.android},
+    );
+
+    testWidgets(
+      'a click on a box showing 0 selects it, so typing replaces it',
+      (WidgetTester tester) async {
+        final List<int> seen = <int>[];
+        await pumpFo(tester, child: field(value: 0, onChanged: seen.add));
+
+        await tester.tap(find.byType(TextField));
+        await tester.pump();
+        expect(selectionOf(tester),
+            const TextSelection(baseOffset: 0, extentOffset: 1));
+      },
+      variant: clickPlatforms,
+    );
+
+    testWidgets(
+      'a click on a box showing 120 selects all three digits and typing 4 reports 4',
+      (WidgetTester tester) async {
+        final List<int> seen = <int>[];
+        await pumpFo(tester, child: field(value: 120, onChanged: seen.add));
+
+        await tester.tap(find.byType(TextField));
+        await tester.pump();
+        expect(selectionOf(tester),
+            const TextSelection(baseOffset: 0, extentOffset: 3));
+
+        // What the keyboard sends: the selection replaced by "4".
+        tester.testTextInput.updateEditingValue(
+          const TextEditingValue(
+            text: '4',
+            selection: TextSelection.collapsed(offset: 1),
+          ),
+        );
+        await tester.pump();
+        expect(seen.last, 4);
+      },
+      variant: clickPlatforms,
+    );
+
+    testWidgets(
+      'a second click in the focused box places the caret instead of selecting again',
+      (WidgetTester tester) async {
+        await pumpFo(tester, child: field(value: 120, onChanged: (_) {}));
+
+        await tester.tap(find.byType(TextField));
+        await tester.pump(const Duration(seconds: 1));
+        expect(selectionOf(tester).isCollapsed, isFalse);
+
+        await tester.tap(find.byType(TextField));
+        await tester.pump(const Duration(seconds: 1));
+        expect(selectionOf(tester).isCollapsed, isTrue);
+      },
+      variant: clickPlatforms,
+    );
+
+    testWidgets(
+      'focusing by Tab selects the whole number',
+      (WidgetTester tester) async {
+        await pumpFo(tester, child: field(value: 120, onChanged: (_) {}));
+
+        // Past the − stepper, onto the box.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(
+          tester
+              .widget<EditableText>(find.byType(EditableText))
+              .focusNode
+              .hasFocus,
+          isTrue,
+        );
+        expect(selectionOf(tester),
+            const TextSelection(baseOffset: 0, extentOffset: 3));
+      },
+      variant: clickPlatforms,
+    );
 
     testWidgets('every stepper is at least 48 points wide', (
       WidgetTester tester,
