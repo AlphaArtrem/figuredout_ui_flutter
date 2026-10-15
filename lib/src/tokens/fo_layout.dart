@@ -96,6 +96,9 @@ abstract final class FoLayout {
   /// The focus ring's width. One treatment, everywhere.
   static const double focusRingWidth = FoTokens.focusRingWidth;
 
+  /// The focus outline of a full-bleed table row.
+  static const double rowFocusRingWidth = FoTokens.rowFocusRingWidth;
+
   /// A hairline's width.
   static const double hairlineWidth = FoTokens.hairlineWidth;
 

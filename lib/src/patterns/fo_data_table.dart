@@ -4,10 +4,10 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
 import '../primitives/fo_card.dart';
-import '../primitives/fo_focus_ring.dart';
 import '../primitives/fo_skeleton.dart';
 import '../theme/fo_context.dart';
 import '../theme/fo_window_class.dart';
+import '../tokens/fo_colors.dart';
 import '../tokens/fo_layout.dart';
 import '../tokens/fo_tokens.dart';
 import 'fo_empty_state.dart';
@@ -541,16 +541,10 @@ class _ContentTable<T> extends StatelessWidget {
     );
 
     final VoidCallback? onTap = onRowTap == null ? null : () => onRowTap!(row);
-    final Widget target = Material(
-      color: selected ? context.foColors.primarySoft : Colors.transparent,
-      child: FoFocusRing(
-        borderRadius: BorderRadius.zero,
-        child: InkWell(
-          onTap: onTap,
-          hoverColor: context.foColors.surfaceRaised,
-          child: line,
-        ),
-      ),
+    final Widget target = _RowTarget(
+      selected: selected,
+      onTap: onTap,
+      child: line,
     );
 
     final Widget hairlined = DecoratedBox(
@@ -896,6 +890,62 @@ class _WideTableSkeleton extends StatelessWidget {
           border: Border.all(color: context.foColors.edge),
         ),
         child: body,
+      ),
+    );
+  }
+}
+
+/// A `content` row's tap target: the tint of a picked row, hover, and a focus
+/// ring that only a keyboard shows.
+class _RowTarget extends StatefulWidget {
+  const _RowTarget({
+    required this.selected,
+    required this.onTap,
+    required this.child,
+  });
+
+  final bool selected;
+  final VoidCallback? onTap;
+  final Widget child;
+
+  @override
+  State<_RowTarget> createState() => _RowTargetState();
+}
+
+class _RowTargetState extends State<_RowTarget> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final FoColors colors = context.foColors;
+    // A row reached with the keyboard shows a ring; a click does not.
+    final bool ring = _focused &&
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    return Material(
+      color: widget.selected ? colors.primarySoft : Colors.transparent,
+      child: InkWell(
+        onTap: widget.onTap,
+        // `ThemeData.focusColor` would fill a focused row; the ring marks it.
+        focusColor: Colors.transparent,
+        // InkWell paints a highlight with the alpha it was created with, so the
+        // hover colour must be opaque both ways: a picked row's translucent
+        // primarySoft is blended over the raised surface, never swapped in.
+        hoverColor: widget.selected
+            ? Color.alphaBlend(colors.primarySoft, colors.surfaceRaised)
+            : colors.surfaceRaised,
+        onFocusChange: (bool value) => setState(() => _focused = value),
+        child: DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: ring
+              ? BoxDecoration(
+                  border: Border.all(
+                    color: colors.focusRing,
+                    width: FoLayout.rowFocusRingWidth,
+                  ),
+                )
+              : const BoxDecoration(),
+          child: widget.child,
+        ),
       ),
     );
   }

@@ -1,6 +1,11 @@
+import 'dart:ui' as ui;
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:figuredout_ui/figuredout_ui.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/pump.dart';
@@ -198,6 +203,131 @@ void main() {
       expect(fillOf('Entry 1'), FoColors.light.primarySoft);
       expect(fillOf('Entry 0'), Colors.transparent);
       handle.dispose();
+    });
+
+    group('a focused or picked row', () {
+      testWidgets('reached with Tab it has a 2 px ring and no fill', (
+        WidgetTester tester,
+      ) async {
+        FocusManager.instance.highlightStrategy =
+            FocusHighlightStrategy.alwaysTraditional;
+        addTearDown(
+          () => FocusManager.instance.highlightStrategy =
+              FocusHighlightStrategy.automatic,
+        );
+        tester.view.physicalSize = const Size(1280, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await _pump(
+          tester,
+          _table(
+            rows: _rows(2),
+            onRowTap: (_Row r) {},
+            rowKey: (_Row r) => ValueKey<int>(r.id),
+          ),
+        );
+
+        // The sortable heading is the first stop; the first row the second.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        final Finder first = find.byKey(const ValueKey<int>(1));
+        expect(
+          tester
+              .widget<InkWell>(
+                find.descendant(of: first, matching: find.byType(InkWell)),
+              )
+              .focusColor,
+          Colors.transparent,
+        );
+        BoxDecoration ringOf(Finder row) => tester
+            .widgetList<DecoratedBox>(
+              find.descendant(of: row, matching: find.byType(DecoratedBox)),
+            )
+            .map((DecoratedBox d) => d.decoration)
+            .whereType<BoxDecoration>()
+            .firstWhere(
+              (BoxDecoration d) =>
+                  d.border is Border && (d.border! as Border).left.width > 0,
+              orElse: () => const BoxDecoration(),
+            );
+        final Border border = ringOf(first).border! as Border;
+        expect(border.top.width, 2);
+        expect(border.top.color, FoColors.light.focusRing);
+        expect(ringOf(find.byKey(const ValueKey<int>(2))).border, isNull);
+      });
+
+      testWidgets('a row picked under the pointer stays a light tint', (
+        WidgetTester tester,
+      ) async {
+        tester.view.physicalSize = const Size(1280, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final GlobalKey boundary = GlobalKey();
+        int? picked;
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: FoTheme.light(),
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (BuildContext context, StateSetter set) =>
+                    RepaintBoundary(
+                  key: boundary,
+                  child: ColoredBox(
+                    color: FoColors.light.surface,
+                    child: SingleChildScrollView(
+                      child: _table(
+                        rows: _rows(3),
+                        onRowTap: (_Row r) => set(() => picked = r.id),
+                        isSelected: (_Row r) => r.id == picked,
+                        rowKey: (_Row r) => ValueKey<int>(r.id),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        final Offset empty =
+            tester.getTopRight(find.byKey(const ValueKey<int>(2))) +
+                const Offset(-300, 24);
+        final TestGesture mouse = await tester.createGesture(
+          kind: PointerDeviceKind.mouse,
+        );
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(empty);
+        await tester.pump(const Duration(milliseconds: 300));
+        await mouse.down(empty);
+        await tester.pump(const Duration(milliseconds: 50));
+        await mouse.up();
+        await tester.pump(const Duration(milliseconds: 2000));
+
+        final RenderRepaintBoundary render = boundary.currentContext!
+            .findRenderObject()! as RenderRepaintBoundary;
+        final Offset at = empty - render.localToGlobal(Offset.zero);
+        final ui.Image image =
+            (await tester.runAsync<ui.Image>(() => render.toImage()))!;
+        final ByteData data =
+            (await tester.runAsync<ByteData?>(() => image.toByteData()))!;
+        final int i = (at.dy.toInt() * image.width + at.dx.toInt()) * 4;
+        final Color shown = Color.fromARGB(
+          data.getUint8(i + 3),
+          data.getUint8(i),
+          data.getUint8(i + 1),
+          data.getUint8(i + 2),
+        );
+
+        expect(picked, 2);
+        expect(shown.a, 1.0);
+        expect(shown, isNot(FoColors.light.primary));
+        expect(
+          (shown.computeLuminance() - FoColors.light.primary.computeLuminance())
+              .abs(),
+          greaterThan(0.3),
+        );
+      });
     });
 
     testWidgets('the whole row is the target', (WidgetTester tester) async {

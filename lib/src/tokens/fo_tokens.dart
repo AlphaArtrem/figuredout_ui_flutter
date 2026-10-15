@@ -570,6 +570,10 @@ abstract final class FoTokens {
   /// The focus ring's width, in dp. One treatment, everywhere.
   static const double focusRingWidth = 4.0;
 
+  /// The focus outline of a full-bleed table row, in dp: a 4dp ring would eat
+  /// into the row's own text.
+  static const double rowFocusRingWidth = 2.0;
+
   /// A hairline, in dp.
   static const double hairlineWidth = 1.0;
 
