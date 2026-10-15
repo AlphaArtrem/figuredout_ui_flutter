@@ -215,6 +215,35 @@ class _DataTableContentState extends State<DataTableContent> {
   }
 }
 
+/// A cell whose leading code stays whole, at three column widths.
+class CellTexts extends StatelessWidget {
+  /// Creates the page.
+  const CellTexts({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget at(double width) => DocSection(
+          title: '$width wide',
+          child: SizedBox(
+            width: width,
+            child: const FoCellText(
+              'CUTPLAN-0123',
+              mono: true,
+              secondary: 'LAY-13 · 1 Oct, 08:30',
+            ),
+          ),
+        );
+    return DocPage(
+      title: 'Cell text',
+      lede: '`FoCellText` is a one-line cell: a code or name, then muted '
+          'detail after a dot. When the line does not fit, the code stays '
+          'whole and only the detail is cut with an ellipsis; the tooltip '
+          'and the screen-reader label carry the full text.',
+      children: <Widget>[at(120), at(220), at(420)],
+    );
+  }
+}
+
 /// The pagination bar, the filter bar and the tile grid.
 class ListChrome extends StatefulWidget {
   /// Creates the list-chrome page.
@@ -346,6 +375,14 @@ Widget buildDataTables(BuildContext context) => const DataTables();
   path: '03 Patterns',
 )
 Widget buildDataTableContent(BuildContext context) => const DataTableContent();
+
+/// A cell whose leading code stays whole.
+@widgetbook.UseCase(
+  name: 'Cell text / code stays whole',
+  type: FoCellText,
+  path: '03 Patterns',
+)
+Widget buildCellTexts(BuildContext context) => const CellTexts();
 
 /// Filter bar, pagination bar and tile grid.
 @widgetbook.UseCase(name: 'Filter bar', type: FoFilterBar, path: '03 Patterns')

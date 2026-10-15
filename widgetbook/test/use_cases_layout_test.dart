@@ -61,6 +61,7 @@ void main() {
     'Dialogs': const Dialogs(),
     'DataTables': const DataTables(),
     'DataTableContent': const DataTableContent(),
+    'CellTexts': const CellTexts(),
     'ListChrome': const ListChrome(),
     'Forms': const Forms(),
     'GroupedMatrix': const GroupedMatrix(),

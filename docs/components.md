@@ -48,7 +48,7 @@ free to mean *lifted*.
   `FoSectionSurface`, `FoFocusRing`, `FoThemeToggle`, `foOverlaySurface`
 - **Shell**: `FoShellScaffold`, `FoShellAppBar`, `FoAccountMenuButton`
 - **Layout**: `FoScaffold`, `FoAppBar`, `FoPageHeader`, `FoResponsiveTileGrid`, `FoSeamGrid`
-- **Data**: `FoDataTable`, `FoMatrixTable`, `FoPaginationBar`, `FoFilterBar`, `FoListSearchField`,
+- **Data**: `FoDataTable`, `FoCellText`, `FoMatrixTable`, `FoPaginationBar`, `FoFilterBar`, `FoListSearchField`,
   `FoStatCard`, `FoDescriptionList`, `FoDetailTable`
 - **Forms and overlays**: `FoFormPresenter`, `FoFormSurface`, `FoFormActions`, `FoFormSection`,
   `FoFormInlineRow`, `FoFormValidation`, `FoFormScope`, `FoDialog`
@@ -236,6 +236,10 @@ Six rules the components now enforce, so a screen gets them by composing rather 
   `FoTableColumn.width` fixes a column in both; `sectionOf` adds day-style heading rows in
   `content` only. A table in a bounded box that scrolls inside a page that also scrolls is the
   nested-scroll trap this exists to avoid.
+- `FoCellText(primary, secondary:, mono:)` (0.8.1) is the one-line cell of a `content` row: the
+  code or name, then muted detail after " · ". When the line does not fit, the primary text is
+  drawn whole and only the secondary is ellipsised (if the primary alone does not fit, the whole
+  line is). Tooltip and semantics label are the full text. Both strings come from the caller.
 - `FoPaginationBar` can carry a rows-per-page menu (0.8.0): pass `pageSize`, `pageSizeOptions`,
   `onPageSizeChanged`, `pageSizeLabel` and `pageSizeSemanticLabel` together, all worded by the
   caller. It sits left of the track, is left out under 480 and wherever the track would be left

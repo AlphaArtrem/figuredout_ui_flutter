@@ -20,6 +20,7 @@ export 'src/patterns/fo_action_bar.dart';
 export 'src/patterns/fo_attachment_grid.dart';
 export 'src/patterns/fo_attention_list.dart';
 export 'src/patterns/fo_capacity_grid.dart';
+export 'src/patterns/fo_cell_text.dart';
 export 'src/patterns/fo_change_diff.dart';
 export 'src/patterns/fo_checklist.dart';
 export 'src/patterns/fo_consequence_list.dart';

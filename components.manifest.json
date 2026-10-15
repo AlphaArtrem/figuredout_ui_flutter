@@ -106,6 +106,7 @@
         "FoPageState",
         "FoDoneState",
         "FoDataTable",
+        "FoCellText",
         "FoTableColumn",
         "FoColumnSize",
         "FoTableSizing",
