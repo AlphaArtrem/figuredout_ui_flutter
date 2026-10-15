@@ -415,6 +415,17 @@ class _SidebarScrollState extends State<_SidebarScroll> {
   bool _overflows = false;
   bool _atEnd = true;
 
+  /// The list's own controller, shared with its scrollbar. The list must not be
+  /// `primary`: that would take the page's `PrimaryScrollController` (and the
+  /// keyboard scrolling that rides on it) from the page body.
+  final ScrollController _controller = ScrollController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   /// The fade's depth: about one row.
   static const double _fadeHeight = FoLayout.minTouchTarget;
 
@@ -445,9 +456,10 @@ class _SidebarScrollState extends State<_SidebarScroll> {
         children: <Widget>[
           Positioned.fill(
             child: Scrollbar(
+              controller: _controller,
               thumbVisibility: _overflows,
               child: ListView(
-                primary: true,
+                controller: _controller,
                 padding: EdgeInsets.symmetric(vertical: context.foSpacing.sm),
                 children: widget.children,
               ),

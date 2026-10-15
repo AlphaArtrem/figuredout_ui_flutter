@@ -255,8 +255,9 @@ void main() {
     Future<List<String>> pumpWith(
       WidgetTester tester,
       int count,
-      Size size,
-    ) async {
+      Size size, {
+      Widget body = const SizedBox(),
+    }) async {
       final List<String> selected = <String>[];
       await pumpFo(
         tester,
@@ -291,7 +292,7 @@ void main() {
               onSelected: () {},
             ),
           ],
-          body: const SizedBox(),
+          body: body,
         ),
       );
       await tester.pump();
@@ -332,6 +333,57 @@ void main() {
 
         // At the end there is nothing more below, so no fade.
         expect(fade(), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'the page body is the primary scroll; the sidebar has its own controller',
+      (WidgetTester tester) async {
+        const Key bodyKey = Key('page-body');
+        await pumpWith(
+          tester,
+          20,
+          const Size(1440, 720),
+          body: ListView(
+            key: bodyKey,
+            primary: true,
+            children: <Widget>[
+              for (int i = 0; i < 60; i++)
+                SizedBox(height: 50, child: Text('$i')),
+            ],
+          ),
+        );
+
+        final ScrollController primary = PrimaryScrollController.of(
+          tester.element(find.byKey(bodyKey)),
+        );
+        expect(primary.positions, hasLength(1));
+        expect(
+          find.descendant(
+            of: find.byKey(bodyKey),
+            matching: find.byType(Scrollable),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          primary.position.context.storageContext,
+          tester.element(
+            find.descendant(
+              of: find.byKey(bodyKey),
+              matching: find.byType(Scrollable),
+            ),
+          ),
+        );
+
+        // The sidebar still scrolls, with its own scrollbar controller.
+        final Scrollbar bar = tester.widget<Scrollbar>(find.byType(Scrollbar));
+        expect(bar.controller, isNotNull);
+        expect(bar.controller, isNot(same(primary)));
+        expect(bar.controller!.positions, hasLength(1));
+        await tester.drag(find.text('Destination 5'), const Offset(0, -300));
+        await tester.pump();
+        expect(bar.controller!.offset, greaterThan(0));
+        expect(primary.offset, 0);
       },
     );
 
