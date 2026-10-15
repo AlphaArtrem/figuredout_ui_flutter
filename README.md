@@ -4,11 +4,12 @@ The Flutter design system for FiguredOut apps — the sibling of the React packa
 `@figuredout/ui-web`. Same visual language, same rules, same documentation surface.
 Widgetbook plays the role Storybook plays there.
 
-> **Status: 0.8.0.** The FiguredoutAI palette (ported from `@figuredout/ui-web`), and the
+> **Status: 0.8.1.** The FiguredoutAI palette (ported from `@figuredout/ui-web`), and the
 > production-floor components the Luxe redesign needs — record flow, size counts, lists with a
 > side panel, lookup picker, scanning, reasons, help. 0.8.0 adds a data table that grows with
 > its rows (`FoDataTable(sizing: FoTableSizing.content)`, for a card in a page that scrolls) and
-> rows per page on `FoPaginationBar`. See `CHANGELOG.md` and `docs/components.md`.
+> rows per page on `FoPaginationBar`. 0.8.1 fixes row focus and hover, the sidebar's scroll
+> controller and `ThemeData.focusColor`, and adds `FoCellText`. See `CHANGELOG.md` and `docs/components.md`.
 
 ## What is here
 

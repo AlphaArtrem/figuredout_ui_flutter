@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.8.1
+
+Three fixes Luxe's browser check found in 0.8.0 and one small addition. **Nothing changes for an
+app that does not opt in** to `FoCellText`; the fixes only stop the behaviour they fix.
+
+### Fixed
+
+- **A focused or picked row of `FoDataTable(sizing: content)` stays readable.** `InkWell` filled
+  a focused row with `ThemeData.focusColor`; the row is now not filled (`focusColor`
+  transparent) and a row reached by keyboard (`FocusHighlightMode.traditional`) shows a 2 px
+  `focusRing` outline (new `FoTokens.rowFocusRingWidth` / `FoLayout.rowFocusRingWidth`; a click
+  shows none). A picked row's hover colour is opaque
+  (`Color.alphaBlend(primarySoft, surfaceRaised)`): `InkWell` paints a highlight with the alpha
+  it was created with, so switching a hover colour from opaque to the translucent `primarySoft`
+  painted a picked row solid primary under the pointer in the light theme.
+- **The expanded `FoShellScaffold` sidebar no longer takes the page's `PrimaryScrollController`.**
+  Its list had `primary: true`, so two scrollables attached to one controller on desktop and
+  the page's keyboard scrolling went to the wrong one. The list now has its own
+  `ScrollController`, shared with its scrollbar.
+- **`ThemeData.focusColor` is a light overlay, not the ring.** It is the `focusRing` hue at the
+  press step (`FoTokens.pressedOverlayOpacity`), so a Material widget's focus fill (list tile,
+  menu item) no longer sits on its ink at the ring's strength. The 4dp `FoFocusRing` is unchanged.
+
+### Added
+
+- **`FoCellText(primary, {secondary, mono = false})`**, the one-line cell of a `content` row: the
+  code or name, then muted detail after " · ". When the line does not fit, the primary text is
+  drawn whole and only the secondary is ellipsised; tooltip and semantics label are the full
+  text. No copy of its own.
+
 ## 0.8.0
 
 Three fixes Luxe's web audit found and two additions it needs to put every list on one page

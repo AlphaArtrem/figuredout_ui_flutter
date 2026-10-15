@@ -1,12 +1,14 @@
 # State
 
 Edit in place. No dated or per-session sections. Last derived on 2026-10-14 from branch
-`release/0.8.0` (from `main` at v0.7.4); `main` and the tag `v0.8.0` are pushed by the owner.
+`release/0.8.1` (from `main` at v0.8.0); `main` and the tag `v0.8.1` are pushed by the owner.
 
 ## What exists
 
-- **Package `figuredout_ui` 0.8.0, prepared on `release/0.8.0`** (not yet on `main`; tags
-  v0.7.0 to v0.7.4 exist, v0.8.0 does not until the owner pushes it). 0.8.0 fixes three Luxe finds
+- **Package `figuredout_ui` 0.8.1, prepared on `release/0.8.1`** (not yet on `main`; tags
+  v0.7.0 to v0.8.0 exist, v0.8.1 does not until the owner pushes it). 0.8.1 fixes a focused or
+  picked `content` table row, the sidebar's scroll controller and `ThemeData.focusColor`, and adds
+  `FoCellText`. 0.8.0 fixes three Luxe finds
   (a click in a number box selects the number, a scrolled `FoFormSurface` keeps its offset, the
   sidebar shows there is more below) and adds `FoDataTable(sizing: FoTableSizing.content)` with
   `framed`, `isSelected`, `rowKey`, `sectionOf` and `FoTableColumn.width`, and a rows-per-page
@@ -67,7 +69,7 @@ Edit in place. No dated or per-session sections. Last derived on 2026-10-14 from
 
 ## Next action
 
-Owner: push `release/0.8.0` to `main` (fast-forward) and tag `v0.8.0`, then Luxe moves to it
+Owner: push `release/0.8.1` to `main` (fast-forward) and tag `v0.8.1`, then Luxe moves to it
 (`LuxeDataTable` becomes a pass-through to `FoDataTable(sizing: content)`, rows per page on
 `LuxePaginationBar`, the order dialogs drop their own scroll view). Luxe migrates its screens
 (`docs/migrating-from-luxe.md`, "0.7.0") — 0.7.2's behaviour changes are listed in its CHANGELOG
