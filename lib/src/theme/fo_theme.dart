@@ -88,8 +88,11 @@ abstract final class FoTheme {
       canvasColor: c.bg,
       textTheme: _textTheme(ext.text, c),
       // One focus treatment. Material widgets outside the package fall back to
-      // a blue overlay otherwise, which is a second focus vocabulary.
-      focusColor: c.focusRing,
+      // a blue overlay otherwise, which is a second focus vocabulary. It is the
+      // ring's hue as a light overlay (the press step), not the ring itself: a
+      // focused InkWell fills with it, and a fill at the ring's strength sits
+      // on top of the row's ink.
+      focusColor: c.focusRing.withValues(alpha: FoTokens.pressedOverlayOpacity),
       dividerColor: c.edge,
       dividerTheme: DividerThemeData(
         color: c.edge,

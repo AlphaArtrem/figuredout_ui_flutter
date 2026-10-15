@@ -104,8 +104,19 @@ void main() {
     });
 
     test('focus has one treatment, and it is not Material blue', () {
-      expect(FoTheme.light().focusColor, FoColors.light.focusRing);
-      expect(FoTheme.dark().focusColor, FoColors.dark.focusRing);
+      // The ring's hue as a translucent overlay (the press step): a Material
+      // widget's focus fill never covers its ink.
+      for (final (ThemeData theme, FoColors c) in <(ThemeData, FoColors)>[
+        (FoTheme.light(), FoColors.light),
+        (FoTheme.dark(), FoColors.dark),
+        (FoTheme.dark(palette: FoDarkPalette.graphite), FoColors.graphite),
+      ]) {
+        expect(theme.focusColor.a, FoTokens.pressedOverlayOpacity);
+        expect(theme.focusColor.a, lessThan(c.focusRing.a));
+        expect(theme.focusColor.r, c.focusRing.r);
+        expect(theme.focusColor.g, c.focusRing.g);
+        expect(theme.focusColor.b, c.focusRing.b);
+      }
     });
   });
 
